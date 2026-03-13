@@ -142,12 +142,15 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('excluir_ocorrencia', async (id) => {
+    socket.on('carregar_dados', async () => {
         try {
-            await Ocorrencia.findByIdAndDelete(id);
-            io.emit('ocorrencia_excluida', id);
+            console.log('[?] Buscando dados no MongoDB...');
+            const ocorrencias = await Ocorrencia.find().sort({ createdAt: -1 });
+            const ufv_status = await UfvStatus.find().sort({ nome: 1 });
+            console.log(`[OK] Enviando ${ufv_status.length} UFVs para o cliente.`);
+            socket.emit('dados_iniciais', { ocorrencias, ufv_status });
         } catch (err) {
-            console.error('Erro ao excluir ocorrência:', err);
+            console.error('❌ Erro ao carregar dados do MongoDB:', err.message);
         }
     });
 
