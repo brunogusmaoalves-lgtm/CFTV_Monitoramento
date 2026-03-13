@@ -16,11 +16,19 @@ const io = new Server(server, {
 });
 
 // ─── Configuração do MongoDB ───────────────────────────────────────────────
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cftv_monitoramento';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✅ Conectado ao MongoDB Atlas'))
-    .catch(err => console.error('❌ Erro ao conectar ao MongoDB:', err));
+if (!MONGODB_URI) {
+    console.error('❌ ERRO: A variável MONGODB_URI não foi configurada no Render!');
+} else {
+    mongoose.connect(MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 5000
+    })
+    .then(() => console.log('✅ Conectado ao MongoDB Atlas com sucesso!'))
+    .catch(err => console.error('❌ Erro crítico ao conectar ao MongoDB:', err.message));
+}
 
 // ─── Modelos de Dados ──────────────────────────────────────────────────────
 const OcorrenciaSchema = new mongoose.Schema({
