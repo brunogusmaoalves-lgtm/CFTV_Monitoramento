@@ -8,37 +8,42 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' );
+        body { font-family: 'Inter', sans-serif; }
         @media print { .no-print { display: none; } }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 10px; }
-        .tab-active { border-bottom: 4px solid #10b981; color: #10b981; font-weight: 900; }
-        .sticky-header th { position: sticky; top: 0; z-index: 10; background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .tab-active { border-bottom: 4px solid #10b981; color: #10b981; font-weight: 800; }
+        .sticky-header th { position: sticky; top: 0; z-index: 10; background: #ffffff; }
         #toastContainer { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
-        .toast { padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15 ); animation: fadeIn 0.3s ease; }
+        .toast { padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); animation: fadeIn 0.3s ease; }
         .toast-success { background: #10b981; }
         .toast-error   { background: #ef4444; }
-        .toast-info    { background: #3b82f6; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-overlay { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
-        .modal-content { max-width: 550px; width: 95%; border-radius: 2rem; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); }
+        .modal-content { max-width: 480px; width: 90%; border-radius: 1.5rem; }
+        .input-field { border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; outline: none; transition: all 0.2s; background: #f8fafc; }
+        .input-field:focus { border-color: #10b981; background: #ffffff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.05); }
+        .btn-primary { background: #10b981; color: white; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 0.75rem; transition: all 0.2s; }
+        .btn-primary:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .btn-primary:active { transform: translateY(0); }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-900">
+<body class="bg-[#f1f5f9] text-slate-900">
 
 <div id="toastContainer"></div>
 
 <!-- TELA DE LOGIN -->
 <div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
-    <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-emerald-500 text-center">
+    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md text-center">
         <div class="mb-8">
-            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-40 w-auto mb-8 object-contain" onerror="this.src='https://via.placeholder.com/200x80?text=IVI+ENERGIA'">
-            <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Monitoramento <span class="text-emerald-500">CFTV</span></h1>
-            <p class="text-slate-400 text-[10px] font-bold uppercase mt-1 tracking-widest">IVI Energia Management System</p>
+            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-32 w-auto mb-6 object-contain" onerror="this.src='https://via.placeholder.com/200x80?text=IVI+ENERGIA'">
+            <h1 class="text-xl font-black text-slate-800 uppercase tracking-tighter">SISTEMA DE <span class="text-emerald-500">MONITORAMENTO</span></h1>
         </div>
         <div class="space-y-4 text-left">
-            <input type="text" id="userInput" placeholder="Usuário" class="w-full border-2 p-3 rounded-xl outline-none focus:border-emerald-500 transition text-sm">
-            <input type="password" id="passInput" placeholder="Senha" class="w-full border-2 p-3 rounded-xl outline-none focus:border-emerald-500 transition text-sm" onkeydown="if(event.key==='Enter' ) autenticar()">
-            <button onclick="autenticar()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg transition-all active:scale-95 text-xs">ACESSAR PAINEL</button>
+            <input type="text" id="userInput" placeholder="Usuário" class="w-full input-field">
+            <input type="password" id="passInput" placeholder="Senha" class="w-full input-field" onkeydown="if(event.key==='Enter' ) autenticar()">
+            <button onclick="autenticar()" class="w-full btn-primary py-4 text-xs">ACESSAR PAINEL</button>
         </div>
         <div id="loginStatus" class="mt-4 text-xs text-slate-400 font-bold"></div>
     </div>
@@ -47,66 +52,60 @@
 <!-- APP PRINCIPAL -->
 <div id="mainApp" class="hidden min-h-screen flex flex-col">
     <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
-        <div class="flex items-center gap-10">
-            <div class="flex items-center gap-3">
-                <img src="logo.png" alt="IVI Energia" class="h-16 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150x60?text=IVI+ENERGIA'">
-                <h1 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Monitoramento <span class="text-emerald-500">CFTV</span></h1>
-            </div>
-            <nav class="flex gap-1 bg-slate-100 p-1 rounded-xl">
-                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
-                <button id="tabBtnStatus" onclick="switchTab('status')" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white">STATUS DAS UFVS</button>
+        <div class="flex items-center gap-8">
+            <img src="logo.png" alt="IVI Energia" class="h-12 w-auto object-contain" onerror="this.src='https://via.placeholder.com/120x50?text=IVI+ENERGIA'">
+            <nav class="flex gap-6">
+                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
+                <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
             </nav>
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-6">
             <div id="statusBar" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100">
                 <div class="w-2 h-2 rounded-full bg-slate-400"></div>
                 <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500">Conectando...</span>
             </div>
-            <div class="text-right border-l pl-4">
-                <p id="userNameDisplay" class="text-xs font-bold text-slate-700">---</p>
-                <button onclick="logout()" class="text-[9px] font-black text-red-400 uppercase hover:text-red-600 transition-colors">Sair do Sistema</button>
+            <div class="text-right border-l pl-6">
+                <p id="userNameDisplay" class="text-xs font-bold text-slate-700 uppercase tracking-tight">---</p>
+                <button onclick="logout()" class="text-[9px] font-black text-red-400 uppercase hover:text-red-600 transition-colors">Sair</button>
             </div>
         </div>
     </header>
 
     <main class="flex-1 p-8 overflow-auto">
+        <!-- ABA OCORRÊNCIAS -->
         <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
             <!-- Formulário Lateral -->
             <div class="xl:col-span-3 no-print">
-                <div class="bg-white rounded-2xl shadow-sm border p-6 sticky top-24">
-                    <div class="flex items-center gap-2 mb-6 text-emerald-600">
-                        <i class="fa-solid fa-circle-plus"></i>
-                        <h2 class="text-xs font-black uppercase tracking-widest">Novo Registro</h2>
+                <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-24">
+                    <div class="flex items-center gap-2 mb-8 text-emerald-500">
+                        <i class="fa-solid fa-circle-plus text-lg"></i>
+                        <h2 class="text-[11px] font-black uppercase tracking-widest">NOVO REGISTRO</h2>
                     </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Data/Hora do Início</label>
-                            <input type="datetime-local" id="dataEventoManual" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Operador</label>
-                                <select id="operador" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">OPERADOR</label>
+                                <select id="operador" class="w-full input-field text-xs">
                                     <option value="">Selecione</option>
                                     <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Impacto Geral</label>
-                                <select id="impacto" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">IMPACTO GERAÇÃO</label>
+                                <select id="impacto" class="w-full input-field text-xs">
                                     <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
                                 </select>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Usina Solar</label>
-                            <select id="usina" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA SOLAR</label>
+                            <select id="usina" class="w-full input-field text-xs">
                                 <option value="">Escolha a usina</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Classificação</label>
-                            <select id="tipo" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">CLASSIFICAÇÃO</label>
+                            <select id="tipo" class="w-full input-field text-xs">
                                 <option>🚨 Invasão / Intrusão</option>
                                 <option>🔨 Furto / Vandalismo</option>
                                 <option>📡 Falha de Comunicação</option>
@@ -115,67 +114,71 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Local / ID Câmera</label>
-                            <input type="text" id="local" placeholder="Ex: Perímetro Norte / Cam 04" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                            <input type="text" id="local" placeholder="Local / ID Câmera" class="w-full input-field text-xs">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Descrição Detalhada</label>
-                            <textarea id="desc" rows="3" placeholder="Descreva o ocorrido..." class="w-full border rounded-lg p-2.5 text-sm outline-none"></textarea>
+                            <textarea id="desc" rows="3" placeholder="Descrição detalhada..." class="w-full input-field text-xs resize-none"></textarea>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Evidência (Foto)</label>
-                            <input type="file" id="foto" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                            <input type="file" id="foto" accept="image/*" class="w-full text-[10px] text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100">
                         </div>
-                        <div class="pt-4 flex gap-2">
-                            <button onclick="exportarExcel()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">Excel</button>
-                            <button onclick="salvarOcorrencia()" class="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all active:scale-95">Registrar Evento</button>
-                        </div>
+                        <button onclick="salvarOcorrencia()" class="w-full btn-primary py-4 text-[11px]">REGISTRAR EVENTO</button>
                     </div>
                 </div>
             </div>
 
             <!-- Lista de Ocorrências -->
             <div class="xl:col-span-9">
-                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                    <div class="p-6 border-b flex justify-between items-center bg-slate-50/50 no-print">
-                        <div class="relative w-full max-w-md">
-                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all">
-                        </div>
-                        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
-                            <i class="fa-solid fa-file-pdf"></i> Imprimir PDF
-                        </button>
+                <div class="flex gap-4 mb-6 no-print">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl text-xs outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all">
                     </div>
-                    <div id="listaOcorrencias" class="divide-y"></div>
+                    <button onclick="exportarExcel()" class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
+                        <i class="fa-solid fa-file-export"></i> EXPORTAR
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                                <th class="px-8 py-6">STATUS / GERAÇÃO</th>
+                                <th class="px-8 py-6">USINA / OPERADOR</th>
+                                <th class="px-8 py-6">OCORRÊNCIA</th>
+                                <th class="px-8 py-6 text-right">AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaOcorrencias" class="divide-y">
+                            <!-- Ocorrências via JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         <!-- ABA STATUS UFVS -->
         <div id="tabStatus" class="hidden">
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <div class="p-6 border-b flex justify-between items-center bg-slate-50/50">
+            <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+                <div class="p-8 border-b flex justify-between items-center">
                     <div>
-                        <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Status de Infraestrutura</h2>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Painel Operacional</p>
+                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Status de Infraestrutura</h2>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Painel Operacional em Tempo Real</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="window.print()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                        <button onclick="exportarExcelUFVs()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                    </div>
+                    <button onclick="exportarExcelUFVs()" class="bg-emerald-500 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky-header">
-                            <tr class="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
-                                <th class="px-6 py-4">UFV</th>
-                                <th class="px-4 py-4 text-center">Digifort</th>
-                                <th class="px-4 py-4 text-center">Anydesk</th>
-                                <th class="px-4 py-4 text-center">Total Câm</th>
-                                <th class="px-4 py-4 text-center">Câm ON</th>
-                                <th class="px-4 py-4 text-center">Fibra Sensitiva</th>
-                                <th class="px-4 py-4 text-center">Segurança Patrimonial</th>
-                                <th class="px-4 py-4 text-center">Pronta Resposta</th>
+                            <tr class="bg-white text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
+                                <th class="px-8 py-5">UFV</th>
+                                <th class="px-4 py-5 text-center">Digifort</th>
+                                <th class="px-4 py-5 text-center">Anydesk</th>
+                                <th class="px-4 py-5 text-center">Total Câm</th>
+                                <th class="px-4 py-5 text-center">Câm ON</th>
+                                <th class="px-4 py-5 text-center">Fibra</th>
+                                <th class="px-4 py-5 text-center">Segurança</th>
+                                <th class="px-4 py-5 text-center">Pronta Resposta</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
@@ -185,55 +188,55 @@
         </div>
     </main>
 
-    <!-- MODAL DE EDIÇÃO (ATUALIZAR REGISTRO) -->
+    <!-- MODAL DE EDIÇÃO COMPACTO -->
     <div id="editModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
         <div class="bg-white shadow-2xl modal-content overflow-hidden animate-fadeIn">
             <div class="px-8 py-6 border-b flex justify-between items-center">
-                <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">ATUALIZAR REGISTRO</h2>
-                <button onclick="fecharModal()" class="text-slate-400 hover:text-red-500 transition-colors">
+                <h2 class="text-[11px] font-black text-slate-800 uppercase tracking-widest">ATUALIZAR REGISTRO</h2>
+                <button onclick="fecharModal()" class="text-slate-300 hover:text-red-500 transition-colors">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
             <div class="p-8 space-y-6">
-                <div class="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-4 flex items-center justify-center min-h-[200px]">
-                    <img id="editModalFoto" src="" class="max-h-[250px] w-auto rounded-xl shadow-md object-contain hidden">
+                <div class="bg-slate-50 rounded-2xl border border-slate-100 p-4 flex items-center justify-center min-h-[180px]">
+                    <img id="editModalFoto" src="" class="max-h-[200px] w-auto rounded-xl shadow-sm object-contain hidden">
                     <div id="editModalSemFoto" class="text-slate-300 flex flex-col items-center gap-2">
-                        <i class="fa-solid fa-image text-4xl"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest">Sem evidência anexada</span>
+                        <i class="fa-solid fa-image text-3xl"></i>
+                        <span class="text-[9px] font-black uppercase tracking-widest">Sem evidência</span>
                     </div>
                 </div>
                 <input type="hidden" id="editModalId">
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">STATUS</label>
-                        <select id="editModalStatus" class="w-full border-2 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500 transition-all">
-                            <option value="ABERTO">🟢 Aberto</option>
+                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">STATUS</label>
+                        <select id="editModalStatus" class="w-full input-field text-xs font-bold">
+                            <option value="ABERTO">🟠 Aberto</option>
                             <option value="FINALIZADO">🟢 Finalizado</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">GERAÇÃO</label>
-                        <select id="editModalImpacto" class="w-full border-2 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500 transition-all">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">GERAÇÃO</label>
+                        <select id="editModalImpacto" class="w-full input-field text-xs font-bold">
                             <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA</label>
-                        <select id="editModalUsina" class="w-full border-2 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500 transition-all"></select>
+                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA</label>
+                        <select id="editModalUsina" class="w-full input-field text-xs font-bold"></select>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA REGULARIZAÇÃO</label>
-                        <input type="date" id="editModalDataFim" class="w-full border-2 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500 transition-all">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA REGULARIZAÇÃO</label>
+                        <input type="date" id="editModalDataFim" class="w-full input-field text-xs font-bold">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESUMO DA SOLUÇÃO</label>
-                    <textarea id="editModalDesc" rows="4" placeholder="Descreva as medidas tomadas..." class="w-full border-2 border-emerald-50 rounded-2xl p-4 text-sm font-medium outline-none focus:border-emerald-500 bg-emerald-50/30 transition-all"></textarea>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESUMO DA SOLUÇÃO</label>
+                    <textarea id="editModalDesc" rows="3" placeholder="Descreva as medidas tomadas..." class="w-full border border-emerald-100 rounded-xl p-4 text-xs font-medium outline-none focus:border-emerald-500 bg-emerald-50/30 resize-none"></textarea>
                 </div>
             </div>
             <div class="px-8 py-6 bg-slate-50 border-t flex gap-4">
                 <button onclick="fecharModal()" class="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">CANCELAR</button>
-                <button onclick="confirmarEdicao()" class="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-100 transition-all active:scale-95">SALVAR ALTERAÇÕES</button>
+                <button onclick="confirmarEdicao()" class="flex-[2] btn-primary py-4 text-[10px]">SALVAR ALTERAÇÕES</button>
             </div>
         </div>
     </div>
@@ -286,7 +289,7 @@
         const container = document.getElementById('toastContainer');
         const el = document.createElement('div');
         el.className = `toast toast-${type}`;
-        el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-triangle':'fa-info-circle'} mr-2"></i> ${msg}`;
+        el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check-circle':'fa-exclamation-triangle'} mr-2"></i> ${msg}`;
         container.appendChild(el);
         setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
     }
@@ -306,7 +309,7 @@
 
     async function salvarOcorrencia() {
         const dados = {
-            dataInicio: document.getElementById('dataEventoManual').value || new Date().toISOString().slice(0,16),
+            dataInicio: new Date().toISOString(),
             operador: document.getElementById('operador').value,
             impacto: document.getElementById('impacto').value,
             usina: document.getElementById('usina').value,
@@ -360,7 +363,6 @@
     }
 
     function limparForm() {
-        document.getElementById('dataEventoManual').value = '';
         document.getElementById('local').value = '';
         document.getElementById('desc').value = '';
         document.getElementById('foto').value = '';
@@ -371,40 +373,42 @@
         const container = document.getElementById('listaOcorrencias');
         container.innerHTML = '';
         const filtradas = db.ocorrencias.filter(o => o.usina.toLowerCase().includes(term) || o.operador.toLowerCase().includes(term) || o.tipo.toLowerCase().includes(term));
-        if (filtradas.length === 0) { container.innerHTML = '<div class="p-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">Nenhuma ocorrência encontrada</div>'; return; }
+        
+        if (filtradas.length === 0) {
+            container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>';
+            return;
+        }
+
         filtradas.forEach(o => {
-            const card = document.createElement('div');
-            card.className = "p-6 hover:bg-slate-50 transition-colors group";
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50/50 transition-colors group";
             const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
-            card.innerHTML = `
-                <div class="flex gap-6">
-                    <div class="w-24 flex flex-col items-center justify-center border-r pr-6">
-                        <span class="text-[10px] font-black uppercase tracking-tighter ${o.status==='FINALIZADO'?'text-emerald-500':'text-amber-500'}">${o.status}</span>
-                        <span class="text-[9px] text-slate-400 font-bold mt-1">${o.impacto}</span>
+            
+            tr.innerHTML = `
+                <td class="px-8 py-6">
+                    <div class="inline-block px-3 py-1 rounded-lg bg-red-50 text-red-500 text-[10px] font-black uppercase mb-1">${o.status}</div>
+                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
+                </td>
+                <td class="px-8 py-6">
+                    <div class="text-xs font-black text-emerald-600 uppercase tracking-tight">${o.usina}</div>
+                    <div class="text-[10px] font-black text-slate-800 uppercase mt-0.5">${o.operador}</div>
+                    <div class="text-[9px] text-slate-400 font-medium mt-0.5">${dataFormatada}</div>
+                </td>
+                <td class="px-8 py-6">
+                    <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
+                        <span>${o.tipo.split(' ')[0]}</span>
+                        <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
                     </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 class="text-sm font-black text-slate-800 uppercase tracking-tight">${o.usina}</h3>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${o.operador} • ${dataFormatada}</p>
-                            </div>
-                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity no-print">
-                                <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-red-400 hover:bg-red-50 rounded-lg" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </div>
-                        <div class="flex gap-4 items-start">
-                            <div class="flex-1">
-                                <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-black uppercase mb-2">${o.tipo}</span>
-                                <p class="text-xs text-slate-600 leading-relaxed">${o.desc}</p>
-                                <p class="text-[10px] text-slate-400 mt-2 font-bold italic"><i class="fa-solid fa-location-dot mr-1"></i> ${o.local || 'Local não informado'}</p>
-                            </div>
-                            ${o.foto ? `<img src="${o.foto}" class="w-32 h-20 object-cover rounded-lg border shadow-sm cursor-zoom-in" onclick="window.open(this.src)">` : ''}
-                        </div>
+                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
+                </td>
+                <td class="px-8 py-6 text-right">
+                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                        <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
                     </div>
-                </div>
+                </td>
             `;
-            container.appendChild(card);
+            container.appendChild(tr);
         });
     }
 
@@ -415,14 +419,14 @@
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors";
             tr.innerHTML = `
-                <td class="px-6 py-4 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
-                <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-4 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
-                <td class="px-4 py-4 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
-                <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra==='ROMPIDA'?'text-red-500':'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option></select></td>
-                <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option></select></td>
-                <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
+                <td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+                <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
+                <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra==='ROMPIDA'?'text-red-500':'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option></select></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option></select></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
             `;
             body.appendChild(tr);
         });
@@ -433,8 +437,8 @@
     function switchTab(tab) {
         document.getElementById('tabOcorrencias').classList.toggle('hidden', tab !== 'ocorrencias');
         document.getElementById('tabStatus').classList.toggle('hidden', tab !== 'status');
-        document.getElementById('tabBtnOcorrencias').className = `px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab==='ocorrencias'?'tab-active':'text-slate-500 hover:bg-white'}`;
-        document.getElementById('tabBtnStatus').className = `px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab==='status'?'tab-active':'text-slate-500 hover:bg-white'}`;
+        document.getElementById('tabBtnOcorrencias').className = `pb-4 text-[11px] font-black uppercase tracking-widest transition-all ${tab==='ocorrencias'?'tab-active':'text-slate-400 hover:text-slate-600'}`;
+        document.getElementById('tabBtnStatus').className = `pb-4 text-[11px] font-black uppercase tracking-widest transition-all ${tab==='status'?'tab-active':'text-slate-400 hover:text-slate-600'}`;
     }
     function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
     function logout() { location.reload(); }
@@ -450,4 +454,5 @@
 </script>
 </body>
 </html>
+
 
