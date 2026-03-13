@@ -228,14 +228,22 @@
                 toast('Nova ocorrência registrada!', 'success');
             });
 
-            socket.on('ocorrencia_editada', (editada) => {
-                const idx = db.ocorrencias.findIndex(o => o._id === editada._id);
-                if (idx !== -1) {
-                    db.ocorrencias[idx] = editada;
-                    renderOcorrencias();
-                    toast('Ocorrência atualizada!', 'info');
-                }
-            });
+            socket.on('connect', () => {
+            console.log('Socket conectado!');
+            setStatus('online', 'Conectado');
+            // Força o carregamento dos dados assim que conecta
+            console.log('Solicitando dados iniciais...');
+            socket.emit('carregar_dados');
+        });
+
+        // Adicione este log para ver se os dados estão chegando
+        socket.on('dados_iniciais', (dados) => {
+            console.log('Dados recebidos do servidor:', dados);
+            db = dados;
+            popularSelectUsinas();
+            renderOcorrencias();
+            renderStatusUFVs();
+        });
 
             socket.on('ocorrencia_excluida', (id) => {
                 db.ocorrencias = db.ocorrencias.filter(o => o._id !== id);
