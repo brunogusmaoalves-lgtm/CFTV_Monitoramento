@@ -27,7 +27,7 @@
 
 <!-- ── Tela de Login ────────────────────────────────────────────────────── -->
 <div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
-    <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-lg border-t-8 border-emerald-500 text-center">
+    <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-emerald-500 text-center">
         <div class="mb-8">
             <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-40 w-auto mb-8 object-contain" onerror="this.src='https://via.placeholder.com/200x80?text=IVI+ENERGIA'">
             <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Monitoramento <span class="text-emerald-500">CFTV</span></h1>
@@ -45,29 +45,24 @@
 <!-- ── App Principal ─────────────────────────────────────────────────────── -->
 <div id="mainApp" class="hidden min-h-screen flex flex-col">
     <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
-        <div class="flex items-center gap-6 min-w-fit">
-            <img src="logo.png" alt="IVI Energia" class="h-20 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150x60?text=IVI+ENERGIA'">
-            <div class="border-l-2 border-slate-200 pl-6">
-                <h1 class="text-2xl font-bold text-slate-800 tracking-tight">MONITORAMENTO CFTV</h1>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">IVI Energia - Central de Operações</p>
+        <div class="flex items-center gap-10">
+            <div class="flex items-center gap-3">
+                <img src="logo.png" alt="IVI Energia" class="h-16 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150x60?text=IVI+ENERGIA'">
+                <h1 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Monitoramento <span class="text-emerald-500">CFTV</span></h1>
             </div>
-        </div>
-        <div class="flex items-center gap-6">
             <nav class="flex gap-1 bg-slate-100 p-1 rounded-xl">
                 <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
                 <button id="tabBtnStatus" onclick="switchTab('status')" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white">STATUS DAS UFVS</button>
             </nav>
-            <div class="flex items-center gap-4 border-l pl-6">
-                <div id="statusBar" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100">
-                    <div class="w-2 h-2 rounded-full bg-slate-400"></div>
-                    <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500">Conectando...</span>
-                </div>
-                <div class="text-right">
-                    <p id="userNameDisplay" class="text-xs font-bold text-slate-700">---</p>
-                </div>
-                <button onclick="logout()" class="text-slate-400 hover:text-red-500 transition-colors p-2">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
+        </div>
+        <div class="flex items-center gap-4">
+            <div id="statusBar" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100">
+                <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+                <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500">Conectando...</span>
+            </div>
+            <div class="text-right border-l pl-4">
+                <p id="userNameDisplay" class="text-xs font-bold text-slate-700">---</p>
+                <button onclick="logout()" class="text-[9px] font-black text-red-400 uppercase hover:text-red-600 transition-colors">Sair do Sistema</button>
             </div>
         </div>
     </header>
@@ -75,11 +70,12 @@
     <main class="flex-1 p-8 overflow-auto">
         <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
             <div class="xl:col-span-3 no-print">
-                <div class="bg-white rounded-2xl shadow-sm border p-8 sticky top-24">
+                <div class="bg-white rounded-2xl shadow-sm border p-6 sticky top-24">
                     <div class="flex items-center gap-2 mb-6 text-emerald-600">
                         <i class="fa-solid fa-circle-plus"></i>
-                        <h2 class="text-xs font-black uppercase tracking-widest">Novo Registro</h2>
+                        <h2 id="formTitle" class="text-xs font-black uppercase tracking-widest">Novo Registro</h2>
                     </div>
+                    <input type="hidden" id="editId">
                     <div class="space-y-4">
                         <div>
                             <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Data/Hora do Início do Evento</label>
@@ -130,8 +126,9 @@
                         </div>
                         <div class="pt-4 flex gap-2">
                             <button onclick="exportarExcel()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">Excel</button>
-                            <button onclick="salvarOcorrencia()" class="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all active:scale-95">Registrar Evento</button>
+                            <button id="saveBtn" onclick="salvarOcorrencia()" class="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all active:scale-95">Registrar Evento</button>
                         </div>
+                        <button id="cancelEditBtn" onclick="limparForm()" class="hidden w-full text-[9px] font-black text-slate-400 uppercase hover:text-red-500 mt-2">Cancelar Edição</button>
                     </div>
                 </div>
             </div>
@@ -190,111 +187,46 @@
         let db = { ocorrencias: [], ufv_status: [] };
         let usuarioLogado = null;
         let socket = null;
+        let fotoBase64 = '';
 
         function iniciarSocket( ) {
-            socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
+            socket = io({ transports: ['websocket', 'polling'] });
             socket.on('connect', () => {
                 setStatus('online', 'Conectado');
                 socket.emit('carregar_dados');
             });
-            socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
-            
             socket.on('dados_iniciais', (dados) => {
                 db = dados;
                 popularSelectUsinas();
                 renderOcorrencias();
                 renderStatusUFVs();
             });
-
             socket.on('autenticado', (user) => {
                 usuarioLogado = user.nome;
                 document.getElementById('userNameDisplay').textContent = usuarioLogado;
                 mostrarApp();
                 socket.emit('carregar_dados');
             });
-
-            socket.on('auth_erro', (err) => {
-                document.getElementById('loginStatus').textContent = err.msg;
-                toast(err.msg, 'error');
-            });
-
-            socket.on('ocorrencia_criada', (nova) => {
-                db.ocorrencias.unshift(nova);
-                renderOcorrencias();
-                toast('Nova ocorrência registrada!', 'success');
-            });
-
+            socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Registrado!'); });
             socket.on('ocorrencia_editada', (editada) => {
                 const idx = db.ocorrencias.findIndex(o => o._id === editada._id);
-                if (idx !== -1) {
-                    db.ocorrencias[idx] = editada;
-                    renderOcorrencias();
-                    toast('Ocorrência atualizada!', 'info');
-                }
+                if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Atualizado!'); }
             });
-
-            socket.on('ocorrencia_excluida', (id) => {
-                db.ocorrencias = db.ocorrencias.filter(o => o._id !== id);
-                renderOcorrencias();
-                toast('Ocorrência removida.', 'info');
-            });
-
-            socket.on('ufv_atualizada', (atualizada) => {
-                const idx = db.ufv_status.findIndex(u => u._id === atualizada._id);
-                if (idx !== -1) {
-                    db.ufv_status[idx] = atualizada;
-                    renderStatusUFVs();
-                }
+            socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); });
+            socket.on('ufv_atualizada', (u) => {
+                const idx = db.ufv_status.findIndex(item => item._id === u._id);
+                if (idx !== -1) { db.ufv_status[idx] = u; renderStatusUFVs(); }
             });
         }
 
         function autenticar() {
             const u = document.getElementById('userInput').value.trim();
             const p = document.getElementById('passInput').value;
-            if (!u || !p) return toast('Preencha usuário e senha.', 'error');
-            document.getElementById('loginStatus').textContent = 'Autenticando...';
             socket.emit('autenticar', { usuario: u, senha: p });
         }
 
-        function setStatus(type, text) {
-            const bar = document.getElementById('statusBar');
-            const dot = bar.querySelector('div');
-            const label = bar.querySelector('span');
-            label.textContent = text;
-            if (type === 'online') {
-                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                label.className = 'text-[10px] font-black uppercase tracking-tighter text-emerald-600';
-                bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50';
-            } else {
-                dot.className = 'w-2 h-2 rounded-full bg-red-500';
-                label.className = 'text-[10px] font-black uppercase tracking-tighter text-red-600';
-                bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50';
-            }
-        }
-
-        function toast(msg, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const el = document.createElement('div');
-            el.className = `toast toast-${type}`;
-            el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-triangle':'fa-info-circle'} mr-2"></i> ${msg}`;
-            container.appendChild(el);
-            setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
-        }
-
-        function popularSelectUsinas() {
-            const select = document.getElementById('usina');
-            const currentVal = select.value;
-            select.innerHTML = '<option value="">Escolha a usina</option>';
-            db.ufv_status.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.nome;
-                opt.textContent = u.nome;
-                select.appendChild(opt);
-            });
-            select.value = currentVal;
-        }
-
         async function salvarOcorrencia() {
+            const id = document.getElementById('editId').value;
             const dados = {
                 dataInicio: document.getElementById('dataEventoManual').value || new Date().toISOString().slice(0,16),
                 operador: document.getElementById('operador').value,
@@ -303,70 +235,95 @@
                 tipo: document.getElementById('tipo').value,
                 local: document.getElementById('local').value,
                 desc: document.getElementById('desc').value,
-                foto: ''
+                foto: fotoBase64
             };
-            if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
+
+            if (!dados.operador || !dados.usina) return toast('Preencha os campos!', 'error');
+
             const fileInput = document.getElementById('foto');
             if (fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     dados.foto = e.target.result;
-                    socket.emit('nova_ocorrencia', dados);
-                    limparForm();
+                    enviar(id, dados);
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                socket.emit('nova_ocorrencia', dados);
-                limparForm();
+                enviar(id, dados);
             }
         }
 
+        function enviar(id, dados) {
+            if (id) {
+                dados._id = id;
+                socket.emit('editar_ocorrencia', dados);
+            } else {
+                socket.emit('nova_ocorrencia', dados);
+            }
+            limparForm();
+        }
+
+        function editarOcorrencia(id) {
+            const o = db.ocorrencias.find(item => item._id === id);
+            if (!o) return;
+            document.getElementById('editId').value = o._id;
+            document.getElementById('dataEventoManual').value = o.dataInicio;
+            document.getElementById('operador').value = o.operador;
+            document.getElementById('impacto').value = o.impacto;
+            document.getElementById('usina').value = o.usina;
+            document.getElementById('tipo').value = o.tipo;
+            document.getElementById('local').value = o.local;
+            document.getElementById('desc').value = o.desc;
+            fotoBase64 = o.foto;
+            
+            document.getElementById('formTitle').textContent = 'Editando Registro';
+            document.getElementById('saveBtn').textContent = 'Salvar Alterações';
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function limparForm() {
+            document.getElementById('editId').value = '';
             document.getElementById('dataEventoManual').value = '';
             document.getElementById('local').value = '';
             document.getElementById('desc').value = '';
             document.getElementById('foto').value = '';
+            fotoBase64 = '';
+            document.getElementById('formTitle').textContent = 'Novo Registro';
+            document.getElementById('saveBtn').textContent = 'Registrar Evento';
+            document.getElementById('cancelEditBtn').classList.add('hidden');
         }
 
         function renderOcorrencias() {
             const term = document.getElementById('search').value.toLowerCase();
             const container = document.getElementById('listaOcorrencias');
             container.innerHTML = '';
-            const filtradas = db.ocorrencias.filter(o => 
-                o.usina.toLowerCase().includes(term) || 
-                o.operador.toLowerCase().includes(term) ||
-                o.tipo.toLowerCase().includes(term)
-            );
-            if (filtradas.length === 0) {
-                container.innerHTML = '<div class="p-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">Nenhuma ocorrência encontrada</div>';
-                return;
-            }
+            const filtradas = db.ocorrencias.filter(o => o.usina.toLowerCase().includes(term) || o.operador.toLowerCase().includes(term));
             filtradas.forEach(o => {
                 const card = document.createElement('div');
                 card.className = "p-6 hover:bg-slate-50 transition-colors group";
-                const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
                 card.innerHTML = `
                     <div class="flex gap-6">
                         <div class="w-24 flex flex-col items-center justify-center border-r pr-6">
-                            <span class="text-[10px] font-black uppercase tracking-tighter ${o.status==='FINALIZADO'?'text-emerald-500':'text-amber-500'}">${o.status}</span>
+                            <span class="text-[10px] font-black uppercase tracking-tighter text-amber-500">${o.status}</span>
                             <span class="text-[9px] text-slate-400 font-bold mt-1">${o.impacto}</span>
                         </div>
                         <div class="flex-1">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
                                     <h3 class="text-sm font-black text-slate-800 uppercase tracking-tight">${o.usina}</h3>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${o.operador} • ${dataFormatada}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${o.operador} • ${new Date(o.dataInicio).toLocaleString('pt-BR')}</p>
                                 </div>
                                 <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity no-print">
-                                    <button onclick="finalizarOcorrencia('${o._id}')" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg" title="Finalizar"><i class="fa-solid fa-check-double"></i></button>
-                                    <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-red-400 hover:bg-red-50 rounded-lg" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
+                                    <button onclick="editarOcorrencia('${o._id}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-red-400 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
                                 </div>
                             </div>
                             <div class="flex gap-4 items-start">
                                 <div class="flex-1">
                                     <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-black uppercase mb-2">${o.tipo}</span>
                                     <p class="text-xs text-slate-600 leading-relaxed">${o.desc}</p>
-                                    <p class="text-[10px] text-slate-400 mt-2 font-bold italic"><i class="fa-solid fa-location-dot mr-1"></i> ${o.local || 'Local não informado'}</p>
+                                    <p class="text-[10px] text-slate-400 mt-2 font-bold italic"><i class="fa-solid fa-location-dot mr-1"></i> ${o.local}</p>
                                 </div>
                                 ${o.foto ? `<img src="${o.foto}" class="w-32 h-20 object-cover rounded-lg border shadow-sm cursor-zoom-in" onclick="window.open(this.src)">` : ''}
                             </div>
@@ -385,47 +342,20 @@
                 tr.className = "hover:bg-slate-50/50 transition-colors";
                 tr.innerHTML = `
                     <td class="px-6 py-4 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
-                    <td class="px-4 py-4 text-center">
-                        <select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}">
-                            <option ${u.digifort==='OK'?'selected':''}>OK</option>
-                            <option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option>
-                        </select>
-                    </td>
-                    <td class="px-4 py-4 text-center">
-                        <select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}">
-                            <option ${u.anydesk==='OK'?'selected':''}>OK</option>
-                            <option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option>
-                        </select>
-                    </td>
+                    <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+                    <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
                     <td class="px-4 py-4 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
                     <td class="px-4 py-4 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
-                    <td class="px-4 py-4 text-center">
-                        <select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra==='ROMPIDA'?'text-red-500':'text-emerald-500'}">
-                            <option ${u.fibra==='OK'?'selected':''}>OK</option>
-                            <option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option>
-                            <option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option>
-                        </select>
-                    </td>
-                    <td class="px-4 py-4 text-center">
-                        <select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}">
-                            <option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option>
-                            <option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option>
-                        </select>
-                    </td>
-                    <td class="px-4 py-4 text-center">
-                        <select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}">
-                            <option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option>
-                            <option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option>
-                        </select>
-                    </td>
+                    <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra==='ROMPIDA'?'text-red-500':'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option></select></td>
+                    <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option></select></td>
+                    <td class="px-4 py-4 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
                 `;
                 body.appendChild(tr);
             });
         }
 
         function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
-        function finalizarOcorrencia(id) { socket.emit('editar_ocorrencia', { _id: id, status: 'FINALIZADO', dataFim: new Date().toISOString() }); }
-        function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
+        function excluirOcorrencia(id) { if (confirm('Excluir?')) socket.emit('excluir_ocorrencia', id); }
         function switchTab(tab) {
             document.getElementById('tabOcorrencias').classList.toggle('hidden', tab !== 'ocorrencias');
             document.getElementById('tabStatus').classList.toggle('hidden', tab !== 'status');
@@ -434,36 +364,42 @@
         }
         function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
         function logout() { location.reload(); }
+        function setStatus(type, text) {
+            const bar = document.getElementById('statusBar');
+            const dot = bar.querySelector('div');
+            const label = bar.querySelector('span');
+            label.textContent = text;
+            if (type === 'online') { dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse'; label.className = 'text-[10px] font-black uppercase tracking-tighter text-emerald-600'; bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50'; }
+            else { dot.className = 'w-2 h-2 rounded-full bg-red-500'; label.className = 'text-[10px] font-black uppercase tracking-tighter text-red-600'; bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50'; }
+        }
+        function toast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            el.className = `toast toast-${type}`;
+            el.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${msg}`;
+            container.appendChild(el);
+            setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
+        }
+        function popularSelectUsinas() {
+            const select = document.getElementById('usina');
+            select.innerHTML = '<option value="">Escolha a usina</option>';
+            db.ufv_status.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.nome;
+                opt.textContent = u.nome;
+                select.appendChild(opt);
+            });
+        }
         function exportarExcel() {
-            const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
-                Data: new Date(o.dataInicio).toLocaleString('pt-BR'),
-                Operador: o.operador,
-                Usina: o.usina,
-                Tipo: o.tipo,
-                Local: o.local,
-                Descrição: o.desc,
-                Status: o.status
-            })));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
-            XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
+            const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({ Data: new Date(o.dataInicio).toLocaleString('pt-BR'), Operador: o.operador, Usina: o.usina, Tipo: o.tipo, Local: o.local, Descrição: o.desc, Status: o.status })));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Ocorrências"); XLSX.writeFile(wb, "Relatorio_Ocorrencias.xlsx");
         }
         function exportarExcelUFVs() {
-            const ws = XLSX.utils.json_to_sheet(db.ufv_status.map(u => ({
-                UFV: u.nome,
-                Digifort: u.digifort,
-                Anydesk: u.anydesk,
-                "Total Câm": u.totalCam,
-                "Câm ON": u.camOn,
-                Fibra: u.fibra,
-                Segurança: u.seguranca,
-                "Pronta Resposta": u.prontaResposta
-            })));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs");
-            XLSX.writeFile(wb, "Status_Infraestrutura_UFVs.xlsx");
+            const ws = XLSX.utils.json_to_sheet(db.ufv_status.map(u => ({ UFV: u.nome, Digifort: u.digifort, Anydesk: u.anydesk, "Total Câm": u.totalCam, "Câm ON": u.camOn, Fibra: u.fibra, Segurança: u.seguranca, "Pronta Resposta": u.prontaResposta })));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs"); XLSX.writeFile(wb, "Status_UFVs.xlsx");
         }
         window.onload = iniciarSocket;
     </script>
 </body>
 </html>
+
