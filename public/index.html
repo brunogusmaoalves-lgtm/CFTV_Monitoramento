@@ -6,7 +6,6 @@
     <title>Monitoramento CFTV - IVI Energia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Socket.io client (servido pelo próprio servidor) -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
         @media print { .no-print { display: none; } }
@@ -20,19 +19,17 @@
         .toast-error   { background: #ef4444; }
         .toast-info    { background: #3b82f6; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        #statusBar { transition: background 0.3s; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-900">
 
-<!-- ── Toast container ─────────────────────────────────────────────────── -->
 <div id="toastContainer"></div>
 
 <!-- ── Tela de Login ────────────────────────────────────────────────────── -->
 <div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
-    <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-emerald-500 text-center">
+    <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-lg border-t-8 border-emerald-500 text-center">
         <div class="mb-8">
-            <img src="logo.png" alt="IVI Energia" class="mx-auto h-16 mb-4 object-contain">
+            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-40 w-auto mb-8 object-contain" onerror="this.src='https://via.placeholder.com/200x80?text=IVI+ENERGIA'">
             <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Monitoramento <span class="text-emerald-500">CFTV</span></h1>
             <p class="text-slate-400 text-[10px] font-bold uppercase mt-1 tracking-widest">IVI Energia Management System</p>
         </div>
@@ -48,536 +45,423 @@
 <!-- ── App Principal ─────────────────────────────────────────────────────── -->
 <div id="mainApp" class="hidden min-h-screen flex flex-col">
     <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
-        <div class="flex items-center gap-10">
-            <div class="flex items-center gap-3">
-                <img src="logo.png" alt="IVI Energia" class="mx-auto h-16 mb-4 object-contain">
-                <div class="border-l pl-3 border-slate-200">
-                    <h2 class="text-sm font-black text-slate-800 leading-tight uppercase">Monitoramento CFTV</h2>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">IVI Energia - Central de Operações</p>
-                </div>
+        <div class="flex items-center gap-6 min-w-fit">
+            <img src="logo.png" alt="IVI Energia" class="h-20 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150x60?text=IVI+ENERGIA'">
+            <div class="border-l-2 border-slate-200 pl-6">
+                <h1 class="text-2xl font-bold text-slate-800 tracking-tight">MONITORAMENTO CFTV</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">IVI Energia - Central de Operações</p>
             </div>
-            <nav class="flex gap-8 h-full self-stretch items-center pt-2">
-                <button onclick="switchTab('ocorrencias')" id="tabBtnOcorrencias" class="text-xs font-black uppercase tracking-widest pb-4 tab-active transition-all">Ocorrências</button>
-                <button onclick="switchTab('status')" id="tabBtnStatus" class="text-xs font-black uppercase tracking-widest pb-4 text-slate-400 hover:text-emerald-500 transition-all">Status das UFVs</button>
-            </nav>
         </div>
         <div class="flex items-center gap-6">
-            <!-- Indicador de conexão -->
-            <div id="statusBar" class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[10px] font-black uppercase">
-                <span id="statusDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
-                <span id="statusText">Conectando...</span>
+            <nav class="flex gap-1 bg-slate-100 p-1 rounded-xl">
+                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias')" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
+                <button id="tabBtnStatus" onclick="switchTab('status')" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white">STATUS DAS UFVS</button>
+            </nav>
+            <div class="flex items-center gap-4 border-l pl-6">
+                <div id="statusBar" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100">
+                    <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+                    <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500">Conectando...</span>
+                </div>
+                <div class="text-right">
+                    <p id="userNameDisplay" class="text-xs font-bold text-slate-700">---</p>
+                </div>
+                <button onclick="logout()" class="text-slate-400 hover:text-red-500 transition-colors p-2">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
-            <span id="displayUser" class="text-xs font-bold text-slate-600 border-r pr-6 tracking-tight"></span>
-            <button onclick="logout()" class="text-xs font-black text-red-500 hover:text-red-700 uppercase cursor-pointer">Sair</button>
         </div>
     </header>
 
-    <!-- ── Aba Ocorrências ─────────────────────────────────────────────── -->
-    <main id="contentOcorrencias" class="p-6 lg:p-8 max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div class="lg:col-span-4 no-print">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 sticky top-24">
-                <h3 class="text-xs font-black uppercase text-slate-400 mb-6 flex items-center gap-2">
-                    <i class="fas fa-plus-circle text-emerald-500"></i> Novo Registro
-                </h3>
-                <form id="formRegistro" class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase">Data/Hora do Início do Evento</label>
-                        <input type="datetime-local" id="dataEventoManual" class="w-full mt-1 p-2 bg-slate-50 border rounded-lg text-xs outline-none focus:border-emerald-500">
+    <main class="flex-1 p-8 overflow-auto">
+        <!-- ABA OCORRÊNCIAS -->
+        <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            <!-- Formulário -->
+            <div class="xl:col-span-3 no-print">
+                <div class="bg-white rounded-2xl shadow-sm border p-6 sticky top-24">
+                    <div class="flex items-center gap-2 mb-6 text-emerald-600">
+                        <i class="fa-solid fa-circle-plus"></i>
+                        <h2 class="text-xs font-black uppercase tracking-widest">Novo Registro</h2>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-4">
                         <div>
-                            <label class="text-[10px] font-black text-slate-400 uppercase">Operador</label>
-                            <select id="operador" class="w-full mt-1 p-2 bg-slate-50 border rounded-lg text-xs outline-none focus:border-emerald-500" required>
-                                <option value="" disabled selected>Selecione</option>
-                                <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Data/Hora do Início do Evento</label>
+                            <input type="datetime-local" id="dataEventoManual" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Operador</label>
+                                <select id="operador" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                                    <option value="">Selecione</option>
+                                    <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Impacto Geral</label>
+                                <select id="impacto" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                                    <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Usina Solar</label>
+                            <select id="usina" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                                <option value="">Escolha a usina</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] font-black text-slate-400 uppercase">Impacto Geração</label>
-                            <select id="impacto" class="w-full mt-1 p-2 bg-slate-50 border rounded-lg text-xs outline-none font-bold">
-                                <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Classificação</label>
+                            <select id="tipo" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                                <option>🚨 Invasão / Intrusão</option>
+                                <option>🔨 Furto / Vandalismo</option>
+                                <option>📡 Falha de Comunicação</option>
+                                <option>🛠️ Manutenção Corretiva</option>
+                                <option>👀 Atitude Suspeita</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Local / ID Câmera</label>
+                            <input type="text" id="local" placeholder="Ex: Perímetro Norte / Cam 04" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Descrição Detalhada</label>
+                            <textarea id="desc" rows="3" placeholder="Descreva o ocorrido..." class="w-full border rounded-lg p-2.5 text-sm outline-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Evidência (Foto)</label>
+                            <input type="file" id="foto" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                        </div>
+                        <div class="pt-4 flex gap-2">
+                            <button onclick="exportarExcel()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">Excel</button>
+                            <button onclick="salvarOcorrencia()" class="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all active:scale-95">Registrar Evento</button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase">Usina Solar</label>
-                        <select id="usina" class="w-full mt-1 p-2 bg-slate-50 border rounded-lg text-xs outline-none focus:border-emerald-500" required></select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase">Classificação</label>
-                        <select id="tipo" class="w-full mt-1 p-2 bg-slate-50 border rounded-lg text-xs outline-none focus:border-emerald-500">
-                            <option>🚨 Invasão / Intrusão</option><option>🔨 Furto / Vandalismo</option><option>📡 Falha de Comunicação</option><option>🛠️ Manutenção Corretiva</option><option>👀 Atitude Suspeita</option><option>📉 Impacto na Geração</option>
-                        </select>
-                    </div>
-                    <input type="text" id="local" placeholder="Local / ID Câmera" class="w-full p-2 bg-slate-50 border rounded-lg text-xs outline-none focus:border-emerald-500" required>
-                    <textarea id="desc" rows="3" placeholder="Descrição detalhada..." class="w-full p-2 bg-slate-50 border rounded-lg text-xs outline-none focus:border-emerald-500" required></textarea>
-                    <input type="file" id="foto" accept="image/*" class="w-full p-1 text-[10px] border border-dashed rounded-lg bg-slate-50">
-                    <div class="flex gap-2">
-                        <button type="button" onclick="exportarExcel()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-xs uppercase">
-                            <i class="fas fa-file-excel"></i> Excel
+                </div>
+            </div>
+
+            <!-- Lista de Ocorrências -->
+            <div class="xl:col-span-9">
+                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                    <div class="p-6 border-b flex justify-between items-center bg-slate-50/50 no-print">
+                        <div class="relative w-full max-w-md">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                        </div>
+                        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-file-pdf"></i> Imprimir PDF
                         </button>
-                        <button type="submit" class="flex-[2] bg-emerald-500 text-white py-3 rounded-xl font-bold hover:bg-emerald-600 transition shadow-lg text-xs uppercase tracking-widest">Registrar Evento</button>
                     </div>
-                </form>
+                    <div id="listaOcorrencias" class="divide-y">
+                        <!-- Ocorrências via JS -->
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="lg:col-span-8 space-y-4">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap gap-4 items-center no-print">
-                <div class="flex-1 relative min-w-[300px]">
-                    <i class="fas fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="search" oninput="renderizarTabela()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-10 p-2 bg-slate-50 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+        <!-- ABA STATUS UFVS -->
+        <div id="tabStatus" class="hidden">
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <div class="p-6 border-b flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Status de Infraestrutura</h2>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Painel Operacional</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="window.print()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                        <button onclick="exportarExcelUFVs()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                    </div>
                 </div>
-                <button onclick="window.print()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase"><i class="fas fa-print mr-2"></i>Imprimir PDF</button>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 border-b text-[10px] text-slate-400 font-black uppercase tracking-wider">
-                        <tr>
-                            <th class="px-6 py-4">Status / Geração</th>
-                            <th class="px-6 py-4">Usina / Operador / Data Início</th>
-                            <th class="px-6 py-4">Ocorrência</th>
-                            <th class="px-6 py-4 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaDados" class="text-sm divide-y divide-slate-100"></tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky-header">
+                            <tr class="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
+                                <th class="px-6 py-4">UFV</th>
+                                <th class="px-4 py-4 text-center">Digifort</th>
+                                <th class="px-4 py-4 text-center">Anydesk</th>
+                                <th class="px-4 py-4 text-center">Total Câm</th>
+                                <th class="px-4 py-4 text-center">Câm ON</th>
+                                <th class="px-4 py-4 text-center">Fibra Sensitiva</th>
+                                <th class="px-4 py-4 text-center">Segurança Patrimonial</th>
+                                <th class="px-4 py-4 text-center">Pronta Resposta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600">
+                            <!-- UFVs via JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- ── Aba Status UFVs ─────────────────────────────────────────────── -->
-    <main id="contentStatus" class="hidden p-6 lg:p-8 max-w-[1600px] mx-auto w-full">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50 no-print">
-                <div>
-                    <h3 class="font-black text-slate-800 uppercase text-sm tracking-tighter">Status de Infraestrutura</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Painel Operacional</p>
-                </div>
-                <div class="flex gap-2 w-full sm:w-auto">
-                    <button onclick="window.print()" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button onclick="exportarStatusUFVExcel()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-            <div class="overflow-x-auto max-h-[75vh]">
-                <table class="w-full text-left border-collapse sticky-header">
-                    <thead class="bg-slate-100 text-[9px] font-black uppercase text-slate-500 tracking-wider">
-                        <tr>
-                            <th class="px-4 py-3 border-b">UFV</th>
-                            <th class="px-4 py-3 border-b text-center">Digifort</th>
-                            <th class="px-4 py-3 border-b text-center">AnyDesk</th>
-                            <th class="px-4 py-3 border-b text-center">Total Câm</th>
-                            <th class="px-4 py-3 border-b text-center">Câm. ON</th>
-                            <th class="px-4 py-3 border-b">Fibra Sensitiva</th>
-                            <th class="px-4 py-3 border-b">Segurança Patrimonial</th>
-                            <th class="px-4 py-3 border-b">Pronta Resposta</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaUFVs" class="text-[11px] divide-y divide-slate-100"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-</div>
+    <script>
+        let db = { ocorrencias: [], ufv_status: [] };
+        let usuarioLogado = null;
+        let socket = null;
 
-<!-- ── Modal de Edição ───────────────────────────────────────────────────── -->
-<div id="editModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm no-print">
-    <div class="bg-white p-8 rounded-2xl w-full max-w-lg shadow-2xl overflow-y-auto max-h-[95vh]">
-        <div class="flex justify-between items-center mb-6 border-b pb-4">
-            <h3 class="font-black text-slate-800 uppercase text-sm tracking-tighter">Atualizar Registro</h3>
-            <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 transition"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="space-y-4">
-            <div id="editFotoContainer" class="hidden flex flex-col items-center p-3 bg-slate-50 rounded-xl border border-dashed">
-                <img id="editFotoView" src="" onclick="window.open(this.src)" class="h-32 w-auto object-contain rounded-lg shadow-md cursor-pointer hover:scale-105 transition-transform">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</label>
-                    <select id="editStatus" class="w-full mt-1 p-2 border rounded-lg bg-slate-50 text-xs font-bold outline-none focus:border-emerald-500">
-                        <option value="Aberto">🔴 Aberto</option>
-                        <option value="Investigando">🔵 Investigando</option>
-                        <option value="Finalizado">🟢 Finalizado</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Geração</label>
-                    <select id="editImpacto" class="w-full mt-1 p-2 border rounded-lg bg-slate-50 text-xs font-bold outline-none">
-                        <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
-                    </select>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Usina</label>
-                    <select id="editUsina" class="w-full mt-1 p-2 border rounded-lg bg-slate-50 text-xs outline-none focus:border-emerald-500"></select>
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Data Finalização</label>
-                    <input type="datetime-local" id="editDataReg" class="w-full mt-1 p-2 border rounded-lg bg-slate-50 text-xs outline-none focus:border-emerald-500">
-                </div>
-            </div>
-            <div>
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Resumo da Solução</label>
-                <textarea id="editObs" rows="3" class="w-full mt-1 p-3 border rounded-lg bg-emerald-50 text-xs outline-none font-medium focus:ring-2 focus:ring-emerald-500" placeholder="Descreva as medidas tomadas..."></textarea>
-            </div>
-            <div class="flex gap-3 pt-4 border-t">
-                <button onclick="closeModal()" class="flex-1 font-bold text-slate-400 text-xs uppercase tracking-widest">Cancelar</button>
-                <button id="saveEditBtn" class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg hover:bg-emerald-600">Salvar Alterações</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ── Scripts ───────────────────────────────────────────────────────────── -->
-<script>
-    // ── Estado local ────────────────────────────────────────────────────
-    let ocorrencias = [];
-    let ufvStatus   = [];
-    let idAtual     = null;
-    let socket      = null;
-
-    // ── Inicializar Socket.io ────────────────────────────────────────────
-    function iniciarSocket() {
-        console.log('Iniciando Socket.io...');
-        // Tenta conectar ao servidor atual
-        socket = io({
-            transports: ['websocket', 'polling'],
-            reconnectionAttempts: 5
-        });
-
-        socket.on('connect', () => {
-            console.log('Socket conectado!');
-            setStatus('online', 'Conectado');
-            socket.emit('carregar_dados');
-        });
-
-        socket.on('disconnect', () => {
-            setStatus('offline', 'Desconectado');
-        });
-
-        socket.on('connect_error', () => {
-            setStatus('offline', 'Sem conexão');
-        });
-
-        // Dados iniciais ao conectar/reconectar
-        socket.on('dados_iniciais', (dados) => {
-            ocorrencias = dados.ocorrencias || [];
-            ufvStatus   = dados.ufv_status  || [];
-            renderizarTabela();
-            renderizarUFVs();
-            popularUsinasSelect();
-        });
-
-        // Eventos de ocorrências em tempo real
-        socket.on('ocorrencia_adicionada', (nova) => {
-            if (!ocorrencias.find(o => o.id === nova.id)) {
-                ocorrencias.push(nova);
-                renderizarTabela();
-                toast('Nova ocorrência registrada!', 'info');
-            }
-        });
-
-        socket.on('ocorrencia_atualizada', (atualizada) => {
-            const idx = ocorrencias.findIndex(o => o.id === atualizada.id);
-            if (idx !== -1) {
-                ocorrencias[idx] = atualizada;
-                renderizarTabela();
-            }
-        });
-
-        socket.on('ocorrencia_deletada', ({ id }) => {
-            ocorrencias = ocorrencias.filter(o => o.id !== id);
-            renderizarTabela();
-        });
-
-        // Eventos de UFV em tempo real
-        socket.on('ufv_atualizada', (ufvAtualizada) => {
-            const idx = ufvStatus.findIndex(u => u.id === ufvAtualizada.id);
-            if (idx !== -1) {
-                ufvStatus[idx] = ufvAtualizada;
-                renderizarUFVs();
-            }
-        });
-
-        // Autenticação
-        socket.on('autenticado', ({ nome }) => {
-            sessionStorage.setItem('solar_session', nome);
-            mostrarApp();
-        });
-
-        socket.on('auth_erro', ({ msg }) => {
-            document.getElementById('loginStatus').textContent = msg;
-            toast(msg, 'error');
-        });
-    }
-
-    // ── Indicador de status de conexão ──────────────────────────────────
-    function setStatus(estado, texto) {
-        const dot  = document.getElementById('statusDot');
-        const txt  = document.getElementById('statusText');
-        const bar  = document.getElementById('statusBar');
-        txt.textContent = texto;
-        if (estado === 'online') {
-            dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-            bar.className = 'flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[10px] font-black uppercase text-emerald-700';
-        } else {
-            dot.className = 'w-2 h-2 rounded-full bg-red-500 animate-pulse';
-            bar.className = 'flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-[10px] font-black uppercase text-red-600';
-        }
-    }
-
-    // ── Toast de notificação ─────────────────────────────────────────────
-    function toast(msg, tipo = 'success') {
-        const el = document.createElement('div');
-        el.className = `toast toast-${tipo}`;
-        el.textContent = msg;
-        document.getElementById('toastContainer').appendChild(el);
-        setTimeout(() => el.remove(), 3500);
-    }
-
-    // ── Autenticação ─────────────────────────────────────────────────────
-    function autenticar() {
-        const u = document.getElementById('userInput').value.trim();
-        const p = document.getElementById('passInput').value;
-        if (!u || !p) { toast('Preencha usuário e senha.', 'error'); return; }
-        document.getElementById('loginStatus').textContent = 'Autenticando...';
-        console.log('Enviando evento de autenticação para:', u);
-        socket.emit('autenticar', { usuario: u, senha: p });
-    }
-
-    function mostrarApp() {
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('mainApp').classList.remove('hidden');
-        document.getElementById('displayUser').innerText = sessionStorage.getItem('solar_session');
-        socket.emit('carregar_dados');
-    }
-
-    function logout() {
-        sessionStorage.removeItem('solar_session');
-        document.getElementById('mainApp').classList.add('hidden');
-        document.getElementById('loginPage').style.display = 'flex';
-        document.getElementById('loginStatus').textContent = '';
-    }
-
-    // ── Navegação por abas ───────────────────────────────────────────────
-    function switchTab(tab) {
-        document.getElementById('contentOcorrencias').classList.toggle('hidden', tab !== 'ocorrencias');
-        document.getElementById('contentStatus').classList.toggle('hidden', tab !== 'status');
-        document.getElementById('tabBtnOcorrencias').classList.toggle('tab-active', tab === 'ocorrencias');
-        document.getElementById('tabBtnStatus').classList.toggle('tab-active', tab === 'status');
-        if (tab === 'ocorrencias') {
-            document.getElementById('tabBtnOcorrencias').classList.remove('text-slate-400');
-            document.getElementById('tabBtnStatus').classList.add('text-slate-400');
-        } else {
-            document.getElementById('tabBtnStatus').classList.remove('text-slate-400');
-            document.getElementById('tabBtnOcorrencias').classList.add('text-slate-400');
-        }
-    }
-
-    // ── Renderizar tabela de ocorrências ─────────────────────────────────
-    function renderizarTabela() {
-        const q = (document.getElementById('search')?.value || '').toLowerCase();
-        const lista = ocorrencias.filter(o =>
-            (o.usina    || '').toLowerCase().includes(q) ||
-            (o.status   || '').toLowerCase().includes(q) ||
-            (o.operador || '').toLowerCase().includes(q) ||
-            (o.data     || '').includes(q)
-        ).slice().reverse();
-
-        document.getElementById('tabelaDados').innerHTML = lista.map(o => `
-            <tr class="hover:bg-slate-50 transition border-b">
-                <td class="px-6 py-4">
-                    <span class="px-2 py-1 rounded text-[9px] font-black uppercase ${o.status === 'Aberto' ? 'bg-red-100 text-red-600' : o.status === 'Investigando' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}">${o.status}</span>
-                    <div class="mt-1 text-[8px] font-bold text-slate-400 uppercase">Impacto: ${o.impacto}</div>
-                </td>
-                <td class="px-6 py-4 text-[10px]">
-                    <div class="text-emerald-600 font-bold uppercase">${o.usina}</div>
-                    <div class="font-black text-slate-700 uppercase">${o.operador}</div>
-                    <div class="text-slate-400 font-mono">${new Date(o.data).toLocaleString('pt-BR')}</div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="font-bold text-slate-800">${o.tipo}</div>
-                    <div class="text-[10px] text-slate-500 uppercase">${o.local}</div>
-                    ${o.obs ? `<div class="text-[9px] mt-2 text-emerald-700 bg-emerald-50 p-2 border-l-4 border-emerald-500 rounded"><b>SOLUÇÃO:</b> ${o.obs}${o.dataReg ? `<br><b class='text-emerald-900'>FINALIZADO EM: ${o.dataReg.split('-').reverse().join('/')}</b>` : ''}</div>` : ''}
-                </td>
-                <td class="px-6 py-4 text-center">
-                    <div class="flex gap-3 justify-center no-print">
-                        <button onclick="openModal('${o.id}')" class="text-slate-300 hover:text-emerald-600 transition"><i class="fas fa-edit"></i></button>
-                        <button onclick="excluir('${o.id}')" class="text-slate-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // ── Renderizar tabela de UFVs ────────────────────────────────────────
-    function renderizarUFVs() {
-        const lista = [...ufvStatus].sort((a, b) => a.ufv.localeCompare(b.ufv));
-        document.getElementById('tabelaUFVs').innerHTML = lista.map(u => `
-            <tr>
-                <td class="px-4 py-3 font-black text-emerald-700 uppercase">${u.ufv}</td>
-                <td class="px-4 py-3 text-center">
-                    <select onchange="updateUFV('${u.id}', 'digifort', this.value)" class="bg-transparent border-none font-bold text-center ${u.digifort !== 'OK' ? 'text-red-500' : 'text-emerald-600'} outline-none cursor-pointer">
-                        <option value="OK" ${u.digifort === 'OK' ? 'selected' : ''}>OK</option>
-                        <option value="OFFLINE" ${u.digifort !== 'OK' ? 'selected' : ''}>OFFLINE</option>
-                    </select>
-                </td>
-                <td class="px-4 py-3 text-center">
-                    <select onchange="updateUFV('${u.id}', 'anydesk', this.value)" class="bg-transparent border-none font-bold text-center ${u.anydesk !== 'OK' ? 'text-red-500' : 'text-emerald-600'} outline-none cursor-pointer">
-                        <option value="OK" ${u.anydesk === 'OK' ? 'selected' : ''}>OK</option>
-                        <option value="OFFLINE" ${u.anydesk !== 'OK' ? 'selected' : ''}>OFFLINE</option>
-                    </select>
-                </td>
-                <td class="px-4 py-3 text-center"><input type="number" value="${u.totalCam}" onblur="updateUFV('${u.id}', 'totalCam', this.value)" class="w-12 text-center bg-transparent outline-none"></td>
-                <td class="px-4 py-3 text-center"><input type="number" value="${u.onCam}" onblur="updateUFV('${u.id}', 'onCam', this.value)" class="w-12 text-center bg-transparent font-bold ${u.onCam < u.totalCam ? 'text-red-500' : 'text-emerald-600'} outline-none"></td>
-                <td class="px-4 py-3">
-                    <select onchange="updateUFV('${u.id}', 'fibra', this.value)" class="bg-transparent border-none ${u.fibra !== 'OK' ? 'text-red-500' : 'text-emerald-600'} outline-none cursor-pointer">
-                        <option value="OK" ${u.fibra === 'OK' ? 'selected' : ''}>OK</option>
-                        <option value="ROMPIDA" ${u.fibra === 'ROMPIDA' ? 'selected' : ''}>ROMPIDA</option>
-                        <option value="N/A" ${u.fibra === 'N/A' ? 'selected' : ''}>NÃO TEM</option>
-                    </select>
-                </td>
-                <td class="px-4 py-3 text-center">
-                    <select onchange="updateUFV('${u.id}', 'seguranca', this.value)" class="bg-transparent border-none ${u.seguranca === 'SEM NECESSIDADE' ? 'text-emerald-600' : 'text-red-500'} outline-none cursor-pointer">
-                        <option value="MOBILIZADA" ${u.seguranca === 'MOBILIZADA' ? 'selected' : ''}>MOBILIZADA</option>
-                        <option value="SEM NECESSIDADE" ${u.seguranca === 'SEM NECESSIDADE' ? 'selected' : ''}>SEM NECESSIDADE</option>
-                    </select>
-                </td>
-                <td class="px-4 py-3 text-center">
-                    <select onchange="updateUFV('${u.id}', 'pronta_resposta', this.value)" class="bg-transparent border-none ${u.pronta_resposta === 'ATIVO' ? 'text-emerald-600' : 'text-red-500'} outline-none cursor-pointer">
-                        <option value="ATIVO" ${u.pronta_resposta === 'ATIVO' ? 'selected' : ''}>ATIVO</option>
-                        <option value="INATIVO" ${u.pronta_resposta === 'INATIVO' ? 'selected' : ''}>INATIVO</option>
-                    </select>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // ── Popular selects de usinas ────────────────────────────────────────
-    function popularUsinasSelect() {
-        const lista = [...ufvStatus].sort((a, b) => a.ufv.localeCompare(b.ufv));
-        const options = '<option value="" disabled selected>Escolha a usina</option>' + lista.map(u => `<option>${u.ufv}</option>`).join('');
-        document.getElementById('usina').innerHTML    = options;
-        document.getElementById('editUsina').innerHTML = options;
-    }
-
-    // ── Atualizar campo de UFV ───────────────────────────────────────────
-    function updateUFV(id, campo, valor) {
-        socket.emit('update_ufv', { id, campo, valor });
-        // Atualiza localmente para resposta imediata na UI
-        const ufv = ufvStatus.find(u => u.id === id);
-        if (ufv) {
-            ufv[campo] = isNaN(valor) ? valor : parseInt(valor);
-            renderizarUFVs();
-        }
-    }
-
-    // ── Formulário de novo registro ──────────────────────────────────────
-    document.getElementById('formRegistro').onsubmit = (e) => {
-        e.preventDefault();
-        const dataManual = document.getElementById('dataEventoManual').value;
-        const dataFinal  = dataManual ? new Date(dataManual).toISOString() : new Date().toISOString();
-        const f = document.getElementById('foto').files[0];
-
-        const enviar = (img = null) => {
-            socket.emit('add_ocorrencia', {
-                operador: document.getElementById('operador').value,
-                impacto:  document.getElementById('impacto').value,
-                usina:    document.getElementById('usina').value,
-                tipo:     document.getElementById('tipo').value,
-                local:    document.getElementById('local').value,
-                desc:     document.getElementById('desc').value,
-                foto:     img,
-                status:   'Aberto',
-                obs:      '',
-                dataReg:  '',
-                data:     dataFinal
+        function iniciarSocket() {
+            socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
+            socket.on('connect', () => setStatus('online', 'Conectado'));
+            socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
+            
+            socket.on('dados_iniciais', (dados) => {
+                db = dados;
+                popularSelectUsinas();
+                renderOcorrencias();
+                renderStatusUFVs();
             });
-            document.getElementById('formRegistro').reset();
-            toast('Ocorrência registrada com sucesso!', 'success');
-        };
 
-        if (f) {
-            const r = new FileReader();
-            r.onload = () => enviar(r.result);
-            r.readAsDataURL(f);
-        } else {
-            enviar();
+            socket.on('autenticado', (user) => {
+                usuarioLogado = user.nome;
+                document.getElementById('userNameDisplay').textContent = usuarioLogado;
+                mostrarApp();
+                socket.emit('carregar_dados');
+            });
+
+            socket.on('auth_erro', (err) => {
+                document.getElementById('loginStatus').textContent = err.msg;
+                toast(err.msg, 'error');
+            });
+
+            socket.on('ocorrencia_criada', (nova) => {
+                db.ocorrencias.unshift(nova);
+                renderOcorrencias();
+                toast('Nova ocorrência registrada!', 'success');
+            });
+
+            socket.on('ocorrencia_editada', (editada) => {
+                const idx = db.ocorrencias.findIndex(o => o._id === editada._id);
+                if (idx !== -1) {
+                    db.ocorrencias[idx] = editada;
+                    renderOcorrencias();
+                    toast('Ocorrência atualizada!', 'info');
+                }
+            });
+
+            socket.on('ocorrencia_excluida', (id) => {
+                db.ocorrencias = db.ocorrencias.filter(o => o._id !== id);
+                renderOcorrencias();
+                toast('Ocorrência removida.', 'info');
+            });
+
+            socket.on('ufv_atualizada', (atualizada) => {
+                const idx = db.ufv_status.findIndex(u => u._id === atualizada._id);
+                if (idx !== -1) {
+                    db.ufv_status[idx] = atualizada;
+                    renderStatusUFVs();
+                }
+            });
         }
-    };
 
-    // ── Modal de edição ──────────────────────────────────────────────────
-    function openModal(id) {
-        idAtual = id;
-        const o = ocorrencias.find(oc => oc.id === id);
-        if (!o) return;
-        document.getElementById('editStatus').value  = o.status;
-        document.getElementById('editImpacto').value = o.impacto;
-        document.getElementById('editUsina').value   = o.usina;
-        document.getElementById('editObs').value     = o.obs || '';
-        document.getElementById('editDataReg').value = o.dataReg || '';
-        const c = document.getElementById('editFotoContainer');
-        if (o.foto) {
-            document.getElementById('editFotoView').src = o.foto;
-            c.classList.remove('hidden');
-        } else {
-            c.classList.add('hidden');
+        function autenticar() {
+            const u = document.getElementById('userInput').value.trim();
+            const p = document.getElementById('passInput').value;
+            if (!u || !p) return toast('Preencha usuário e senha.', 'error');
+            document.getElementById('loginStatus').textContent = 'Autenticando...';
+            socket.emit('autenticar', { usuario: u, senha: p });
         }
-        document.getElementById('editModal').classList.remove('hidden');
-    }
 
-    function closeModal() {
-        document.getElementById('editModal').classList.add('hidden');
-        idAtual = null;
-    }
-
-    document.getElementById('saveEditBtn').onclick = () => {
-        if (!idAtual) return;
-        socket.emit('update_ocorrencia', {
-            id: idAtual,
-            campos: {
-                status:  document.getElementById('editStatus').value,
-                impacto: document.getElementById('editImpacto').value,
-                usina:   document.getElementById('editUsina').value,
-                obs:     document.getElementById('editObs').value,
-                dataReg: document.getElementById('editDataReg').value
+        function setStatus(type, text) {
+            const bar = document.getElementById('statusBar');
+            const dot = bar.querySelector('div');
+            const label = bar.querySelector('span');
+            label.textContent = text;
+            if (type === 'online') {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                label.className = 'text-[10px] font-black uppercase tracking-tighter text-emerald-600';
+                bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-red-500';
+                label.className = 'text-[10px] font-black uppercase tracking-tighter text-red-600';
+                bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50';
             }
-        });
-        closeModal();
-        toast('Registro atualizado!', 'success');
-    };
-
-    // ── Excluir ocorrência ───────────────────────────────────────────────
-    function excluir(id) {
-        if (confirm('Deseja excluir este registro?')) {
-            socket.emit('delete_ocorrencia', { id });
-            toast('Registro excluído.', 'info');
         }
-    }
 
-    // ── Exportar CSV de ocorrências ──────────────────────────────────────
-    function exportarExcel() {
-        window.location.href = '/api/exportar/ocorrencias';
-    }
+        function toast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            el.className = `toast toast-${type}`;
+            el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-triangle':'fa-info-circle'} mr-2"></i> ${msg}`;
+            container.appendChild(el);
+            setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
+        }
 
-    // ── Exportar CSV de status UFVs ──────────────────────────────────────
-    function exportarStatusUFVExcel() {
-        window.location.href = '/api/exportar/ufv_status';
-    }
+        function popularSelectUsinas() {
+            const select = document.getElementById('usina');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Escolha a usina</option>';
+            db.ufv_status.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.nome;
+                opt.textContent = u.nome;
+                select.appendChild(opt);
+            });
+            select.value = currentVal;
+        }
 
-    // ── Verificar sessão e iniciar ───────────────────────────────────────
-    iniciarSocket();
+        async function salvarOcorrencia() {
+            const dados = {
+                dataInicio: document.getElementById('dataEventoManual').value || new Date().toISOString().slice(0,16),
+                operador: document.getElementById('operador').value,
+                impacto: document.getElementById('impacto').value,
+                usina: document.getElementById('usina').value,
+                tipo: document.getElementById('tipo').value,
+                local: document.getElementById('local').value,
+                desc: document.getElementById('desc').value,
+                foto: ''
+            };
 
-    // Restaurar sessão se já estava logado
-    window.addEventListener('load', () => {
-        const sessao = sessionStorage.getItem('solar_session');
-        if (sessao) mostrarApp();
-    });
-</script>
+            if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
+
+            const fileInput = document.getElementById('foto');
+            if (fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    dados.foto = e.target.result;
+                    socket.emit('nova_ocorrencia', dados);
+                    limparForm();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                socket.emit('nova_ocorrencia', dados);
+                limparForm();
+            }
+        }
+
+        function limparForm() {
+            document.getElementById('dataEventoManual').value = '';
+            document.getElementById('local').value = '';
+            document.getElementById('desc').value = '';
+            document.getElementById('foto').value = '';
+        }
+
+        function renderOcorrencias() {
+            const term = document.getElementById('search').value.toLowerCase();
+            const container = document.getElementById('listaOcorrencias');
+            container.innerHTML = '';
+
+            const filtradas = db.ocorrencias.filter(o => 
+                o.usina.toLowerCase().includes(term) || 
+                o.operador.toLowerCase().includes(term) ||
+                o.tipo.toLowerCase().includes(term)
+            );
+
+            if (filtradas.length === 0) {
+                container.innerHTML = '<div class="p-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">Nenhuma ocorrência encontrada</div>';
+                return;
+            }
+
+            filtradas.forEach(o => {
+                const card = document.createElement('div');
+                card.className = "p-6 hover:bg-slate-50 transition-colors group";
+                const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
+                
+                card.innerHTML = `
+                    <div class="flex gap-6">
+                        <div class="w-24 flex flex-col items-center justify-center border-r pr-6">
+                            <span class="text-[10px] font-black uppercase tracking-tighter ${o.status==='FINALIZADO'?'text-emerald-500':'text-amber-500'}">${o.status}</span>
+                            <span class="text-[9px] text-slate-400 font-bold mt-1">${o.impacto}</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-tight">${o.usina}</h3>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${o.operador} • ${dataFormatada}</p>
+                                </div>
+                                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity no-print">
+                                    <button onclick="finalizarOcorrencia('${o._id}')" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg" title="Finalizar"><i class="fa-solid fa-check-double"></i></button>
+                                    <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-red-400 hover:bg-red-50 rounded-lg" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 items-start">
+                                <div class="flex-1">
+                                    <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-black uppercase mb-2">${o.tipo}</span>
+                                    <p class="text-xs text-slate-600 leading-relaxed">${o.desc}</p>
+                                    <p class="text-[10px] text-slate-400 mt-2 font-bold italic"><i class="fa-solid fa-location-dot mr-1"></i> ${o.local || 'Local não informado'}</p>
+                                </div>
+                                ${o.foto ? `<img src="${o.foto}" class="w-32 h-20 object-cover rounded-lg border shadow-sm cursor-zoom-in" onclick="window.open(this.src)">` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderStatusUFVs() {
+            const body = document.getElementById('tabelaStatusBody');
+            body.innerHTML = '';
+            db.ufv_status.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
+                    <td class="px-4 py-4 text-center">
+                        <select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}">
+                            <option ${u.digifort==='OK'?'selected':''}>OK</option>
+                            <option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                        <select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}">
+                            <option ${u.anydesk==='OK'?'selected':''}>OK</option>
+                            <option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-4 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
+                    <td class="px-4 py-4 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
+                    <td class="px-4 py-4 text-center">
+                        <select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra==='ROMPIDA'?'text-red-500':'text-emerald-500'}">
+                            <option ${u.fibra==='OK'?'selected':''}>OK</option>
+                            <option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option>
+                            <option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                        <select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}">
+                            <option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option>
+                            <option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                        <select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}">
+                            <option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option>
+                            <option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option>
+                        </select>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function updateUfv(id, field, value) {
+            socket.emit('atualizar_ufv', { _id: id, [field]: value });
+        }
+
+        function finalizarOcorrencia(id) {
+            socket.emit('editar_ocorrencia', { _id: id, status: 'FINALIZADO', dataFim: new Date().toISOString() });
+        }
+
+        function excluirOcorrencia(id) {
+            if (confirm('Deseja realmente excluir este registro?')) {
+                socket.emit('excluir_ocorrencia', id);
+            }
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tabOcorrencias').classList.toggle('hidden', tab !== 'ocorrencias');
+            document.getElementById('tabStatus').classList.toggle('hidden', tab !== 'status');
+            document.getElementById('tabBtnOcorrencias').className = `px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab==='ocorrencias'?'tab-active':'text-slate-500 hover:bg-white'}`;
+            document.getElementById('tabBtnStatus').className = `px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab==='status'?'tab-active':'text-slate-500 hover:bg-white'}`;
+        }
+
+        function mostrarApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').classList.remove('hidden');
+        }
+
+        function logout() { location.reload(); }
+
+        window.onload = iniciarSocket;
+    </script>
 </body>
 </html>
