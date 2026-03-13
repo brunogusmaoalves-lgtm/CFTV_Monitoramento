@@ -80,11 +80,18 @@ const UFVS_INICIAIS = [
 ];
 
 async function inicializarUFVs() {
-    const count = await UfvStatus.countDocuments();
-    if (count === 0) {
-        console.log('[!] Inicializando lista de UFVs no banco...');
-        const docs = UFVS_INICIAIS.map(nome => ({ nome }));
-        await UfvStatus.insertMany(docs);
+    try {
+        const count = await UfvStatus.countDocuments();
+        if (count === 0) {
+            console.log('[!] Inicializando lista de UFVs no banco...');
+            const docs = UFVS_INICIAIS.map(nome => ({ nome }));
+            await UfvStatus.insertMany(docs);
+            console.log('✅ UFVs criadas com sucesso!');
+        } else {
+            console.log(`[OK] Banco já contém ${count} UFVs.`);
+        }
+    } catch (err) {
+        console.error('❌ Erro ao inicializar UFVs:', err.message);
     }
 }
 inicializarUFVs();
