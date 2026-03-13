@@ -74,7 +74,7 @@
     <main class="flex-1 p-8 overflow-auto">
         <!-- ABA OCORRÊNCIAS -->
         <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            <!-- Formulário Lateral (Ajustado para ser mais largo: de col-span-3 para col-span-4) -->
+            <!-- Formulário Lateral (Mais Largo - 4 colunas) -->
             <div class="xl:col-span-4 no-print">
                 <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-24">
                     <div class="flex items-center gap-2 mb-8 text-emerald-500">
@@ -127,7 +127,7 @@
                 </div>
             </div>
 
-            <!-- Lista de Ocorrências (Ajustado de col-span-9 para col-span-8) -->
+            <!-- Lista de Ocorrências (8 colunas) -->
             <div class="xl:col-span-8">
                 <div class="flex gap-4 mb-6 no-print">
                     <div class="relative flex-1">
@@ -372,7 +372,18 @@
         const term = document.getElementById('search').value.toLowerCase();
         const container = document.getElementById('listaOcorrencias');
         container.innerHTML = '';
-        const filtradas = db.ocorrencias.filter(o => o.usina.toLowerCase().includes(term) || o.operador.toLowerCase().includes(term) || o.tipo.toLowerCase().includes(term));
+        
+        const filtradas = db.ocorrencias.filter(o => {
+            const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
+            const statusStr = (o.status || 'ABERTO').toLowerCase();
+            const usinaStr = o.usina.toLowerCase();
+            const operadorStr = o.operador.toLowerCase();
+            
+            return usinaStr.includes(term) || 
+                   operadorStr.includes(term) || 
+                   statusStr.includes(term) || 
+                   dataStr.includes(term);
+        });
         
         if (filtradas.length === 0) {
             container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>';
@@ -384,14 +395,13 @@
             tr.className = "hover:bg-slate-50/50 transition-colors group";
             const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
             
-            // Lógica de cor dinâmica para o Status
             const statusColorClass = o.status === 'FINALIZADO' 
                 ? 'bg-emerald-50 text-emerald-600' 
                 : 'bg-red-50 text-red-500';
 
             tr.innerHTML = `
                 <td class="px-8 py-6">
-                    <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status}</div>
+                    <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
                     <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
                 </td>
                 <td class="px-8 py-6">
@@ -459,5 +469,4 @@
 </script>
 </body>
 </html>
-
 
