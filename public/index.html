@@ -14,7 +14,7 @@
         .tab-active { border-bottom: 4px solid #10b981; color: #10b981; font-weight: 900; }
         .sticky-header th { position: sticky; top: 0; z-index: 10; background: #f8fafc; }
         #toastContainer { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
-        .toast { padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: fadeIn 0.3s ease; }
+        .toast { padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15 ); animation: fadeIn 0.3s ease; }
         .toast-success { background: #10b981; }
         .toast-error   { background: #ef4444; }
         .toast-info    { background: #3b82f6; }
@@ -35,7 +35,7 @@
         </div>
         <div class="space-y-4 text-left">
             <input type="text" id="userInput" placeholder="Usuário" class="w-full border-2 p-3 rounded-xl outline-none focus:border-emerald-500 transition text-sm">
-            <input type="password" id="passInput" placeholder="Senha" class="w-full border-2 p-3 rounded-xl outline-none focus:border-emerald-500 transition text-sm" onkeydown="if(event.key==='Enter') autenticar()">
+            <input type="password" id="passInput" placeholder="Senha" class="w-full border-2 p-3 rounded-xl outline-none focus:border-emerald-500 transition text-sm" onkeydown="if(event.key==='Enter' ) autenticar()">
             <button onclick="autenticar()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg transition-all active:scale-95 text-xs">ACESSAR PAINEL</button>
         </div>
         <div id="loginStatus" class="mt-4 text-xs text-slate-400 font-bold"></div>
@@ -54,7 +54,7 @@
         </div>
         <div class="flex items-center gap-6">
             <nav class="flex gap-1 bg-slate-100 p-1 rounded-xl">
-                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias')" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
+                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
                 <button id="tabBtnStatus" onclick="switchTab('status')" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white">STATUS DAS UFVS</button>
             </nav>
             <div class="flex items-center gap-4 border-l pl-6">
@@ -73,11 +73,9 @@
     </header>
 
     <main class="flex-1 p-8 overflow-auto">
-        <!-- ABA OCORRÊNCIAS -->
         <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            <!-- Formulário -->
             <div class="xl:col-span-3 no-print">
-                <div class="bg-white rounded-2xl shadow-sm border p-6 sticky top-24">
+                <div class="bg-white rounded-2xl shadow-sm border p-8 sticky top-24">
                     <div class="flex items-center gap-2 mb-6 text-emerald-600">
                         <i class="fa-solid fa-circle-plus"></i>
                         <h2 class="text-xs font-black uppercase tracking-widest">Novo Registro</h2>
@@ -138,7 +136,6 @@
                 </div>
             </div>
 
-            <!-- Lista de Ocorrências -->
             <div class="xl:col-span-9">
                 <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                     <div class="p-6 border-b flex justify-between items-center bg-slate-50/50 no-print">
@@ -150,14 +147,11 @@
                             <i class="fa-solid fa-file-pdf"></i> Imprimir PDF
                         </button>
                     </div>
-                    <div id="listaOcorrencias" class="divide-y">
-                        <!-- Ocorrências via JS -->
-                    </div>
+                    <div id="listaOcorrencias" class="divide-y"></div>
                 </div>
             </div>
         </div>
 
-        <!-- ABA STATUS UFVS -->
         <div id="tabStatus" class="hidden">
             <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                 <div class="p-6 border-b flex justify-between items-center bg-slate-50/50">
@@ -184,23 +178,25 @@
                                 <th class="px-4 py-4 text-center">Pronta Resposta</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600">
-                            <!-- UFVs via JS -->
-                        </tbody>
+                        <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         let db = { ocorrencias: [], ufv_status: [] };
         let usuarioLogado = null;
         let socket = null;
 
-        function iniciarSocket() {
+        function iniciarSocket( ) {
             socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
-            socket.on('connect', () => setStatus('online', 'Conectado'));
+            socket.on('connect', () => {
+                setStatus('online', 'Conectado');
+                socket.emit('carregar_dados');
+            });
             socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
             
             socket.on('dados_iniciais', (dados) => {
@@ -228,22 +224,14 @@
                 toast('Nova ocorrência registrada!', 'success');
             });
 
-            socket.on('connect', () => {
-            console.log('Socket conectado!');
-            setStatus('online', 'Conectado');
-            // Força o carregamento dos dados assim que conecta
-            console.log('Solicitando dados iniciais...');
-            socket.emit('carregar_dados');
-        });
-
-        // Adicione este log para ver se os dados estão chegando
-        socket.on('dados_iniciais', (dados) => {
-            console.log('Dados recebidos do servidor:', dados);
-            db = dados;
-            popularSelectUsinas();
-            renderOcorrencias();
-            renderStatusUFVs();
-        });
+            socket.on('ocorrencia_editada', (editada) => {
+                const idx = db.ocorrencias.findIndex(o => o._id === editada._id);
+                if (idx !== -1) {
+                    db.ocorrencias[idx] = editada;
+                    renderOcorrencias();
+                    toast('Ocorrência atualizada!', 'info');
+                }
+            });
 
             socket.on('ocorrencia_excluida', (id) => {
                 db.ocorrencias = db.ocorrencias.filter(o => o._id !== id);
@@ -317,9 +305,7 @@
                 desc: document.getElementById('desc').value,
                 foto: ''
             };
-
             if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
-
             const fileInput = document.getElementById('foto');
             if (fileInput.files[0]) {
                 const reader = new FileReader();
@@ -346,23 +332,19 @@
             const term = document.getElementById('search').value.toLowerCase();
             const container = document.getElementById('listaOcorrencias');
             container.innerHTML = '';
-
             const filtradas = db.ocorrencias.filter(o => 
                 o.usina.toLowerCase().includes(term) || 
                 o.operador.toLowerCase().includes(term) ||
                 o.tipo.toLowerCase().includes(term)
             );
-
             if (filtradas.length === 0) {
                 container.innerHTML = '<div class="p-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">Nenhuma ocorrência encontrada</div>';
                 return;
             }
-
             filtradas.forEach(o => {
                 const card = document.createElement('div');
                 card.className = "p-6 hover:bg-slate-50 transition-colors group";
                 const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
-                
                 card.innerHTML = `
                     <div class="flex gap-6">
                         <div class="w-24 flex flex-col items-center justify-center border-r pr-6">
@@ -441,34 +423,46 @@
             });
         }
 
-        function updateUfv(id, field, value) {
-            socket.emit('atualizar_ufv', { _id: id, [field]: value });
-        }
-
-        function finalizarOcorrencia(id) {
-            socket.emit('editar_ocorrencia', { _id: id, status: 'FINALIZADO', dataFim: new Date().toISOString() });
-        }
-
-        function excluirOcorrencia(id) {
-            if (confirm('Deseja realmente excluir este registro?')) {
-                socket.emit('excluir_ocorrencia', id);
-            }
-        }
-
+        function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
+        function finalizarOcorrencia(id) { socket.emit('editar_ocorrencia', { _id: id, status: 'FINALIZADO', dataFim: new Date().toISOString() }); }
+        function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
         function switchTab(tab) {
             document.getElementById('tabOcorrencias').classList.toggle('hidden', tab !== 'ocorrencias');
             document.getElementById('tabStatus').classList.toggle('hidden', tab !== 'status');
             document.getElementById('tabBtnOcorrencias').className = `px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab==='ocorrencias'?'tab-active':'text-slate-500 hover:bg-white'}`;
             document.getElementById('tabBtnStatus').className = `px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab==='status'?'tab-active':'text-slate-500 hover:bg-white'}`;
         }
-
-        function mostrarApp() {
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('mainApp').classList.remove('hidden');
-        }
-
+        function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
         function logout() { location.reload(); }
-
+        function exportarExcel() {
+            const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
+                Data: new Date(o.dataInicio).toLocaleString('pt-BR'),
+                Operador: o.operador,
+                Usina: o.usina,
+                Tipo: o.tipo,
+                Local: o.local,
+                Descrição: o.desc,
+                Status: o.status
+            })));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
+            XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
+        }
+        function exportarExcelUFVs() {
+            const ws = XLSX.utils.json_to_sheet(db.ufv_status.map(u => ({
+                UFV: u.nome,
+                Digifort: u.digifort,
+                Anydesk: u.anydesk,
+                "Total Câm": u.totalCam,
+                "Câm ON": u.camOn,
+                Fibra: u.fibra,
+                Segurança: u.seguranca,
+                "Pronta Resposta": u.prontaResposta
+            })));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs");
+            XLSX.writeFile(wb, "Status_Infraestrutura_UFVs.xlsx");
+        }
         window.onload = iniciarSocket;
     </script>
 </body>
