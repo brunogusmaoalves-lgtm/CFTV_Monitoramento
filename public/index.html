@@ -8,8 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' );
-        body { font-family: 'Inter', sans-serif; }
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" );
+        body { font-family: "Inter", sans-serif; }
         @media print { .no-print { display: none; } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
@@ -38,12 +38,12 @@
 <div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
     <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md text-center">
         <div class="mb-8">
-            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-16 w-auto mb-4 object-contain" onerror="this.src='https://via.placeholder.com/200x80?text=IVI+ENERGIA'">
+            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-32 w-auto mb-6 object-contain" onerror="this.src=\'https://via.placeholder.com/200x80?text=IVI+ENERGIA\'">
             <h1 class="text-xl font-black text-slate-800 uppercase tracking-tighter">SISTEMA DE <span class="text-emerald-500">MONITORAMENTO</span></h1>
         </div>
         <div class="space-y-4 text-left">
             <input type="text" id="userInput" placeholder="Usuário" class="w-full input-field">
-            <input type="password" id="passInput" placeholder="Senha" class="w-full input-field" onkeydown="if(event.key==='Enter' ) autenticar()">
+            <input type="password" id="passInput" placeholder="Senha" class="w-full input-field" onkeydown="if(event.key===\'Enter\' ) autenticar()">
             <button onclick="autenticar()" class="w-full btn-primary py-4 text-xs">ACESSAR PAINEL</button>
         </div>
         <div id="loginStatus" class="mt-4 text-xs text-slate-400 font-bold"></div>
@@ -54,10 +54,10 @@
 <div id="mainApp" class="hidden min-h-screen flex flex-col">
     <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
         <div class="flex items-center gap-8">
-            <img src="logo.png" alt="IVI Energia" class="h-12 w-auto object-contain" onerror="this.src='https://via.placeholder.com/120x50?text=IVI+ENERGIA'">
+            <img src="logo.png" alt="IVI Energia" class="h-12 w-auto object-contain" onerror="this.src=\'https://via.placeholder.com/120x50?text=IVI+ENERGIA\'">
             <nav class="flex gap-6">
-                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
-                <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
+                <button id="tabBtnOcorrencias" onclick="switchTab(\'ocorrencias\' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
+                <button id="tabBtnStatus" onclick="switchTab(\'status\')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
             </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -83,6 +83,10 @@
                         <h2 class="text-[11px] font-black uppercase tracking-widest">NOVO REGISTRO</h2>
                     </div>
                     <div class="space-y-5">
+                        <div>
+                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA E HORA</label>
+                            <input type="datetime-local" id="dataHoraOcorrencia" class="w-full input-field text-xs">
+                        </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">OPERADOR</label>
@@ -90,10 +94,6 @@
                                     <option value="">Selecione</option>
                                     <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option>
                                 </select>
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA E HORA</label>
-                                <input type="datetime-local" id="dataHoraOcorrencia" class="w-full input-field text-xs">
                             </div>
                             <div>
                                 <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">IMPACTO GERAÇÃO</label>
@@ -188,14 +188,14 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky-header">
                             <tr class="bg-white text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
-                                <th class="px-8 py-5" onclick="ordenarStatus('nome')">UFV <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('digifort')">Digifort <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('anydesk')">Anydesk <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('totalCam')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('seguranca')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('prontaResposta')">Pronta Resposta <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-8 py-5" onclick="ordenarStatus(\'nome\')">UFV <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'digifort\')">Digifort <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'anydesk\')">Anydesk <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'totalCam\')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'camOn\')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'fibra\')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'seguranca\')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'prontaResposta\')">Pronta Resposta <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                             </tr>
                         </thead>
                         <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
@@ -243,7 +243,7 @@
                     </div>
                     <div>
                         <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA REGULARIZAÇÃO</label>
-                        <input type="datetime-local" id="editModalDataFim" class="w-full input-field text-xs font-bold">
+                        <input type="date" id="editModalDataFim" class="w-full input-field text-xs font-bold">
                     </div>
                 </div>
                 <div>
@@ -386,7 +386,7 @@
         document.getElementById('local').value = '';
         document.getElementById('desc').value = '';
         document.getElementById('foto').value = '';
-        document.getElementById('dataHoraOcorrencia').value = '';
+        document.getElementById('dataHoraOcorrencia').value = ''; // Limpa o campo de data e hora
     }
 
     function renderOcorrencias() {
@@ -503,7 +503,8 @@
     
     function exportarExcelOcorrencias() {
         const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
-            Data: new Date(o.dataInicio).toLocaleString('pt-BR'),
+            "Data/Hora Início": new Date(o.dataInicio).toLocaleString('pt-BR'),
+            "Data/Hora Fim": o.dataFim ? new Date(o.dataFim).toLocaleString('pt-BR') : '',
             Operador: o.operador,
             Usina: o.usina,
             Tipo: o.tipo,
@@ -560,7 +561,6 @@
 </script>
 </body>
 </html>
-
 
 
 
