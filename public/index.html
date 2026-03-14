@@ -134,19 +134,24 @@
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl text-xs outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all">
                     </div>
-                    <button onclick="exportarExcel()" class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
-                        <i class="fa-solid fa-file-excel"></i> EXCEL
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="exportarExcelOcorrencias()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-file-excel"></i> EXCEL
+                        </button>
+                        <button onclick="exportarPDFOcorrencias()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
                 </div>
 
-                <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+                <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" id="tabelaOcorrenciasPDF">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
                                 <th class="px-8 py-6">STATUS / GERAÇÃO</th>
                                 <th class="px-8 py-6">USINA / OPERADOR</th>
                                 <th class="px-8 py-6">OCORRÊNCIA</th>
-                                <th class="px-8 py-6 text-right">AÇÕES</th>
+                                <th class="px-8 py-6 text-right no-print">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody id="listaOcorrencias" class="divide-y">
@@ -160,14 +165,19 @@
         <!-- ABA STATUS UFVS -->
         <div id="tabStatus" class="hidden">
             <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
-                <div class="p-8 border-b flex justify-between items-center">
+                <div class="p-8 border-b flex justify-between items-center no-print">
                     <div>
                         <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Status de Infraestrutura</h2>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Painel Operacional em Tempo Real</p>
                     </div>
-                    <button onclick="exportarPDFStatus()" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
-                        <i class="fa-solid fa-file-pdf"></i> EXPORTAR PDF
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="exportarExcelUFVs()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
+                            <i class="fa-solid fa-file-excel"></i> EXCEL
+                        </button>
+                        <button onclick="exportarPDFStatus()" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto" id="tabelaStatusPDF">
                     <table class="w-full text-left border-collapse">
@@ -418,7 +428,7 @@
                     </div>
                     <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
                 </td>
-                <td class="px-8 py-6 text-right">
+                <td class="px-8 py-6 text-right no-print">
                     <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
                         <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
@@ -460,7 +470,7 @@
     function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
     function logout() { location.reload(); }
     
-    function exportarExcel() {
+    function exportarExcelOcorrencias() {
         const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
             Data: new Date(o.dataInicio).toLocaleString('pt-BR'),
             Operador: o.operador,
@@ -473,6 +483,34 @@
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
         XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
+    }
+
+    function exportarPDFOcorrencias() {
+        const element = document.getElementById('tabelaOcorrenciasPDF');
+        const opt = {
+            margin: 10,
+            filename: 'Relatorio_Ocorrencias_CFTV.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    function exportarExcelUFVs() {
+        const ws = XLSX.utils.json_to_sheet(db.ufv_status.map(u => ({
+            UFV: u.nome,
+            Digifort: u.digifort,
+            Anydesk: u.anydesk,
+            "Total Câm": u.totalCam,
+            "Câm ON": u.camOn,
+            Fibra: u.fibra,
+            Segurança: u.seguranca,
+            "Pronta Resposta": u.prontaResposta
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs");
+        XLSX.writeFile(wb, "Status_Infraestrutura_UFVs.xlsx");
     }
 
     function exportarPDFStatus() {
@@ -491,6 +529,7 @@
 </script>
 </body>
 </html>
+
 
 
 
