@@ -8,8 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" );
-        body { font-family: "Inter", sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' );
+        body { font-family: 'Inter', sans-serif; }
         @media print { .no-print { display: none; } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
@@ -38,12 +38,12 @@
 <div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
     <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md text-center">
         <div class="mb-8">
-            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-16 w-auto mb-4 object-contain" onerror="this.src=\'https://via.placeholder.com/200x80?text=IVI+ENERGIA\'\">
+            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-32 w-auto mb-6 object-contain" onerror="this.src='https://via.placeholder.com/200x80?text=IVI+ENERGIA'">
             <h1 class="text-xl font-black text-slate-800 uppercase tracking-tighter">SISTEMA DE <span class="text-emerald-500">MONITORAMENTO</span></h1>
         </div>
         <div class="space-y-4 text-left">
             <input type="text" id="userInput" placeholder="Usuário" class="w-full input-field">
-            <input type="password" id="passInput" placeholder="Senha" class="w-full input-field" onkeydown="if(event.key===\'Enter\' ) autenticar()">
+            <input type="password" id="passInput" placeholder="Senha" class="w-full input-field" onkeydown="if(event.key==='Enter' ) autenticar()">
             <button onclick="autenticar()" class="w-full btn-primary py-4 text-xs">ACESSAR PAINEL</button>
         </div>
         <div id="loginStatus" class="mt-4 text-xs text-slate-400 font-bold"></div>
@@ -54,10 +54,10 @@
 <div id="mainApp" class="hidden min-h-screen flex flex-col">
     <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
         <div class="flex items-center gap-8">
-            <img src="logo.png" alt="IVI Energia" class="h-12 w-auto object-contain" onerror="this.src=\'https://via.placeholder.com/120x50?text=IVI+ENERGIA\'\">
+            <img src="logo.png" alt="IVI Energia" class="h-12 w-auto object-contain" onerror="this.src='https://via.placeholder.com/120x50?text=IVI+ENERGIA'">
             <nav class="flex gap-6">
-                <button id="tabBtnOcorrencias" onclick="switchTab(\'ocorrencias\' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
-                <button id="tabBtnStatus" onclick="switchTab(\'status\')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
+                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
+                <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
             </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -188,14 +188,14 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky-header">
                             <tr class="bg-white text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
-                                <th class="px-8 py-5" onclick="ordenarStatus(\'nome\')">UFV <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'digifort\')">Digifort <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'anydesk\')">Anydesk <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'totalCam\')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'camOn\')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'fibra\')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'seguranca\')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'prontaResposta\')">Pronta Resposta <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-8 py-5" onclick="ordenarStatus('nome')">UFV <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('digifort')">Digifort <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('anydesk')">Anydesk <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('totalCam')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('seguranca')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('prontaResposta')">Pronta Resposta <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                             </tr>
                         </thead>
                         <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
@@ -243,7 +243,7 @@
                     </div>
                     <div>
                         <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA REGULARIZAÇÃO</label>
-                        <input type="datetime-local" id="editModalDataFim" class="w-full input-field text-xs font-bold">
+                        <input type="date" id="editModalDataFim" class="w-full input-field text-xs font-bold">
                     </div>
                 </div>
                 <div>
@@ -265,61 +265,61 @@
     let db = { ocorrencias: [], ufv_status: [] };
     let usuarioLogado = null;
     let socket = null;
-    let sortConfig = { field: \'nome\', direction: 1 };
+    let sortConfig = { field: 'nome', direction: 1 };
 
     function iniciarSocket( ) {
-        socket = io({ transports: [\'websocket\', \'polling\'], reconnectionAttempts: 5 });
-        socket.on(\'connect\', () => { setStatus(\'online\', \'Conectado\'); socket.emit(\'carregar_dados\'); });
-        socket.on(\'disconnect\', () => setStatus(\'offline\', \'Desconectado\'));
-        socket.on(\'dados_iniciais\', (dados) => { db = dados; popularSelectUsinas(); renderOcorrencias(); renderStatusUFVs(); });
-        socket.on(\'autenticado\', (user) => { usuarioLogado = user.nome; document.getElementById(\'userNameDisplay\').textContent = usuarioLogado; mostrarApp(); socket.emit(\'carregar_dados\'); });
-        socket.on(\'auth_erro\', (err) => { document.getElementById(\'loginStatus\').textContent = err.msg; toast(err.msg, \'error\'); });
-        socket.on(\'ocorrencia_criada\', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast(\'Nova ocorrência registrada!\', \'success\'); });
-        socket.on(\'ocorrencia_editada\', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast(\'Registro atualizado!\', \'success\'); } });
-        socket.on(\'ocorrencia_excluida\', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast(\'Ocorrência removida.\', \'info\'); });
-        socket.on(\'ufv_atualizada\', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
+        socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
+        socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
+        socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
+        socket.on('dados_iniciais', (dados) => { db = dados; popularSelectUsinas(); renderOcorrencias(); renderStatusUFVs(); });
+        socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
+        socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
+        socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
+        socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
+        socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
+        socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
     }
 
     function autenticar() {
-        const u = document.getElementById(\'userInput\').value.trim();
-        const p = document.getElementById(\'passInput\').value;
-        if (!u || !p) return toast(\'Preencha usuário e senha.\', \'error\');
-        document.getElementById(\'loginStatus\').textContent = \'Autenticando...\';
-        socket.emit(\'autenticar\', { usuario: u, senha: p });
+        const u = document.getElementById('userInput').value.trim();
+        const p = document.getElementById('passInput').value;
+        if (!u || !p) return toast('Preencha usuário e senha.', 'error');
+        document.getElementById('loginStatus').textContent = 'Autenticando...';
+        socket.emit('autenticar', { usuario: u, senha: p });
     }
 
     function setStatus(type, text) {
-        const bar = document.getElementById(\'statusBar\');
-        const dot = bar.querySelector(\'div\');
-        const label = bar.querySelector(\'span\');
+        const bar = document.getElementById('statusBar');
+        const dot = bar.querySelector('div');
+        const label = bar.querySelector('span');
         label.textContent = text;
-        if (type === \'online\') {
-            dot.className = \'w-2 h-2 rounded-full bg-emerald-500 animate-pulse\';
-            label.className = \'text-[10px] font-black uppercase tracking-tighter text-emerald-600\';
-            bar.className = \'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50\';
+        if (type === 'online') {
+            dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+            label.className = 'text-[10px] font-black uppercase tracking-tighter text-emerald-600';
+            bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50';
         } else {
-            dot.className = \'w-2 h-2 rounded-full bg-red-500\';
-            label.className = \'text-[10px] font-black uppercase tracking-tighter text-red-600\';
-            bar.className = \'flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50\';
+            dot.className = 'w-2 h-2 rounded-full bg-red-500';
+            label.className = 'text-[10px] font-black uppercase tracking-tighter text-red-600';
+            bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50';
         }
     }
 
-    function toast(msg, type = \'success\') {
-        const container = document.getElementById(\'toastContainer\');
-        const el = document.createElement(\'div\');
+    function toast(msg, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const el = document.createElement('div');
         el.className = `toast toast-${type}`;
-        el.innerHTML = `<i class="fa-solid ${type===\'success\'?\'fa-check-circle\':\'fa-exclamation-triangle\'} mr-2"></i> ${msg}`;
+        el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check-circle':'fa-exclamation-triangle'} mr-2"></i> ${msg}`;
         container.appendChild(el);
-        setTimeout(() => { el.style.opacity = \'0\'; setTimeout(() => el.remove(), 300); }, 3000);
+        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
     }
 
     function popularSelectUsinas() {
-        const select = document.getElementById(\'usina\');
-        const modalSelect = document.getElementById(\'editModalUsina\');
-        select.innerHTML = \'<option value="">Escolha a usina</option>\';
-        modalSelect.innerHTML = \'\';
+        const select = document.getElementById('usina');
+        const modalSelect = document.getElementById('editModalUsina');
+        select.innerHTML = '<option value="">Escolha a usina</option>';
+        modalSelect.innerHTML = '';
         db.ufv_status.forEach(u => {
-            const opt = document.createElement(\'option\');
+            const opt = document.createElement('option');
             opt.value = u.nome; opt.textContent = u.nome;
             select.appendChild(opt.cloneNode(true));
             modalSelect.appendChild(opt);
@@ -327,75 +327,76 @@
     }
 
     async function salvarOcorrencia() {
+        const dataInput = document.getElementById('dataHoraOcorrencia').value;
         const dados = {
-            dataInicio: document.getElementById(\'dataHoraOcorrencia\').value ? new Date(document.getElementById(\'dataHoraOcorrencia\').value).toISOString() : new Date().toISOString(),
-            operador: document.getElementById(\'operador\').value,
-            impacto: document.getElementById(\'impacto\').value,
-            usina: document.getElementById(\'usina\').value,
-            tipo: document.getElementById(\'tipo\').value,
-            local: document.getElementById(\'local\').value,
-            desc: document.getElementById(\'desc\').value,
-            foto: \'\'
+            dataInicio: dataInput ? new Date(dataInput).toISOString() : new Date().toISOString(),
+            operador: document.getElementById('operador').value,
+            impacto: document.getElementById('impacto').value,
+            usina: document.getElementById('usina').value,
+            tipo: document.getElementById('tipo').value,
+            local: document.getElementById('local').value,
+            desc: document.getElementById('desc').value,
+            foto: ''
         };
-        if (!dados.operador || !dados.usina) return toast(\'Operador e Usina são obrigatórios!\', \'error\');
-        const fileInput = document.getElementById(\'foto\');
+        if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
+        const fileInput = document.getElementById('foto');
         if (fileInput.files[0]) {
             const reader = new FileReader();
-            reader.onload = (e) => { dados.foto = e.target.result; socket.emit(\'nova_ocorrencia\', dados); limparForm(); };
+            reader.onload = (e) => { dados.foto = e.target.result; socket.emit('nova_ocorrencia', dados); limparForm(); };
             reader.readAsDataURL(fileInput.files[0]);
         } else {
-            socket.emit(\'nova_ocorrencia\', dados); limparForm();
+            socket.emit('nova_ocorrencia', dados); limparForm();
         }
     }
 
     function abrirModalEdicao(id) {
         const o = db.ocorrencias.find(item => item._id === id);
         if (!o) return;
-        document.getElementById(\'editModalId\').value = o._id;
-        document.getElementById(\'editModalStatus\').value = o.status || \'ABERTO\';
-        document.getElementById(\'editModalImpacto\').value = o.impacto;
-        document.getElementById(\'editModalUsina\').value = o.usina;
-        document.getElementById(\'editModalDataFim\').value = o.dataFim || \'\';
-        document.getElementById(\'editModalDesc\').value = o.desc;
-        const img = document.getElementById(\'editModalFoto\');
-        const semFoto = document.getElementById(\'editModalSemFoto\');
-        if (o.foto) { img.src = o.foto; img.classList.remove(\'hidden\'); semFoto.classList.add(\'hidden\'); }
-        else { img.classList.add(\'hidden\'); semFoto.classList.remove(\'hidden\'); }
-        document.getElementById(\'editModal\').classList.remove(\'hidden\');
-        document.getElementById(\'editModal\').classList.add(\'flex\');
+        document.getElementById('editModalId').value = o._id;
+        document.getElementById('editModalStatus').value = o.status || 'ABERTO';
+        document.getElementById('editModalImpacto').value = o.impacto;
+        document.getElementById('editModalUsina').value = o.usina;
+        document.getElementById('editModalDataFim').value = o.dataFim || '';
+        document.getElementById('editModalDesc').value = o.desc;
+        const img = document.getElementById('editModalFoto');
+        const semFoto = document.getElementById('editModalSemFoto');
+        if (o.foto) { img.src = o.foto; img.classList.remove('hidden'); semFoto.classList.add('hidden'); }
+        else { img.classList.add('hidden'); semFoto.classList.remove('hidden'); }
+        document.getElementById('editModal').classList.remove('hidden');
+        document.getElementById('editModal').classList.add('flex');
     }
 
-    function fecharModal() { document.getElementById(\'editModal\').classList.add(\'hidden\'); document.getElementById(\'editModal\').classList.remove(\'flex\'); }
+    function fecharModal() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('editModal').classList.remove('flex'); }
 
     function confirmarEdicao() {
-        const id = document.getElementById(\'editModalId\').value;
+        const id = document.getElementById('editModalId').value;
         const dados = {
             _id: id,
-            status: document.getElementById(\'editModalStatus\').value,
-            impacto: document.getElementById(\'editModalImpacto\').value,
-            usina: document.getElementById(\'editModalUsina\').value,
-            dataFim: document.getElementById(\'editModalDataFim\').value,
-            desc: document.getElementById(\'editModalDesc\').value
+            status: document.getElementById('editModalStatus').value,
+            impacto: document.getElementById('editModalImpacto').value,
+            usina: document.getElementById('editModalUsina').value,
+            dataFim: document.getElementById('editModalDataFim').value,
+            desc: document.getElementById('editModalDesc').value
         };
-        socket.emit(\'editar_ocorrencia\', dados);
+        socket.emit('editar_ocorrencia', dados);
         fecharModal();
     }
 
     function limparForm() {
-        document.getElementById(\'local\').value = \'\';
-        document.getElementById(\'desc\').value = \'\';
-        document.getElementById(\'foto\').value = \'\';
-        document.getElementById(\'dataHoraOcorrencia\').value = \'\'; // Limpa o campo de data e hora
+        document.getElementById('local').value = '';
+        document.getElementById('desc').value = '';
+        document.getElementById('foto').value = '';
+        document.getElementById('dataHoraOcorrencia').value = '';
     }
 
     function renderOcorrencias() {
-        const term = document.getElementById(\'search\').value.toLowerCase();
-        const container = document.getElementById(\'listaOcorrencias\');
-        container.innerHTML = \'\';
+        const term = document.getElementById('search').value.toLowerCase();
+        const container = document.getElementById('listaOcorrencias');
+        container.innerHTML = '';
         
         const filtradas = db.ocorrencias.filter(o => {
-            const dataStr = new Date(o.dataInicio).toLocaleString(\'pt-BR\').toLowerCase();
-            const statusStr = (o.status || \'ABERTO\').toLowerCase();
+            const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
+            const statusStr = (o.status || 'ABERTO').toLowerCase();
             const usinaStr = o.usina.toLowerCase();
             const operadorStr = o.operador.toLowerCase();
             return usinaStr.includes(term) || 
@@ -405,22 +406,22 @@
         });
         
         if (filtradas.length === 0) {
-            container.innerHTML = \'<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>\';
+            container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>';
             return;
         }
 
         filtradas.forEach(o => {
-            const tr = document.createElement(\'tr\');
+            const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors group";
-            const dataFormatada = new Date(o.dataInicio).toLocaleString(\'pt-BR\');
+            const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
             
-            const statusColorClass = o.status === \'FINALIZADO\' 
-                ? \'bg-emerald-50 text-emerald-600\' 
-                : \'bg-red-50 text-red-500\';
+            const statusColorClass = o.status === 'FINALIZADO' 
+                ? 'bg-emerald-50 text-emerald-600' 
+                : 'bg-red-50 text-red-500';
 
             tr.innerHTML = `
                 <td class="px-8 py-6">
-                    <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || \'ABERTO\'}</div>
+                    <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
                     <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
                 </td>
                 <td class="px-8 py-6">
@@ -430,15 +431,15 @@
                 </td>
                 <td class="px-8 py-6">
                     <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
-                        <span>${o.tipo.split(\' \')[0]}</span>
-                        <span>${o.tipo.split(\' \').slice(1).join(\' \')}</span>
+                        <span>${o.tipo.split(' ')[0]}</span>
+                        <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
                     </div>
-                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || \'Geral\'}</div>
+                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
                 </td>
                 <td class="px-8 py-6 text-right no-print">
                     <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="abrirModalEdicao(\'${o._id}\')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                        <button onclick="excluirOcorrencia(\'${o._id}\')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
+                        <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                        <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
                     </div>
                 </td>
             `;
@@ -457,13 +458,13 @@
     }
 
     function renderStatusUFVs() {
-        const body = document.getElementById(\'tabelaStatusBody\');
-        body.innerHTML = \'\';
+        const body = document.getElementById('tabelaStatusBody');
+        body.innerHTML = '';
         
         const ordenadas = [...db.ufv_status].sort((a, b) => {
             let valA = a[sortConfig.field];
             let valB = b[sortConfig.field];
-            if (typeof valA === \'string\') {
+            if (typeof valA === 'string') {
                 valA = valA.toLowerCase();
                 valB = valB.toLowerCase();
             }
@@ -473,36 +474,36 @@
         });
 
         ordenadas.forEach(u => {
-            const tr = document.createElement(\'tr\');
+            const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors";
             tr.innerHTML = `
                 <td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv(\'${u._id}\', \'digifort\', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort===\'OFFLINE\'?\'text-red-500\':\'text-emerald-500\'}"><option ${u.digifort===\'OK\'?\'selected\':\'\'}>OK</option><option ${u.digifort===\'OFFLINE\'?\'selected\':\'\'}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv(\'${u._id}\', \'anydesk\', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk===\'OFFLINE\'?\'text-red-500\':\'text-emerald-500\'}"><option ${u.anydesk===\'OK\'?\'selected\':\'\'}>OK</option><option ${u.anydesk===\'OFFLINE\'?\'selected\':\'\'}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv(\'${u._id}\', \'totalCam\', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv(\'${u._id}\', \'camOn\', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? \'text-red-500 font-black\' : \'text-emerald-500\'}"></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv(\'${u._id}\', \'fibra\', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra===\'ROMPIDA\'?\'text-red-500\':\'text-emerald-500\'}"><option ${u.fibra===\'OK\'?\'selected\':\'\'}>OK</option><option ${u.fibra===\'ROMPIDA\'?\'selected\':\'\'}>ROMPIDA</option><option ${u.fibra===\'NÃO TEM\'?\'selected\':\'\'}>NÃO TEM</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv(\'${u._id}\', \'seguranca\', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca===\'MOBILIZADA\'?\'text-amber-500\':\'text-slate-400\'}"><option ${u.seguranca===\'MOBILIZADA\'?\'selected\':\'\'}>MOBILIZADA</option><option ${u.seguranca===\'SEM NECESSIDADE\'?\'selected\':\'\'}>SEM NECESSIDADE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv(\'${u._id}\', \'prontaResposta\', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta===\'INATIVO\'?\'text-red-500\':\'text-emerald-500\'}"><option ${u.prontaResposta===\'ATIVO\'?\'selected\':\'\'}>ATIVO</option><option ${u.prontaResposta===\'INATIVO\'?\'selected\':\'\'}>INATIVO</option></select></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+                <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
+                <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra==='ROMPIDA'?'text-red-500':'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option></select></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option></select></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
             `;
             body.appendChild(tr);
         });
     }
 
-    function updateUfv(id, field, value) { socket.emit(\'atualizar_ufv\', { _id: id, [field]: value }); }
-    function excluirOcorrencia(id) { if (confirm(\'Deseja realmente excluir este registro?\')) { socket.emit(\'excluir_ocorrencia\', id); } }
+    function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
+    function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
     function switchTab(tab) {
-        document.getElementById(\'tabOcorrencias\').classList.toggle(\'hidden\', tab !== \'ocorrencias\');
-        document.getElementById(\'tabStatus\').classList.toggle(\'hidden\', tab !== \'status\');
-        document.getElementById(\'tabBtnOcorrencias\').className = `pb-4 text-[11px] font-black uppercase tracking-widest transition-all ${tab===\'ocorrencias\'?\'tab-active\':\'text-slate-400 hover:text-slate-600\'}`;
-        document.getElementById(\'tabBtnStatus\').className = `pb-4 text-[11px] font-black uppercase tracking-widest transition-all ${tab===\'status\'?\'tab-active\':\'text-slate-400 hover:text-slate-600\'}`;
+        document.getElementById('tabOcorrencias').classList.toggle('hidden', tab !== 'ocorrencias');
+        document.getElementById('tabStatus').classList.toggle('hidden', tab !== 'status');
+        document.getElementById('tabBtnOcorrencias').className = `pb-4 text-[11px] font-black uppercase tracking-widest transition-all ${tab==='ocorrencias'?'tab-active':'text-slate-400 hover:text-slate-600'}`;
+        document.getElementById('tabBtnStatus').className = `pb-4 text-[11px] font-black uppercase tracking-widest transition-all ${tab==='status'?'tab-active':'text-slate-400 hover:text-slate-600'}`;
     }
-    function mostrarApp() { document.getElementById(\'loginPage\').style.display = \'none\'; document.getElementById(\'mainApp\').classList.remove(\'hidden\'); }
+    function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
     function logout() { location.reload(); }
     
     function exportarExcelOcorrencias() {
         const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
-            Data: new Date(o.dataInicio).toLocaleString(\'pt-BR\'),
+            Data: new Date(o.dataInicio).toLocaleString('pt-BR'),
             Operador: o.operador,
             Usina: o.usina,
             Tipo: o.tipo,
@@ -516,13 +517,13 @@
     }
 
     function exportarPDFOcorrencias() {
-        const element = document.getElementById(\'tabelaOcorrenciasPDF\');
+        const element = document.getElementById('tabelaOcorrenciasPDF');
         const opt = {
             margin: 10,
-            filename: \'Relatorio_Ocorrencias_CFTV.pdf\',
-            image: { type: \'jpeg\', quality: 0.98 },
+            filename: 'Relatorio_Ocorrencias_CFTV.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
-            jsPDF: { unit: \'mm\', format: \'a4\', orientation: \'landscape\' }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(element).save();
     }
@@ -544,13 +545,13 @@
     }
 
     function exportarPDFStatus() {
-        const element = document.getElementById(\'tabelaStatusPDF\');
+        const element = document.getElementById('tabelaStatusPDF');
         const opt = {
             margin: 10,
-            filename: \'Status_Infraestrutura_UFVs.pdf\',
-            image: { type: \'jpeg\', quality: 0.98 },
+            filename: 'Status_Infraestrutura_UFVs.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
-            jsPDF: { unit: \'mm\', format: \'a4\', orientation: \'landscape\' }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(element).save();
     }
