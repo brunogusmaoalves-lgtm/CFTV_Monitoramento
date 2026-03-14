@@ -14,7 +14,8 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         .tab-active { border-bottom: 4px solid #10b981; color: #10b981; font-weight: 800; }
-        .sticky-header th { position: sticky; top: 0; z-index: 10; background: #ffffff; }
+        .sticky-header th { position: sticky; top: 0; z-index: 10; background: #ffffff; cursor: pointer; user-select: none; }
+        .sticky-header th:hover { background: #f1f5f9; }
         #toastContainer { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
         .toast { padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); animation: fadeIn 0.3s ease; }
         .toast-success { background: #10b981; }
@@ -183,14 +184,14 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky-header">
                             <tr class="bg-white text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
-                                <th class="px-8 py-5">UFV</th>
-                                <th class="px-4 py-5 text-center">Digifort</th>
-                                <th class="px-4 py-5 text-center">Anydesk</th>
-                                <th class="px-4 py-5 text-center">Total Câm</th>
-                                <th class="px-4 py-5 text-center">Câm ON</th>
-                                <th class="px-4 py-5 text-center">Fibra</th>
-                                <th class="px-4 py-5 text-center">Segurança</th>
-                                <th class="px-4 py-5 text-center">Pronta Resposta</th>
+                                <th class="px-8 py-5" onclick="ordenarStatus('nome')">UFV <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('digifort')">Digifort <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('anydesk')">Anydesk <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('totalCam')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('seguranca')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('prontaResposta')">Pronta Resposta <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                             </tr>
                         </thead>
                         <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
@@ -260,6 +261,7 @@
     let db = { ocorrencias: [], ufv_status: [] };
     let usuarioLogado = null;
     let socket = null;
+    let sortConfig = { field: 'nome', direction: 1 };
 
     function iniciarSocket( ) {
         socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
@@ -439,10 +441,33 @@
         });
     }
 
+    function ordenarStatus(campo) {
+        if (sortConfig.field === campo) {
+            sortConfig.direction *= -1;
+        } else {
+            sortConfig.field = campo;
+            sortConfig.direction = 1;
+        }
+        renderStatusUFVs();
+    }
+
     function renderStatusUFVs() {
         const body = document.getElementById('tabelaStatusBody');
         body.innerHTML = '';
-        db.ufv_status.forEach(u => {
+        
+        const ordenadas = [...db.ufv_status].sort((a, b) => {
+            let valA = a[sortConfig.field];
+            let valB = b[sortConfig.field];
+            if (typeof valA === 'string') {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+            if (valA < valB) return -1 * sortConfig.direction;
+            if (valA > valB) return 1 * sortConfig.direction;
+            return 0;
+        });
+
+        ordenadas.forEach(u => {
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors";
             tr.innerHTML = `
