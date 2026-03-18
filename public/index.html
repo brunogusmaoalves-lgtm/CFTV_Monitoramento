@@ -116,7 +116,8 @@
                                 <option>📡 Falha de Comunicação</option>
                                 <option>🛠️ Manutenção Corretiva</option>
                                 <option>👀 Atitude Suspeita</option>
-				<option>📉 Impacto na Geração</option>
+								<option>📉 Impacto na Geração</option>
+								<option>🧱 Fibra Sensitiva</option>
                             </select>
                         </div>
                         <div>
@@ -483,7 +484,7 @@
                 <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
                 <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
                 <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra==='ROMPIDA'?'text-red-500':'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option></select></td>
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${u.fibra==='ROMPIDA''OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
                 <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option></select></td>
                 <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
             `;
