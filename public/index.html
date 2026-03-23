@@ -375,12 +375,13 @@
 
     function confirmarEdicao() {
         const id = document.getElementById('editModalId').value;
+		const dataFimInput = document.getElementById('editModalDataFim').value;
         const dados = {
             _id: id,
             status: document.getElementById('editModalStatus').value,
             impacto: document.getElementById('editModalImpacto').value,
             usina: document.getElementById('editModalUsina').value,
-            dataFim: document.getElementById('editModalDataFim').value,
+            dataFim: dataFimInput ? new Date(dataFimInput + 'T12:00:00').toISOString() : '',
             desc: document.getElementById('editModalDesc').value
         };
         socket.emit('editar_ocorrencia', dados);
