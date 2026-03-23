@@ -375,13 +375,12 @@
 
     function confirmarEdicao() {
         const id = document.getElementById('editModalId').value;
-		const dataFimInput = document.getElementById('editModalDataFim').value;
         const dados = {
             _id: id,
             status: document.getElementById('editModalStatus').value,
             impacto: document.getElementById('editModalImpacto').value,
             usina: document.getElementById('editModalUsina').value,
-            dataFim: dataFimInput ? new Date(dataFimInput + 'T12:00:00').toISOString() : '',
+            dataFim: document.getElementById('editModalDataFim').value,
             desc: document.getElementById('editModalDesc').value
         };
         socket.emit('editar_ocorrencia', dados);
@@ -429,8 +428,6 @@
                 <td class="px-8 py-6">
                     <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
                     <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
-                    <!-- ESTA É A LINHA QUE ESTAVA FALTANDO -->
-                    ${o.dataFim ? `<div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Regularizado: ${new Date(o.dataFim).toLocaleDateString('pt-BR')}</div>` : ''}
                 </td>
                 <td class="px-8 py-6">
                     <div class="text-xs font-black text-emerald-600 uppercase tracking-tight">${o.usina}</div>
@@ -439,10 +436,10 @@
                 </td>
                 <td class="px-8 py-6">
                     <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
-                        <span>${o.tipo}</span>
+                        <span>${o.tipo.split(' ')[0]}</span>
+                        <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
                     </div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Impacto: ${o.impacto}</div>
-                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight mt-0.5">${o.local || 'Geral'}</div>
+                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
                 </td>
                 <td class="px-8 py-6 text-right no-print">
                     <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -587,4 +584,5 @@
 </script>
 </body>
 </html>
+
 
