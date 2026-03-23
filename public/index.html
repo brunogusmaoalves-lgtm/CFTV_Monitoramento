@@ -200,6 +200,7 @@
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('seguranca')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+								<th class="px-4 py-5 text-center" onclick="ordenarStatus('motivodaMobilazacao')">Motivo da Mobilização <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                             </tr>
                         </thead>
                         <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
@@ -490,7 +491,8 @@
                 <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
                 <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${['ROMPIDA', 'OFFLINE'].includes(u.fibra) ? 'text-red-500' : 'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
                 <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option></select></td>
-            `;
+                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'motivodaMobilazacao', this.value)" class="bg-transparent outline-none cursor-pointer ${u.motivodaMobilazacao==='-'?'text-slate-400':'text-amber-500'}"><option ${u.motivodaMobilazacao==='DESMOBILAZAÇÃO'?'selected':''}>DESMOBILAZAÇÃO</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV'?'selected':''}>FALHA NO CFTV</option><option ${u.motivodaMobilazacao==='FALHA NA FIBRA'?'selected':''}>FALHA NA FIBRA</option><option ${u.motivodaMobilazacao==='FURTO RECENTE'?'selected':''}>FURTO RECENTE</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV + FIBRA'?'selected':''}>FALHA NO CFTV + FIBRA</option><option ${u.seguranca==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option></select></td>
+			`;
             body.appendChild(tr);
         });
     }
@@ -558,7 +560,8 @@
             "Total Câm": u.totalCam,
             "Câm ON": u.camOn,
             Fibra: u.fibra,
-            Segurança: u.seguranca
+            Segurança: u.seguranca,
+			"Motivo da Mobilização": u.motivodaMobilazacao
         })));
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs");
