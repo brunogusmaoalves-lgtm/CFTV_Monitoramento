@@ -28,7 +28,7 @@ const UfvStatus = mongoose.model('UfvStatus', new mongoose.Schema({
     nome: { type: String, unique: true }, digifort: { type: String, default: 'OK' },
     anydesk: { type: String, default: 'OK' }, totalCam: { type: Number, default: 8 },
     camOn: { type: Number, default: 8 }, fibra: { type: String, default: 'OK' },
-    seguranca: { type: String, default: 'SEM NECESSIDADE' }, prontaResposta: { type: String, default: 'ATIVO' }, motivodaMobilizacao: { type: String, default: '-' }, status: { type: String, default: 'O&M' }
+    seguranca: { type: String, default: 'SEM NECESSIDADE' }, prontaResposta: { type: String, default: 'ATIVO' }, status: { type: String, default: 'O&M' }, motivodaMobilizacao: { type: String, default: '-' }
 }));
 
 const UFVS_INICIAIS = ["Água Clara", "Almino Afonso", "Aloândia 1", "Aparecida do Taboado", "Araruama 1", "Araruama 2", "Araruama 3", "Bonópolis", "Borda da Mata", "Botelhos 2", "Brejinho", "Buriti Alegre", "Cachoeira Alta 1", "Cambuí", "Campo Grande", "Corumbaíba 2", "Corumbaíba 3", "Frei Inocêncio", "Grossos 1", "Guará", "Iaciara 1", "Iaciara 2", "Itaguaí 4", "Itaguara", "Itarumã 1", "Itarumã 2", "Lambari", "Major Sales", "Mateus Leme 1", "Mateus Leme 2", "Monte Sião", "Mossoró 2", "Naque", "Nova Andradina", "Nova Aurora 2", "Nova Lacerda", "Panamá de Goiás 1", "Panamá de Goiás 2", "Paranaiguara", "Paranatinga", "Paratinga", "Paty de Alferes", "Pedra Santa", "Pongaí", "Resende", "Rio do Antônio 1", "Rio do Antônio 2", "Rio Pardo de Minas", "Rota do Sol 1", "Santo Antônio do Descoberto", "São Francisco de Itabapoana", "São Gabriel do Oeste 1", "São Joaquim da Barra 1", "São Joaquim da Barra 2", "Serra do Mel", "Serra do Mel 2", "Vassouras"];
