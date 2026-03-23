@@ -8,8 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' );
-        body { font-family: 'Inter', sans-serif; }
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" );
+        body { font-family: "Inter", sans-serif; }
         @media print { .no-print { display: none; } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
@@ -38,12 +38,12 @@
 <div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
     <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md text-center">
         <div class="mb-8">
-            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-32 w-auto mb-6 object-contain" onerror="this.src='https://via.placeholder.com/200x80?text=IVI+ENERGIA'">
-            <h1 class="text-xl font-black text-slate-800 uppercase tracking-tighter">SISTEMA DE <span class="text-emerald-500">MONITORAMENTO CFTV</span></h1>
+            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-32 w-auto mb-6 object-contain" onerror="this.src=\'https://via.placeholder.com/200x80?text=IVI+ENERGIA\'">
+            <h1 class="text-xl font-black text-slate-800 uppercase tracking-tighter">SISTEMA DE <span class="text-emerald-500">MONITORAMENTO</span></h1>
         </div>
         <div class="space-y-4 text-left">
             <input type="text" id="userInput" placeholder="Usuário" class="w-full input-field">
-            <input type="password" id="passInput" placeholder="Senha" class="w-full input-field" onkeydown="if(event.key==='Enter' ) autenticar()">
+            <input type="password" id="passInput" placeholder="Senha" class="w-full input-field" onkeydown="if(event.key===\'Enter\' ) autenticar()">
             <button onclick="autenticar()" class="w-full btn-primary py-4 text-xs">ACESSAR PAINEL</button>
         </div>
         <div id="loginStatus" class="mt-4 text-xs text-slate-400 font-bold"></div>
@@ -54,10 +54,10 @@
 <div id="mainApp" class="hidden min-h-screen flex flex-col">
     <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
         <div class="flex items-center gap-8">
-            <img src="logo.png" alt="IVI Energia" class="h-12 w-auto object-contain" onerror="this.src='https://via.placeholder.com/120x50?text=IVI+ENERGIA'">
+            <img src="logo.png" alt="IVI Energia" class="h-12 w-auto object-contain" onerror="this.src=\'https://via.placeholder.com/120x50?text=IVI+ENERGIA\'">
             <nav class="flex gap-6">
-                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
-                <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
+                <button id="tabBtnOcorrencias" onclick="switchTab(\'ocorrencias\' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
+                <button id="tabBtnStatus" onclick="switchTab(\'status\')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
             </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -92,13 +92,7 @@
                                 <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">OPERADOR</label>
                                 <select id="operador" class="w-full input-field text-xs">
                                     <option value="">Selecione</option>
-                                    <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option>><option>Edna</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">IMPACTO GERAÇÃO</label>
-                                <select id="impacto" class="w-full input-field text-xs">
-                                    <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
+                                    <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option>
                                 </select>
                             </div>
                         </div>
@@ -116,9 +110,12 @@
                                 <option>📡 Falha de Comunicação</option>
                                 <option>🛠️ Manutenção Corretiva</option>
                                 <option>👀 Atitude Suspeita</option>
-								<option>📉 Impacto na Geração</option>
-								<option>🧱 Fibra Sensitiva</option>
-								<option>🔥 Incêndio</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">IMPACTO GERAÇÃO</label>
+                            <select id="impacto" class="w-full input-field text-xs">
+                                <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
                             </select>
                         </div>
                         <div>
@@ -162,9 +159,7 @@
                                 <th class="px-8 py-6 text-right no-print">AÇÕES</th>
                             </tr>
                         </thead>
-                        <tbody id="listaOcorrencias" class="divide-y">
-                            <!-- Ocorrências via JS -->
-                        </tbody>
+                        <tbody id="listaOcorrencias" class="divide-y"></tbody>
                     </table>
                 </div>
             </div>
@@ -191,14 +186,15 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky-header">
                             <tr class="bg-white text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
-                                <th class="px-8 py-5" onclick="ordenarStatus('nome')">UFV <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('digifort')">Digifort <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('anydesk')">Anydesk <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('totalCam')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('seguranca')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('prontaResposta')">Pronta Resposta <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-8 py-5" onclick="ordenarStatus(\'nome\')">UFV <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'statusUFV\')">Status <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'digifort\')">Digifort <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'anydesk\')">Anydesk <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'totalCam\')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'camOn\')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'fibra\')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'segurancaMobilizada\')">Segurança Mobilizada <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus(\'prontaResposta\')">Pronta Resposta <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                             </tr>
                         </thead>
                         <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
@@ -246,7 +242,7 @@
                     </div>
                     <div>
                         <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA REGULARIZAÇÃO</label>
-                        <input type="datetime-local" id="editModalDataFim" class="w-full input-field text-xs font-bold">
+                        <input type="date" id="editModalDataFim" class="w-full input-field text-xs font-bold">
                     </div>
                 </div>
                 <div>
@@ -310,8 +306,8 @@
     function toast(msg, type = 'success') {
         const container = document.getElementById('toastContainer');
         const el = document.createElement('div');
-        el.className = `toast toast-${type}`;
-        el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check-circle':'fa-exclamation-triangle'} mr-2"></i> ${msg}`;
+        el.className = 'toast toast-' + type;
+        el.innerHTML = '<i class="fa-solid ' + (type==='success'?'fa-check-circle':'fa-exclamation-triangle') + ' mr-2"></i> ' + msg;
         container.appendChild(el);
         setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
     }
@@ -402,10 +398,7 @@
             const statusStr = (o.status || 'ABERTO').toLowerCase();
             const usinaStr = o.usina.toLowerCase();
             const operadorStr = o.operador.toLowerCase();
-            return usinaStr.includes(term) || 
-                   operadorStr.includes(term) || 
-                   statusStr.includes(term) || 
-                   dataStr.includes(term);
+            return usinaStr.includes(term) || operadorStr.includes(term) || statusStr.includes(term) || dataStr.includes(term);
         });
         
         if (filtradas.length === 0) {
@@ -417,78 +410,43 @@
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors group";
             const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
-            
-            const statusColorClass = o.status === 'FINALIZADO' 
-                ? 'bg-emerald-50 text-emerald-600' 
-                : 'bg-red-50 text-red-500';
+            const statusColorClass = o.status === 'FINALIZADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500';
 
-            tr.innerHTML = `
-                <td class="px-8 py-6">
-                    <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="text-xs font-black text-emerald-600 uppercase tracking-tight">${o.usina}</div>
-                    <div class="text-[10px] font-black text-slate-800 uppercase mt-0.5">${o.operador}</div>
-                    <div class="text-[9px] text-slate-400 font-medium mt-0.5">${dataFormatada}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
-                        <span>${o.tipo.split(' ')[0]}</span>
-                        <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
-                </td>
-                <td class="px-8 py-6 text-right no-print">
-                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                        <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
-                    </div>
-                </td>
-            `;
+            tr.innerHTML = '<td class="px-8 py-6"><div class="inline-block px-3 py-1 rounded-lg ' + statusColorClass + ' text-[10px] font-black uppercase mb-1">' + (o.status || 'ABERTO') + '</div><div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ' + o.impacto + '</div></td>' +
+                '<td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase tracking-tight">' + o.usina + '</div><div class="text-[10px] font-black text-slate-800 uppercase mt-0.5">' + o.operador + '</div><div class="text-[9px] text-slate-400 font-medium mt-0.5">' + dataFormatada + '</div></td>' +
+                '<td class="px-8 py-6"><div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1"><span>' + o.tipo + '</span></div><div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Impacto: ' + o.impacto + '</div><div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight mt-0.5">' + (o.local || 'Geral') + '</div></td>' +
+                '<td class="px-8 py-6 text-right no-print"><div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onclick="abrirModalEdicao(\"' + o._id + '\")" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button><button onclick="excluirOcorrencia(\"' + o._id + '\")" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button></div></td>';
             container.appendChild(tr);
         });
     }
 
     function ordenarStatus(campo) {
-        if (sortConfig.field === campo) {
-            sortConfig.direction *= -1;
-        } else {
-            sortConfig.field = campo;
-            sortConfig.direction = 1;
-        }
+        if (sortConfig.field === campo) { sortConfig.direction *= -1; } else { sortConfig.field = campo; sortConfig.direction = 1; }
         renderStatusUFVs();
     }
 
     function renderStatusUFVs() {
         const body = document.getElementById('tabelaStatusBody');
         body.innerHTML = '';
-        
         const ordenadas = [...db.ufv_status].sort((a, b) => {
-            let valA = a[sortConfig.field];
-            let valB = b[sortConfig.field];
-            if (typeof valA === 'string') {
-                valA = valA.toLowerCase();
-                valB = valB.toLowerCase();
-            }
+            let valA = a[sortConfig.field]; let valB = b[sortConfig.field];
+            if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); }
             if (valA < valB) return -1 * sortConfig.direction;
             if (valA > valB) return 1 * sortConfig.direction;
             return 0;
         });
-
         ordenadas.forEach(u => {
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors";
-            tr.innerHTML = `
-                <td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${['ROMPIDA', 'OFFLINE'].includes(u.fibra) ? 'text-red-500' : 'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
-            `;
+            tr.innerHTML = '<td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">' + u.nome + '</td>' +
+                '<td class="px-4 py-5 text-center"><select onchange="updateUfv(\"' + u._id + '\", \"statusUFV\", this.value)" class="bg-transparent outline-none cursor-pointer ' + (u.statusUFV==='CONSTRUÇÃO'?'text-amber-500':'text-emerald-500') + '"><option ' + (u.statusUFV==='O&M'?'selected':'') + '>O&M</option><option ' + (u.statusUFV==='CONSTRUÇÃO'?'selected':'') + '>CONSTRUÇÃO</option></select></td>' +
+                '<td class="px-4 py-5 text-center"><select onchange="updateUfv(\"' + u._id + '\", \"digifort\", this.value)" class="bg-transparent outline-none cursor-pointer ' + (u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500') + '"><option ' + (u.digifort==='OK'?'selected':'') + '>OK</option><option ' + (u.digifort==='OFFLINE'?'selected':'') + '>OFFLINE</option></select></td>' +
+                '<td class="px-4 py-5 text-center"><select onchange="updateUfv(\"' + u._id + '\", \"anydesk\", this.value)" class="bg-transparent outline-none cursor-pointer ' + (u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500') + '"><option ' + (u.anydesk==='OK'?'selected':'') + '>OK</option><option ' + (u.anydesk==='OFFLINE'?'selected':'') + '>OFFLINE</option></select></td>' +
+                '<td class="px-4 py-5 text-center"><input type="number" value="' + u.totalCam + '" onchange="updateUfv(\"' + u._id + '\", \"totalCam\", this.value)" class="w-12 bg-transparent text-center outline-none"></td>' +
+                '<td class="px-4 py-5 text-center"><input type="number" value="' + u.camOn + '" onchange="updateUfv(\"' + u._id + '\", \"camOn\", this.value)" class="w-12 bg-transparent text-center outline-none ' + (u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500') + '"></td>' +
+                '<td class="px-4 py-5 text-center"><select onchange="updateUfv(\"' + u._id + '\", \"fibra\", this.value)" class="bg-transparent outline-none cursor-pointer ' + (u.fibra==='ROMPIDA'?'text-red-500':'text-emerald-500') + '"><option ' + (u.fibra==='OK'?'selected':'') + '>OK</option><option ' + (u.fibra==='ROMPIDA'?'selected':'') + '>ROMPIDA</option><option ' + (u.fibra==='NÃO TEM'?'selected':'') + '>NÃO TEM</option></select></td>' +
+                '<td class="px-4 py-5 text-center"><select onchange="updateUfv(\"' + u._id + '\", \"segurancaMobilizada\", this.value)" class="bg-transparent outline-none cursor-pointer ' + (u.segurancaMobilizada==='SIM'?'text-emerald-500':'text-red-500') + '"><option ' + (u.segurancaMobilizada==='SIM'?'selected':'') + '>SIM</option><option ' + (u.segurancaMobilizada==='NÃO'?'selected':'') + '>NÃO</option></select></td>' +
+                '<td class="px-4 py-5 text-center"><select onchange="updateUfv(\"' + u._id + '\", \"prontaResposta\", this.value)" class="bg-transparent outline-none cursor-pointer ' + (u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500') + '"><option ' + (u.prontaResposta==='ATIVO'?'selected':'') + '>ATIVO</option><option ' + (u.prontaResposta==='INATIVO'?'selected':'') + '>INATIVO</option></select></td>';
             body.appendChild(tr);
         });
     }
@@ -501,15 +459,12 @@
         const tabStatus = document.getElementById('tabStatus');
         const btnOcorrencias = document.getElementById('tabBtnOcorrencias');
         const btnStatus = document.getElementById('tabBtnStatus');
-
         if (tab === 'ocorrencias') {
-            tabOcorrencias.classList.remove('hidden');
-            tabStatus.classList.add('hidden');
+            tabOcorrencias.classList.remove('hidden'); tabStatus.classList.add('hidden');
             btnOcorrencias.className = 'pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active';
             btnStatus.className = 'pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600';
         } else {
-            tabOcorrencias.classList.add('hidden');
-            tabStatus.classList.remove('hidden');
+            tabOcorrencias.classList.add('hidden'); tabStatus.classList.remove('hidden');
             btnOcorrencias.className = 'pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600';
             btnStatus.className = 'pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active';
         }
@@ -522,55 +477,27 @@
         const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
             "Data/Hora Início": new Date(o.dataInicio).toLocaleString('pt-BR'),
             "Data/Hora Fim": o.dataFim ? new Date(o.dataFim).toLocaleString('pt-BR') : '',
-            Operador: o.operador,
-            Usina: o.usina,
-            Tipo: o.tipo,
-            Local: o.local,
-            Descrição: o.desc,
-            Status: o.status
+            Operador: o.operador, Usina: o.usina, Tipo: o.tipo, Impacto: o.impacto, Local: o.local, Descrição: o.desc, Status: o.status
         })));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
         XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
     }
 
     function exportarPDFOcorrencias() {
         const element = document.getElementById('tabelaOcorrenciasPDF');
-        const opt = {
-            margin: 10,
-            filename: 'Relatorio_Ocorrencias_CFTV.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
+        const opt = { margin: 10, filename: 'Relatorio_Ocorrencias_CFTV.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
         html2pdf().set(opt).from(element).save();
     }
 
     function exportarExcelUFVs() {
-        const ws = XLSX.utils.json_to_sheet(db.ufv_status.map(u => ({
-            UFV: u.nome,
-            Digifort: u.digifort,
-            Anydesk: u.anydesk,
-            "Total Câm": u.totalCam,
-            "Câm ON": u.camOn,
-            Fibra: u.fibra,
-            Segurança: u.seguranca,
-            "Pronta Resposta": u.prontaResposta
-        })));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs");
+        const ws = XLSX.utils.json_to_sheet(db.ufv_status.map(u => ({ UFV: u.nome, Status: u.statusUFV, Digifort: u.digifort, Anydesk: u.anydesk, "Total Câm": u.totalCam, "Câm ON": u.camOn, Fibra: u.fibra, "Segurança Mobilizada": u.segurancaMobilizada, "Pronta Resposta": u.prontaResposta })));
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs");
         XLSX.writeFile(wb, "Status_Infraestrutura_UFVs.xlsx");
     }
 
     function exportarPDFStatus() {
         const element = document.getElementById('tabelaStatusPDF');
-        const opt = {
-            margin: 10,
-            filename: 'Status_Infraestrutura_UFVs.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
+        const opt = { margin: 10, filename: 'Status_Infraestrutura_UFVs.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
         html2pdf().set(opt).from(element).save();
     }
 
