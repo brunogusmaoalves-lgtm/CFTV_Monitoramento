@@ -568,26 +568,28 @@
     function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
     
     function switchTab(tab) {
-        const tabOcorrencias = document.getElementById('tabOcorrencias');
-        const tabStatus = document.getElementById('tabStatus');
-const tabcontroleAcesso = document.getElementById('tabcontroleAcesso');
-        const btnOcorrencias = document.getElementById('tabBtnOcorrencias');
-        const btnStatus = document.getElementById('tabBtnStatus');
-const BtnControleAcesso = document.getElementById('tabBtnControleAcesso');
-
-
-        if (tab === 'ocorrencias') {
-            tabOcorrencias.classList.remove('hidden');
-            tabStatus.classList.add('hidden');
-            btnOcorrencias.className = 'pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active';
-            btnStatus.className = 'pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600';
-        } else {
-            tabOcorrencias.classList.add('hidden');
-            tabStatus.classList.remove('hidden');
-            btnOcorrencias.className = 'pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600';
-            btnStatus.className = 'pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active';
+    // Adicionamos 'controleAcesso' na lista abaixo para que o sistema reconheça a nova aba
+    ['ocorrencias', 'status', 'controleAcesso'].forEach(t => {
+        const tabElement = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+        const btnElement = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        
+        if (tabElement) tabElement.classList.add('hidden');
+        if (btnElement) {
+            btnElement.classList.remove('tab-active');
+            btnElement.classList.add('text-slate-400');
         }
-    if (tab === 'controleAcesso') renderControleAcesso();}
+    });
+
+    // Mostra a aba clicada
+    const targetTab = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    const targetBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    
+    if (targetTab) targetTab.classList.remove('hidden');
+    if (targetBtn) {
+        targetBtn.classList.add('tab-active');
+        targetBtn.classList.remove('text-slate-400');
+    }
+}
 
     function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
     function logout() { location.reload(); }
