@@ -58,6 +58,7 @@
             <nav class="flex gap-6">
                 <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
                 <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
+		<button id="tabBtnControleAcesso" onclick="switchTab('controleAcesso')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">CONTROLE DE ACESSO</button>
             </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -209,7 +210,72 @@
             </div>
         </div>
     </main>
-
+<!-- ABA CONTROLE DE ACESSO -->
+<div id="tabControleAcesso" class="hidden grid grid-cols-1 xl:grid-cols-12 gap-8">
+    <div class="xl:col-span-4 no-print">
+        <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-24">
+            <div class="flex items-center gap-2 mb-8 text-emerald-500">
+                <i class="fa-solid fa-user-check text-lg"></i>
+                <h2 class="text-[11px] font-black uppercase tracking-widest">NOVO REGISTRO DE ACESSO</h2>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA DA VISITA</label>
+                    <input type="date" id="acessoDataVisita" class="w-full input-field text-xs">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA SOLAR</label>
+                    <select id="acessoUsina" class="w-full input-field text-xs"><option value="">Escolha a usina</option></select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">HORÁRIO DE ENTRADA</label>
+                        <input type="time" id="acessoHoraEntrada" class="w-full input-field text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">HORÁRIO DE SAÍDA</label>
+                        <input type="time" id="acessoHoraSaida" class="w-full input-field text-xs">
+                    </div>
+                </div>
+                <input type="text" id="acessoNomeVisitante" placeholder="Nome do Visitante" class="w-full input-field text-xs">
+                <input type="text" id="acessoEmpresa" placeholder="Empresa" class="w-full input-field text-xs">
+                <input type="text" id="acessoDocumento" placeholder="Documento (RG/CPF)" class="w-full input-field text-xs">
+                <input type="text" id="acessoContato" placeholder="Contato" class="w-full input-field text-xs">
+                <textarea id="acessoMotivo" rows="2" placeholder="Motivo da Visita" class="w-full input-field text-xs resize-none"></textarea>
+                <input type="text" id="acessoResponsavel" placeholder="Responsável na Usina" class="w-full input-field text-xs">
+                <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USO DE EPI</label>
+                    <select id="acessoUsoEPI" class="w-full input-field text-xs"><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select>
+                </div>
+                <textarea id="acessoObservacoes" rows="2" placeholder="Observações" class="w-full input-field text-xs resize-none"></textarea>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="acessoVisitanteRecorrente" class="form-checkbox h-4 w-4 text-emerald-600 rounded">
+                    <label for="acessoVisitanteRecorrente" class="text-[10px] font-black text-slate-700 uppercase tracking-widest">VISITANTE RECORRENTE?</label>
+                </div>
+                <button onclick="salvarControleAcesso()" class="w-full btn-primary py-4 text-[11px]">REGISTRAR ACESSO</button>
+            </div>
+        </div>
+    </div>
+    <div class="xl:col-span-8">
+        <div class="flex gap-4 mb-6 no-print">
+            <input type="text" id="searchAcesso" oninput="renderControleAcesso()" placeholder="Filtrar Visitante, Usina..." class="w-full px-4 py-3.5 bg-white border rounded-2xl text-xs outline-none">
+            <button onclick="exportarExcelControleAcesso()" class="bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> EXCEL</button>
+        </div>
+        <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" id="tabelaControleAcessoPDF">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                        <th class="px-8 py-6">DATA / USINA</th>
+                        <th class="px-8 py-6">VISITANTE / EMPRESA</th>
+                        <th class="px-8 py-6">MOTIVO / RESPONSÁVEL</th>
+                    </tr>
+                </thead>
+                <tbody id="listaControleAcesso" class="divide-y"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
     <!-- MODAL DE EDIÇÃO COMPACTO -->
     <div id="editModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
         <div class="bg-white shadow-2xl modal-content overflow-hidden animate-fadeIn">
@@ -579,9 +645,46 @@
         };
         html2pdf().set(opt).from(element).save();
     }
+function salvarControleAcesso() {
+    const dados = {
+        dataVisita: document.getElementById('acessoDataVisita').value ? new Date(document.getElementById('acessoDataVisita').value + 'T00:00:00').toISOString() : new Date().toISOString(),
+        usina: document.getElementById('acessoUsina').value,
+        horarioEntrada: document.getElementById('acessoHoraEntrada').value,
+        horarioSaida: document.getElementById('acessoHoraSaida').value,
+        nomeVisitante: document.getElementById('acessoNomeVisitante').value,
+        empresa: document.getElementById('acessoEmpresa').value,
+        documento: document.getElementById('acessoDocumento').value,
+        contato: document.getElementById('acessoContato').value,
+        motivoVisita: document.getElementById('acessoMotivo').value,
+        responsavelUsina: document.getElementById('acessoResponsavel').value,
+        placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
+        usoEPI: document.getElementById('acessoUsoEPI').value,
+        observacoes: document.getElementById('acessoObservacoes').value,
+        visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
+    };
+    if (!dados.usina || !dados.nomeVisitante) return toast('Preencha os campos obrigatórios!', 'error');
+    socket.emit('nova_visita', dados);
+    toast('Acesso registrado!', 'success');
+}
 
+function renderControleAcesso() {
+    const term = document.getElementById('searchAcesso').value.toLowerCase();
+    const container = document.getElementById('listaControleAcesso');
+    container.innerHTML = '';
+    const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + v.empresa).toLowerCase().includes(term));
+    filtradas.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div><div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div></td><td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div><div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div></td><td class="px-8 py-6"><div class="text-xs font-black text-slate-800">${v.motivoVisita}</div><div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div></td>`;
+        container.appendChild(tr);
+    });
+}
+
+function exportarExcelControleAcesso() {
+    const ws = XLSX.utils.json_to_sheet(db.visitas.map(v => ({ "Data": new Date(v.dataVisita).toLocaleDateString('pt-BR'), Usina: v.usina, Entrada: v.horarioEntrada, Saída: v.horarioSaida, Visitante: v.nomeVisitante, Empresa: v.empresa, Documento: v.documento, Contato: v.contato, Motivo: v.motivoVisita, Responsável: v.responsavelUsina, Placa: v.placaVeiculo, EPI: v.usoEPI, Observações: v.observacoes, Recorrente: v.visitanteRecorrente ? 'Sim' : 'Não' })));
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Acessos");
+    XLSX.writeFile(wb, "Controle_Acesso_UFVs.xlsx");
+}
     window.onload = iniciarSocket;
 </script>
 </body>
 </html>
-
