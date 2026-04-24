@@ -341,17 +341,57 @@
     let socket = null;
     let sortConfig = { field: 'nome', direction: 1 };
 
-    function iniciarSocket( ) {
-        socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
-        socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
-        socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
-        socket.on('dados_iniciais', (dados) => { db = dados; popularSelectUsinas(); renderOcorrencias(); renderStatusUFVs(); renderControleAcesso(); });
-        socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
-        socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
-        socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
-        socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
-        socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
-        socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
+    function iniciarSocket() {
+    socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
+    socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
+    socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
+    
+    socket.on('dados_iniciais', (dados) => { 
+        db = dados; 
+        popularSelectUsinas(); 
+        renderOcorrencias(); 
+        renderStatusUFVs(); 
+        renderControleAcesso(); // <-- ADICIONE ESTA LINHA para carregar as visitas ao entrar
+    });
+
+    socket.on('autenticado', (user) => { 
+        usuarioLogado = user.nome; 
+        document.getElementById('userNameDisplay').textContent = usuarioLogado; 
+        mostrarApp(); 
+        socket.emit('carregar_dados'); 
+    });
+
+    socket.on('auth_erro', (err) => { 
+        document.getElementById('loginStatus').textContent = err.msg; 
+        toast(err.msg, 'error'); 
+    });
+
+    socket.on('ocorrencia_criada', (nova) => { 
+        db.ocorrencias.unshift(nova); 
+        renderOcorrencias(); 
+        toast('Nova ocorrência registrada!', 'success'); 
+    });
+
+    socket.on('ocorrencia_editada', (editada) => { 
+        const idx = db.ocorrencias.findIndex(o => o._id === editada._id); 
+        if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } 
+    });
+
+    socket.on('ocorrencia_excluida', (id) => { 
+        db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); 
+        renderOcorrencias(); 
+        toast('Ocorrência removida.', 'info'); 
+    });
+
+    socket.on('ufv_atualizada', (atualizada) => { 
+        const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); 
+        if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } 
+    });
+
+    // ADICIONE ESTA LINHA ABAIXO para receber novas visitas em tempo real:
+    socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
+}
+);
     }
 
     function autenticar() {
