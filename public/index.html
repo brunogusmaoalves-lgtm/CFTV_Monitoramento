@@ -352,6 +352,7 @@
         socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
         socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
         socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
+socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
     }
 
     function autenticar() {
