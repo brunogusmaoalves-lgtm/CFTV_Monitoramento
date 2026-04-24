@@ -389,30 +389,17 @@ socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.v
     }
 
     function popularSelectUsinas() {
-    // Esta lista diz ao sistema quais campos de seleção devem ser preenchidos
-    const selects = [
-        document.getElementById('usina'), 
-        document.getElementById('editModalUsina'), 
-        document.getElementById('acessoUsina') // <-- Verifique se este ID está igual no seu HTML
-    ];
-    
-    selects.forEach(select => {
-        if (select) {
-            // Limpa o campo antes de preencher
-            select.innerHTML = '<option value="">Escolha a usina</option>';
-            
-            // Verifica se existem usinas no banco de dados
-            if (db.ufv_status && db.ufv_status.length > 0) {
-                db.ufv_status.forEach(ufv => {
-                    const option = document.createElement('option');
-                    option.value = ufv.nome;
-                    option.textContent = ufv.nome;
-                    select.appendChild(option);
-                });
-            }
-        }
-    });
-}
+        const select = document.getElementById('usina');
+        const modalSelect = document.getElementById('editModalUsina');
+        select.innerHTML = '<option value="">Escolha a usina</option>';
+        modalSelect.innerHTML = '';
+        db.ufv_status.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.nome; opt.textContent = u.nome;
+            select.appendChild(opt.cloneNode(true));
+            modalSelect.appendChild(opt);
+        });
+    }
 
     async function salvarOcorrencia() {
         const dataInput = document.getElementById('dataHoraOcorrencia').value;
