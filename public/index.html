@@ -698,17 +698,47 @@ function salvarControleAcesso() {
 }
 
 function renderControleAcesso() {
-    const term = document.getElementById('searchAcesso').value.toLowerCase();
+    const term = document.getElementById('searchAcesso') ? document.getElementById('searchAcesso').value.toLowerCase() : '';
     const container = document.getElementById('listaControleAcesso');
+    
+    if (!container) return;
     container.innerHTML = '';
-    const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + v.empresa).toLowerCase().includes(term));
+
+    // Verifica se existem visitas no banco de dados
+    if (!db.visitas || db.visitas.length === 0) {
+        container.innerHTML = '<tr><td colspan="3" class="px-8 py-6 text-center text-slate-400 text-xs">Nenhum registro encontrado</td></tr>';
+        return;
+    }
+
+    const filtradas = db.visitas.filter(v => 
+        (v.nomeVisitante || '').toLowerCase().includes(term) || 
+        (v.usina || '').toLowerCase().includes(term) || 
+        (v.empresa || '').toLowerCase().includes(term)
+    );
+
     filtradas.forEach(v => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div><div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div></td><td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div><div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div></td><td class="px-8 py-6"><div class="text-xs font-black text-slate-800">${v.motivoVisita}</div><div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div></td>`;
+        tr.className = "hover:bg-slate-50/50 transition-colors";
+        
+        const dataFormatada = new Date(v.dataVisita).toLocaleDateString('pt-BR');
+
+        tr.innerHTML = `
+            <td class="px-8 py-6">
+                <div class="text-xs font-black text-emerald-600 uppercase">${dataFormatada}</div>
+                <div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div>
+            </td>
+            <td class="px-8 py-6">
+                <div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div>
+                <div class="text-[10px] text-slate-400 uppercase">${v.empresa || 'Particular'}</div>
+            </td>
+            <td class="px-8 py-6">
+                <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
+                <div class="text-[10px] text-slate-400 uppercase">Responsável: ${v.responsavelUsina || 'N/A'}</div>
+            </td>
+        `;
         container.appendChild(tr);
     });
 }
-
 function exportarExcelControleAcesso() {
     const ws = XLSX.utils.json_to_sheet(db.visitas.map(v => ({ "Data": new Date(v.dataVisita).toLocaleDateString('pt-BR'), Usina: v.usina, Entrada: v.horarioEntrada, Saída: v.horarioSaida, Visitante: v.nomeVisitante, Empresa: v.empresa, Documento: v.documento, Contato: v.contato, Motivo: v.motivoVisita, Responsável: v.responsavelUsina, Placa: v.placaVeiculo, EPI: v.usoEPI, Observações: v.observacoes, Recorrente: v.visitanteRecorrente ? 'Sim' : 'Não' })));
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Acessos");
