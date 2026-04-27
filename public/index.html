@@ -428,19 +428,27 @@
     }
 
     function popularSelectUsinas() {
-        const ids = ['usina', 'editModalUsina', 'acessoUsina'];
-        ids.forEach(id => {
-            const select = document.getElementById(id);
-            if (select) {
-                select.innerHTML = '<option value="">Escolha a usina</option>';
+    const ids = ['usina', 'editModalUsina', 'acessoUsina'];
+    
+    ids.forEach(id => {
+        const select = document.getElementById(id);
+        if (select) {
+            // Limpa o campo e adiciona a opção padrão
+            select.innerHTML = '<option value="">Escolha a usina</option>';
+            
+            // Preenche com as usinas do banco de dados
+            if (db.ufv_status && db.ufv_status.length > 0) {
                 db.ufv_status.forEach(u => {
                     const opt = document.createElement('option');
-                    opt.value = u.nome; opt.textContent = u.nome;
+                    opt.value = u.nome;
+                    opt.textContent = u.nome;
+                    // Usamos cloneNode para garantir que cada select tenha sua própria cópia
                     select.appendChild(opt.cloneNode(true));
                 });
             }
-        });
-    }
+        }
+    });
+}
 
     function salvarOcorrencia() {
         const dataManual = document.getElementById('dataHoraOcorrencia').value;
