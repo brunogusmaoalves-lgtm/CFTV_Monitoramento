@@ -599,8 +599,7 @@ socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.v
     const targetBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
 
     if (targetTab) {
-        // Controle de Acesso usa grid, as outras usam block
-        targetTab.style.display = tab === 'controleAcesso' ? 'grid' : 'block';
+        targetTab.style.display = (tab === 'controleAcesso' || tab === 'ocorrencias') ? 'grid' : 'block';
     }
     if (targetBtn) {
         targetBtn.classList.add('tab-active');
