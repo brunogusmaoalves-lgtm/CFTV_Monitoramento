@@ -352,8 +352,13 @@
         socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
         socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
         socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
-socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
-    }
+socket.on('dados_iniciais', (dados) => { 
+    db = dados; 
+    popularSelectUsinas(); // <-- Esta linha deve existir aqui
+    renderOcorrencias(); 
+    renderStatusUFVs(); 
+    renderControleAcesso(); 
+});
 
     function autenticar() {
         const u = document.getElementById('userInput').value.trim();
@@ -394,7 +399,7 @@ socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.v
     ids.forEach(id => {
         const select = document.getElementById(id);
         if (select) {
-            // Limpa e adiciona a opção padrão
+            // Limpa o campo
             select.innerHTML = '<option value="">Escolha a usina</option>';
             
             // Preenche com as usinas do banco de dados
@@ -403,7 +408,8 @@ socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.v
                     const opt = document.createElement('option');
                     opt.value = u.nome;
                     opt.textContent = u.nome;
-                    select.appendChild(opt);
+                    // O segredo está aqui: usamos cloneNode para que cada select tenha sua própria cópia
+                    select.appendChild(opt.cloneNode(true));
                 });
             }
         }
