@@ -85,10 +85,12 @@ io.on('connection', (socket) => {
     socket.on('excluir_ocorrencia', async (id) => { await Ocorrencia.findByIdAndDelete(id); io.emit('ocorrencia_excluida', id); });
     socket.on('atualizar_ufv', async (d) => { const { _id, ...upd } = d; const a = await UfvStatus.findByIdAndUpdate(_id, upd, { new: true }); io.emit('ufv_atualizada', a); });
 socket.on('nova_visita', async (d) => { 
-    const v = new Visita(d); 
-    await v.save(); 
-    io.emit('visita_registrada', v); 
-});
+        const v = new Visita(d); 
+        await v.save(); 
+        io.emit('visita_registrada', v); 
+    });
+
+}); // <- fecha o io.on('connection', ...)
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Porta ${PORT}`));
