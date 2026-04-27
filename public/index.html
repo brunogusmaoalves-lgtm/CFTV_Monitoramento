@@ -211,7 +211,7 @@
         </div>
     
 <!-- ABA CONTROLE DE ACESSO -->
-<div id="tabControleAcesso" class="hidden grid grid-cols-1 xl:grid-cols-12 gap-8">
+<div id="tabControleAcesso" class="hidden" style="display:none">
     <div class="xl:col-span-4 no-print">
         <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-24">
             <div class="flex items-center gap-2 mb-8 text-emerald-500">
@@ -585,23 +585,23 @@ socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.v
     function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
     
     function switchTab(tab) {
-    // Adicionamos 'controleAcesso' na lista abaixo para que o sistema reconheça a nova aba
     ['ocorrencias', 'status', 'controleAcesso'].forEach(t => {
         const tabElement = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
         const btnElement = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
-        
-        if (tabElement) tabElement.classList.add('hidden');
+        if (tabElement) tabElement.style.display = 'none';
         if (btnElement) {
             btnElement.classList.remove('tab-active');
             btnElement.classList.add('text-slate-400');
         }
     });
 
-    // Mostra a aba clicada
     const targetTab = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
     const targetBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
-    
-    if (targetTab) targetTab.classList.remove('hidden');
+
+    if (targetTab) {
+        // Controle de Acesso usa grid, as outras usam block
+        targetTab.style.display = tab === 'controleAcesso' ? 'grid' : 'block';
+    }
     if (targetBtn) {
         targetBtn.classList.add('tab-active');
         targetBtn.classList.remove('text-slate-400');
