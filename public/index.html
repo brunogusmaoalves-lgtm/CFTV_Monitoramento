@@ -270,18 +270,50 @@
         <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" id="tabelaControleAcessoPDF">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
-                        <th class="px-8 py-6">DATA / USINA</th>
-                        <th class="px-8 py-6">VISITANTE / EMPRESA</th>
-                        <th class="px-8 py-6">MOTIVO / RESPONSÁVEL</th>
-                    </tr>
-                </thead>
+    <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+        <th class="px-8 py-6">DATA / USINA</th>
+        <th class="px-8 py-6">VISITANTE / EMPRESA</th>
+        <th class="px-8 py-6">MOTIVO / RESPONSÁVEL</th>
+    </tr>
+</thead>
                 <tbody id="listaControleAcesso" class="divide-y"></tbody>
             </table>
         </div>
     </div>
 </div>
 </main>
+	<!-- MODAL EDIÇÃO VISITA -->
+<div id="editVisitaModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
+    <div class="bg-white shadow-2xl modal-content overflow-hidden">
+        <div class="px-8 py-6 border-b flex justify-between items-center">
+            <h2 class="text-[11px] font-black text-slate-800 uppercase tracking-widest">ATUALIZAR VISITA</h2>
+            <button onclick="fecharModalVisita()" class="text-slate-300 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div class="p-8 space-y-6">
+            <input type="hidden" id="editVisitaId">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA DE INÍCIO</label>
+                    <input type="date" id="editVisitaDataInicio" class="w-full input-field text-xs">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA DE FIM</label>
+                    <input type="date" id="editVisitaDataFim" class="w-full input-field text-xs">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">OBSERVAÇÕES</label>
+                <textarea id="editVisitaObs" rows="4" placeholder="Observações..." class="w-full border border-emerald-100 rounded-xl p-4 text-xs font-medium outline-none focus:border-emerald-500 bg-emerald-50/30 resize-none"></textarea>
+            </div>
+        </div>
+        <div class="px-8 py-6 bg-slate-50 border-t flex gap-4">
+            <button onclick="fecharModalVisita()" class="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">CANCELAR</button>
+            <button onclick="confirmarEdicaoVisita()" class="flex-[2] btn-primary py-4 text-[10px]">SALVAR ALTERAÇÕES</button>
+        </div>
+    </div>
+</div>
     <!-- MODAL DE EDIÇÃO COMPACTO -->
     <div id="editModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
         <div class="bg-white shadow-2xl modal-content overflow-hidden animate-fadeIn">
@@ -364,8 +396,49 @@
         socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
         socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
 socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
+		socket.on('visita_editada', (editada) => {
+    const idx = db.visitas.findIndex(v => v._id === editada._id);
+    if (idx !== -1) { db.visitas[idx] = editada; renderControleAcesso(); toast('Visita atualizada!', 'success'); }
+});
+socket.on('visita_excluida', (id) => {
+    db.visitas = db.visitas.filter(v => v._id !== id);
+    renderControleAcesso();
+    toast('Visita removida.', 'info');
+});
     }
+function abrirModalVisita(id) {
+    const v = db.visitas.find(item => item._id === id);
+    if (!v) return;
+    document.getElementById('editVisitaId').value = v._id;
+    document.getElementById('editVisitaDataInicio').value = v.dataVisita ? v.dataVisita.split('T')[0] : '';
+    document.getElementById('editVisitaDataFim').value = v.dataFim || '';
+    document.getElementById('editVisitaObs').value = v.observacoes || '';
+    document.getElementById('editVisitaModal').classList.remove('hidden');
+    document.getElementById('editVisitaModal').classList.add('flex');
+}
 
+function fecharModalVisita() {
+    document.getElementById('editVisitaModal').classList.add('hidden');
+    document.getElementById('editVisitaModal').classList.remove('flex');
+}
+
+function confirmarEdicaoVisita() {
+    const id = document.getElementById('editVisitaId').value;
+    const dados = {
+        _id: id,
+        dataVisita: document.getElementById('editVisitaDataInicio').value,
+        dataFim: document.getElementById('editVisitaDataFim').value,
+        observacoes: document.getElementById('editVisitaObs').value
+    };
+    socket.emit('editar_visita', dados);
+    fecharModalVisita();
+}
+
+function excluirVisita(id) {
+    if (confirm('Deseja realmente excluir este registro?')) {
+        socket.emit('excluir_visita', id);
+    }
+}
     function autenticar() {
         const u = document.getElementById('userInput').value.trim();
         const p = document.getElementById('passInput').value;
@@ -697,9 +770,35 @@ function renderControleAcesso() {
     const container = document.getElementById('listaControleAcesso');
     container.innerHTML = '';
     const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + v.empresa).toLowerCase().includes(term));
+    
+    if (filtradas.length === 0) {
+        container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma visita encontrada</td></tr>';
+        return;
+    }
+
     filtradas.forEach(v => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div><div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div></td><td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div><div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div></td><td class="px-8 py-6"><div class="text-xs font-black text-slate-800">${v.motivoVisita}</div><div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div></td>`;
+        tr.className = "hover:bg-slate-50/50 transition-colors group";
+        tr.innerHTML = `
+            <td class="px-8 py-6">
+                <div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div>
+                <div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div>
+            </td>
+            <td class="px-8 py-6">
+                <div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div>
+                <div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div>
+            </td>
+            <td class="px-8 py-6">
+                <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
+                <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
+            </td>
+            <td class="px-8 py-6 text-right no-print">
+                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="abrirModalVisita('${v._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                    <button onclick="excluirVisita('${v._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
+                </div>
+            </td>
+        `;
         container.appendChild(tr);
     });
 }
