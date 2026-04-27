@@ -345,7 +345,7 @@
         socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
         socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
         socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
-        socket.on('dados_iniciais', (dados) => { db = dados; popularSelectUsinas(); renderOcorrencias(); renderStatusUFVs(); renderontroleAcesso(); });
+        socket.on('dados_iniciais', (dados) => { db = dados; popularSelectUsinas(); renderOcorrencias(); renderStatusUFVs(); rendercontroleAcesso(); });
         socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
         socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
         socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
