@@ -418,6 +418,7 @@ function abrirModalVisita(id) {
     const v = db.visitas.find(item => item._id === id);
     if (!v) return;
     document.getElementById('editVisitaId').value = v._id;
+    document.getElementById('editVisitaStatus').value = v.status || 'ABERTO';
     document.getElementById('editVisitaDataInicio').value = v.dataVisita ? v.dataVisita.split('T')[0] : '';
     document.getElementById('editVisitaDataFim').value = v.dataFim || '';
     document.getElementById('editVisitaObs').value = v.observacoes || '';
@@ -434,6 +435,7 @@ function confirmarEdicaoVisita() {
     const id = document.getElementById('editVisitaId').value;
     const dados = {
         _id: id,
+        status: document.getElementById('editVisitaStatus').value,
         dataVisita: document.getElementById('editVisitaDataInicio').value,
         dataFim: document.getElementById('editVisitaDataFim').value,
         observacoes: document.getElementById('editVisitaObs').value
@@ -785,30 +787,32 @@ function renderControleAcesso() {
     }
 
     filtradas.forEach(v => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/50 transition-colors group";
-        tr.innerHTML = `
-            <td class="px-8 py-6">
-                <div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div>
-                <div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div>
-            </td>
-            <td class="px-8 py-6">
-                <div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div>
-                <div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div>
-            </td>
-            <td class="px-8 py-6">
-                <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
-                <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
-            </td>
-            <td class="px-8 py-6 text-right no-print">
-                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="abrirModalVisita('${v._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                    <button onclick="excluirVisita('${v._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
-                </div>
-            </td>
-        `;
-        container.appendChild(tr);
-    });
+    const tr = document.createElement('tr');
+    tr.className = "hover:bg-slate-50/50 transition-colors group";
+    const statusColorClass = v.status === 'FECHADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500';
+    tr.innerHTML = `
+        <td class="px-8 py-6">
+            <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${v.status || 'ABERTO'}</div>
+            <div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div>
+            <div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div>
+        </td>
+        <td class="px-8 py-6">
+            <div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div>
+            <div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div>
+        </td>
+        <td class="px-8 py-6">
+            <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
+            <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
+        </td>
+        <td class="px-8 py-6 text-right no-print">
+            <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onclick="abrirModalVisita('${v._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                <button onclick="excluirVisita('${v._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
+            </div>
+        </td>
+    `;
+    container.appendChild(tr);
+});
 }
 
 function exportarExcelControleAcesso() {
