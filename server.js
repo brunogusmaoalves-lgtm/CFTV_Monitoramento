@@ -31,6 +31,13 @@ const UfvStatus = mongoose.model('UfvStatus', new mongoose.Schema({
     seguranca: { type: String, default: 'SEM NECESSIDADE' }, prontaResposta: { type: String, default: 'ATIVO' }, status: { type: String, default: 'O&M' }, motivodaMobilazacao: { type: String, default: '-' }
 }));
 
+const Visita = mongoose.model('Visita', new mongoose.Schema({
+    dataVisita: String, usina: String, horarioEntrada: String, horarioSaida: String,
+    nomeVisitante: String, empresa: String, documento: String, contato: String,
+    motivoVisita: String, responsavelUsina: String, placaVeiculo: String,
+    usoEPI: String, observacoes: String, visitanteRecorrente: Boolean
+}, { timestamps: true }));
+
 const UFVS_INICIAIS = ["Água Clara", "Almino Afonso", "Aloândia 1", "Aparecida do Taboado", "Araruama 1", "Araruama 2", "Araruama 3", "Bonópolis", "Borda da Mata", "Botelhos 2", "Brejinho", "Buriti Alegre", "Cachoeira Alta 1", "Cambuí", "Campo Grande", "Corumbaíba 2", "Corumbaíba 3", "Frei Inocêncio", "Grossos 1", "Guará", "Iaciara 1", "Iaciara 2", "Itaguaí 4", "Itaguara", "Itarumã 1", "Itarumã 2", "Lambari", "Major Sales", "Mateus Leme 1", "Mateus Leme 2", "Monte Sião", "Mossoró 2", "Naque", "Nova Andradina", "Nova Aurora 2", "Nova Lacerda", "Panamá de Goiás 1", "Panamá de Goiás 2", "Paranaiguara", "Paranatinga", "Paratinga", "Paty de Alferes", "Pedra Santa", "Pongaí", "Resende", "Rio do Antônio 1", "Rio do Antônio 2", "Rio Pardo de Minas", "Rota do Sol 1", "Santo Antônio do Descoberto", "São Francisco de Itabapoana", "São Gabriel do Oeste 1", "São Joaquim da Barra 1", "São Joaquim da Barra 2", "Serra do Mel", "Serra do Mel 2", "Vassouras"];
 
 async function inicializarUFVs() {
@@ -52,10 +59,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
     // Envia os dados IMEDIATAMENTE ao conectar, sem esperar o login
     async function enviarDados() {
-        const ocorrencias = await Ocorrencia.find().sort({ createdAt: -1 });
-        const ufv_status = await UfvStatus.find().sort({ nome: 1 });
-        socket.emit('dados_iniciais', { ocorrencias, ufv_status });
-    }
+    const ocorrencias = await Ocorrencia.find().sort({ createdAt: -1 });
+    const ufv_status = await UfvStatus.find().sort({ nome: 1 });
+    const visitas = await Visita.find().sort({ createdAt: -1 });
+    socket.emit('dados_iniciais', { ocorrencias, ufv_status, visitas });
+}
     enviarDados();
 
     socket.on('autenticar', ({ usuario, senha }) => {
@@ -76,6 +84,10 @@ io.on('connection', (socket) => {
     socket.on('editar_ocorrencia', async (d) => { const { _id, ...upd } = d; const e = await Ocorrencia.findByIdAndUpdate(_id, upd, { new: true }); io.emit('ocorrencia_editada', e); });
     socket.on('excluir_ocorrencia', async (id) => { await Ocorrencia.findByIdAndDelete(id); io.emit('ocorrencia_excluida', id); });
     socket.on('atualizar_ufv', async (d) => { const { _id, ...upd } = d; const a = await UfvStatus.findByIdAndUpdate(_id, upd, { new: true }); io.emit('ufv_atualizada', a); });
+socket.on('nova_visita', async (d) => { 
+    const v = new Visita(d); 
+    await v.save(); 
+    io.emit('visita_registrada', v); 
 });
 
 const PORT = process.env.PORT || 3000;
