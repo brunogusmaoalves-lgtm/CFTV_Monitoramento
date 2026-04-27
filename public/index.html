@@ -389,37 +389,18 @@ socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.v
     }
 
     function popularSelectUsinas() {
-    console.log("Iniciando preenchimento de usinas...");
-    const select = document.getElementById('usina');
-    const modalSelect = document.getElementById('editModalUsina');
-    const acessoSelect = document.getElementById('acessoUsina');
-
-    console.log("Campos encontrados:", { 
-        principal: !!select, 
-        modal: !!modalSelect, 
-        acesso: !!acessoSelect 
-    });
-
-    if (select) select.innerHTML = '<option value="">Escolha a usina</option>';
-    if (modalSelect) modalSelect.innerHTML = '<option value="">Escolha a usina</option>';
-    if (acessoSelect) acessoSelect.innerHTML = '<option value="">Escolha a usina</option>';
-
-    if (!db.ufv_status || db.ufv_status.length === 0) {
-        console.warn("Aviso: db.ufv_status está vazio ou não existe!");
-        return;
+        const select = document.getElementById('usina');
+        const modalSelect = document.getElementById('editModalUsina');
+const acessoSelect = document.getElementById('acessoUsina'); // <-- Nova linha para a aba de acesso
+        select.innerHTML = '<option value="">Escolha a usina</option>';
+        modalSelect.innerHTML = '';
+        db.ufv_status.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.nome; opt.textContent = u.nome;
+            select.appendChild(opt.cloneNode(true));
+            modalSelect.appendChild(opt);
+        });
     }
-
-    db.ufv_status.forEach(u => {
-        const opt = document.createElement('option');
-        opt.value = u.nome; 
-        opt.textContent = u.nome;
-        
-        if (select) select.appendChild(opt.cloneNode(true));
-        if (modalSelect) modalSelect.appendChild(opt.cloneNode(true));
-        if (acessoSelect) acessoSelect.appendChild(opt.cloneNode(true));
-    });
-    console.log("Preenchimento concluído com sucesso!");
-}
 
     async function salvarOcorrencia() {
         const dataInput = document.getElementById('dataHoraOcorrencia').value;
