@@ -32,7 +32,7 @@ const UfvStatus = mongoose.model('UfvStatus', new mongoose.Schema({
 }));
 
 const Visita = mongoose.model('Visita', new mongoose.Schema({
-    dataVisita: String, usina: String, horarioEntrada: String, horarioSaida: String,
+    dataVisita: String, dataFim: String, usina: String, horarioEntrada: String, horarioSaida: String,
     nomeVisitante: String, empresa: String, documento: String, contato: String,
     motivoVisita: String, responsavelUsina: String, placaVeiculo: String,
     usoEPI: String, observacoes: String, visitanteRecorrente: Boolean
