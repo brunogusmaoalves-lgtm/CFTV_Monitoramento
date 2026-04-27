@@ -129,6 +129,9 @@
                         <div>
                             <textarea id="desc" rows="3" placeholder="Descrição detalhada..." class="w-full input-field text-xs resize-none"></textarea>
                         </div>
+                        <div>
+                            <input type="file" id="foto" accept="image/*" class="w-full text-[10px] text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100">
+                        </div>
                         <button onclick="salvarOcorrencia()" class="w-full btn-primary py-4 text-[11px]">REGISTRAR EVENTO</button>
                     </div>
                 </div>
@@ -406,7 +409,7 @@
 
     function toast(msg, type = 'info') {
         const t = document.createElement('div');
-        t.className = 'toast toast-' + (type === 'success' ? 'success' : 'error');
+        t.className = `toast toast-${type === 'success' ? 'success' : 'error'}`;
         t.innerHTML = msg;
         document.getElementById('toastContainer').appendChild(t);
         setTimeout(() => t.remove(), 3000);
@@ -416,7 +419,7 @@
         const bar = document.getElementById('statusBar');
         const dot = bar.querySelector('div');
         const label = bar.querySelector('span');
-        dot.className = 'w-2 h-2 rounded-full ' + (type === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500');
+        dot.className = `w-2 h-2 rounded-full ${type === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500'}`;
         label.textContent = text;
     }
 
@@ -428,27 +431,19 @@
     }
 
     function popularSelectUsinas() {
-    const ids = ['usina', 'editModalUsina', 'acessoUsina'];
-    
-    ids.forEach(id => {
-        const select = document.getElementById(id);
-        if (select) {
-            // Limpa o campo e adiciona a opção padrão
-            select.innerHTML = '<option value="">Escolha a usina</option>';
-            
-            // Preenche com as usinas do banco de dados
-            if (db.ufv_status && db.ufv_status.length > 0) {
+        const ids = ['usina', 'editModalUsina', 'acessoUsina'];
+        ids.forEach(id => {
+            const select = document.getElementById(id);
+            if (select) {
+                select.innerHTML = '<option value="">Escolha a usina</option>';
                 db.ufv_status.forEach(u => {
                     const opt = document.createElement('option');
-                    opt.value = u.nome;
-                    opt.textContent = u.nome;
-                    // Usamos cloneNode para garantir que cada select tenha sua própria cópia
+                    opt.value = u.nome; opt.textContent = u.nome;
                     select.appendChild(opt.cloneNode(true));
                 });
             }
-        }
-    });
-}
+        });
+    }
 
     function salvarOcorrencia() {
         const dataManual = document.getElementById('dataHoraOcorrencia').value;
@@ -481,25 +476,27 @@
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors group";
             const statusColor = o.status === 'FINALIZADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500';
-            tr.innerHTML = '<td class="px-8 py-6">' +
-                '<div class="inline-block px-3 py-1 rounded-lg ' + statusColor + ' text-[10px] font-black uppercase mb-1">' + (o.status || 'ABERTO') + '</div>' +
-                '<div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ' + o.impacto + '</div>' +
-                (o.dataFim ? '<div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Regularizado: ' + new Date(o.dataFim).toLocaleDateString('pt-BR') + '</div>' : '') +
-                '</td>' +
-                '<td class="px-8 py-6">' +
-                '<div class="text-xs font-black text-slate-900 uppercase">' + new Date(o.dataInicio).toLocaleString('pt-BR') + '</div>' +
-                '<div class="text-[10px] font-black text-slate-400 uppercase mt-1">' + o.usina + '</div>' +
-                '</td>' +
-                '<td class="px-8 py-6">' +
-                '<div class="text-xs font-black text-slate-800 uppercase">' + o.tipo + '</div>' +
-                '<div class="text-[10px] text-slate-400 font-medium mt-1">' + (o.local || 'Geral') + '</div>' +
-                '</td>' +
-                '<td class="px-8 py-6 no-print">' +
-                '<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">' +
-                '<button onclick="abrirModalEdicao(\'' + o._id + '\')" class="p-2 text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button>' +
-                '<button onclick="excluirOcorrencia(\'' + o._id + '\')" class="p-2 text-slate-300 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>' +
-                '</div>' +
-                '</td>';
+            tr.innerHTML = `
+                <td class="px-8 py-6">
+                    <div class="inline-block px-3 py-1 rounded-lg ${statusColor} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
+                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
+                    ${o.dataFim ? `<div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Regularizado: ${new Date(o.dataFim).toLocaleDateString('pt-BR')}</div>` : ''}
+                </td>
+                <td class="px-8 py-6">
+                    <div class="text-xs font-black text-slate-900 uppercase">${new Date(o.dataInicio).toLocaleString('pt-BR')}</div>
+                    <div class="text-[10px] font-black text-slate-400 uppercase mt-1">${o.usina}</div>
+                </td>
+                <td class="px-8 py-6">
+                    <div class="text-xs font-black text-slate-800 uppercase">${o.tipo}</div>
+                    <div class="text-[10px] text-slate-400 font-medium mt-1">${o.local || 'Geral'}</div>
+                </td>
+                <td class="px-8 py-6 no-print">
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </td>
+            `;
             container.appendChild(tr);
         });
     }
@@ -547,16 +544,18 @@
         });
         ordenadas.forEach(u => {
             const tr = document.createElement('tr');
-            tr.innerHTML = '<td class="px-6 py-5 font-black text-xs text-slate-900 uppercase">' + u.nome + '</td>' +
-                '<td class="px-6 py-5"><span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase">' + (u.status || 'O&M') + '</span></td>' +
-                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.prontaResposta === 'OK' ? 'text-emerald-500' : 'text-red-500') + ' uppercase">' + u.prontaResposta + '</span></td>' +
-                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.digifort === 'ONLINE' ? 'text-emerald-500' : 'text-red-500') + ' uppercase">' + u.digifort + '</span></td>' +
-                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.anydesk === 'ONLINE' ? 'text-emerald-500' : 'text-red-500') + ' uppercase">' + u.anydesk + '</span></td>' +
-                '<td class="px-6 py-5 text-center font-bold text-xs">' + u.totalCam + '</td>' +
-                '<td class="px-6 py-5 text-center font-bold text-xs text-emerald-600">' + u.camOn + '</td>' +
-                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.fibra === 'OK' ? 'text-emerald-500' : 'text-red-500') + ' uppercase">' + u.fibra + '</span></td>' +
-                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.seguranca === 'SIM' ? 'text-emerald-500' : 'text-slate-400') + ' uppercase">' + u.seguranca + '</span></td>' +
-                '<td class="px-6 py-5 no-print"><button onclick="abrirUfvModal(\'' + u._id + '\')" class="text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button></td>';
+            tr.innerHTML = `
+                <td class="px-6 py-5 font-black text-xs text-slate-900 uppercase">${u.nome}</td>
+                <td class="px-6 py-5"><span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase">${u.status || 'O&M'}</span></td>
+                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.prontaResposta === 'OK' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.prontaResposta}</span></td>
+                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.digifort === 'ONLINE' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.digifort}</span></td>
+                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.anydesk === 'ONLINE' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.anydesk}</span></td>
+                <td class="px-6 py-5 text-center font-bold text-xs">${u.totalCam}</td>
+                <td class="px-6 py-5 text-center font-bold text-xs text-emerald-600">${u.camOn}</td>
+                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.fibra === 'OK' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.fibra}</span></td>
+                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.seguranca === 'SIM' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${u.seguranca}</span></td>
+                <td class="px-6 py-5 no-print"><button onclick="abrirUfvModal('${u._id}')" class="text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button></td>
+            `;
             container.appendChild(tr);
         });
     }
@@ -632,9 +631,11 @@
         const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + (v.empresa || '')).toLowerCase().includes(term));
         filtradas.forEach(v => {
             const tr = document.createElement('tr');
-            tr.innerHTML = '<td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">' + new Date(v.dataVisita).toLocaleDateString('pt-BR') + '</div><div class="text-[10px] font-black text-slate-800 uppercase">' + v.usina + '</div></td>' +
-                '<td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">' + v.nomeVisitante + '</div><div class="text-[10px] text-slate-400 uppercase">' + (v.empresa || 'Particular') + '</div></td>' +
-                '<td class="px-8 py-6"><div class="text-xs font-black text-slate-800">' + v.motivoVisita + '</div><div class="text-[10px] text-slate-400 uppercase">Resp: ' + (v.responsavelUsina || 'N/A') + '</div></td>';
+            tr.innerHTML = `
+                <td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div><div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div></td>
+                <td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div><div class="text-[10px] text-slate-400 uppercase">${v.empresa || 'Particular'}</div></td>
+                <td class="px-8 py-6"><div class="text-xs font-black text-slate-800">${v.motivoVisita}</div><div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina || 'N/A'}</div></td>
+            `;
             container.appendChild(tr);
         });
     }
