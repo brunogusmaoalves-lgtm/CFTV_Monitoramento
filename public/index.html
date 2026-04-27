@@ -7,708 +7,695 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' );
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .input-field { @apply px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm; }
+        .btn-primary { @apply bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl transition-all shadow-lg shadow-emerald-600/20 active:scale-95 uppercase tracking-widest text-[10px]; }
+        .tab-active { border-bottom: 4px solid #10b981; color: #10b981; font-weight: 900; }
         @media print { .no-print { display: none; } }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .tab-active { border-bottom: 4px solid #10b981; color: #10b981; font-weight: 800; }
-        .sticky-header th { position: sticky; top: 0; z-index: 10; background: #ffffff; cursor: pointer; user-select: none; }
-        .sticky-header th:hover { background: #f1f5f9; }
-        #toastContainer { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
-        .toast { padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); animation: fadeIn 0.3s ease; }
-        .toast-success { background: #10b981; }
-        .toast-error   { background: #ef4444; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-overlay { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); }
-        .modal-content { max-width: 480px; width: 90%; border-radius: 1.5rem; }
-        .input-field { border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; outline: none; transition: all 0.2s; background: #f8fafc; }
-        .input-field:focus { border-color: #10b981; background: #ffffff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.05); }
-        .btn-primary { background: #10b981; color: white; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 0.75rem; transition: all 0.2s; }
-        .btn-primary:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
-        .btn-primary:active { transform: translateY(0); }
     </style>
 </head>
-<body class="bg-[#f1f5f9] text-slate-900">
-
-<div id="toastContainer"></div>
-
-<!-- TELA DE LOGIN -->
-<div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
-    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md text-center">
-        <div class="mb-8">
-            <img src="logo.png" alt="IVI Energia" class="mx-auto max-h-32 w-auto mb-6 object-contain" onerror="this.src='https://via.placeholder.com/200x80?text=IVI+ENERGIA'">
-            <h1 class="text-xl font-black text-slate-800 uppercase tracking-tighter">SISTEMA DE <span class="text-emerald-500">MONITORAMENTO CFTV</span></h1>
+<body class="text-slate-800">
+    <!-- LOGIN -->
+    <div id="loginPage" class="fixed inset-0 z-[100] bg-slate-900 flex items-center justify-center p-6">
+        <div class="w-full max-w-md bg-white rounded-[40px] p-12 shadow-2xl">
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-50 rounded-3xl mb-6">
+                    <i class="fa-solid fa-shield-halved text-3xl text-emerald-600"></i>
+                </div>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-900">MONITORAMENTO CFTV</h1>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">IVI Energia - Acesso Restrito</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="loginUser" placeholder="Usuário" class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium">
+                <input type="password" id="loginPass" placeholder="Senha" class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium">
+                <button onclick="fazerLogin()" class="w-full bg-slate-900 hover:bg-black text-white font-black py-5 rounded-2xl transition-all shadow-xl active:scale-[0.98] uppercase tracking-widest text-xs mt-4">Entrar no Sistema</button>
+                <p id="loginStatus" class="text-center text-red-500 text-[10px] font-bold uppercase tracking-widest mt-4"></p>
+            </div>
         </div>
-        <div class="space-y-4 text-left">
-            <input type="text" id="userInput" placeholder="Usuário" class="w-full input-field">
-            <input type="password" id="passInput" placeholder="Senha" class="w-full input-field" onkeydown="if(event.key==='Enter' ) autenticar()">
-            <button onclick="autenticar()" class="w-full btn-primary py-4 text-xs">ACESSAR PAINEL</button>
-        </div>
-        <div id="loginStatus" class="mt-4 text-xs text-slate-400 font-bold"></div>
     </div>
-</div>
 
-<!-- APP PRINCIPAL -->
-<div id="mainApp" class="hidden min-h-screen flex flex-col">
-    <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 no-print">
-        <div class="flex items-center gap-8">
-            <img src="logo.png" alt="IVI Energia" class="h-12 w-auto object-contain" onerror="this.src='https://via.placeholder.com/120x50?text=IVI+ENERGIA'">
-            <nav class="flex gap-6">
-                <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
-                <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
-		<button id="tabBtnControleAcesso" onclick="switchTab('controleAcesso')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">CONTROLE DE ACESSO</button>
-            </nav>
-        </div>
-        <div class="flex items-center gap-6">
-            <div id="statusBar" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100">
-                <div class="w-2 h-2 rounded-full bg-slate-400"></div>
-                <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500">Conectando...</span>
-            </div>
-            <div class="text-right border-l pl-6">
-                <p id="userNameDisplay" class="text-xs font-bold text-slate-700 uppercase tracking-tight">---</p>
-                <button onclick="logout()" class="text-[9px] font-black text-red-400 uppercase hover:text-red-600 transition-colors">Sair</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-1 p-8 overflow-auto">
-        <!-- ABA OCORRÊNCIAS -->
-        <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            <!-- Formulário Lateral -->
-            <div class="xl:col-span-4 no-print">
-                <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-24">
-                    <div class="flex items-center gap-2 mb-8 text-emerald-500">
-                        <i class="fa-solid fa-circle-plus text-lg"></i>
-                        <h2 class="text-[11px] font-black uppercase tracking-widest">NOVO REGISTRO</h2>
+    <!-- APP -->
+    <div id="appPage" class="hidden min-h-screen flex flex-col">
+        <!-- HEADER -->
+        <header class="bg-white border-b sticky top-0 z-50 no-print">
+            <div class="max-w-[1600px] mx-auto px-8 h-24 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                        <i class="fa-solid fa-bolt text-white"></i>
                     </div>
-                    <div class="space-y-5">
-                        <div>
-                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA E HORA</label>
-                            <input type="datetime-local" id="dataHoraOcorrencia" class="w-full input-field text-xs">
+                    <div>
+                        <h2 class="font-black text-slate-900 tracking-tighter leading-none">IVI ENERGIA</h2>
+                        <div class="flex items-center gap-2 mt-1">
+                            <div id="statusDot" class="w-2 h-2 rounded-full bg-slate-300"></div>
+                            <span id="statusText" class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Iniciando...</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                    </div>
+                </div>
+
+                <nav class="flex gap-10">
+                    <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias')" class="tab-active pb-4 text-[11px] font-black uppercase tracking-widest transition-all">Ocorrências</button>
+                    <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">Status das UFVs</button>
+                    <button id="tabBtnControleAcesso" onclick="switchTab('controleAcesso')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">Controle de Acesso</button>
+                </nav>
+
+                <div class="flex items-center gap-6">
+                    <div class="text-right">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operador</p>
+                        <p id="userNameDisplay" class="text-xs font-black text-slate-900 uppercase">---</p>
+                    </div>
+                    <button onclick="location.reload()" class="w-10 h-10 rounded-xl border flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-[1600px] mx-auto w-full p-8">
+            <!-- ABA OCORRÊNCIAS -->
+            <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                <div class="xl:col-span-4 no-print">
+                    <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-32">
+                        <div class="flex items-center gap-2 mb-8 text-emerald-500">
+                            <i class="fa-solid fa-circle-plus text-lg"></i>
+                            <h2 class="text-[11px] font-black uppercase tracking-widest">Novo Registro</h2>
+                        </div>
+                        <div class="space-y-5">
                             <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">OPERADOR</label>
-                                <select id="operador" class="w-full input-field text-xs">
-                                    <option value="">Selecione</option>
-                                    <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option>><option>Edna</option>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Data e Hora da Ocorrência</label>
+                                <input type="datetime-local" id="dataOcorrenciaManual" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Usina Solar</label>
+                                    <select id="usina" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Classificação</label>
+                                    <select id="tipo" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm">
+                                        <option value="ALERTA">ALERTA</option>
+                                        <option value="INTRUSÃO">INTRUSÃO</option>
+                                        <option value="VANDALISMO">VANDALISMO</option>
+                                        <option value="FURTO">FURTO</option>
+                                        <option value="MANUTENÇÃO">MANUTENÇÃO</option>
+                                        <option value="OUTROS">OUTROS</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Impacto por Geração</label>
+                                <select id="impacto" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm">
+                                    <option value="NENHUM">NENHUM</option>
+                                    <option value="BAIXO">BAIXO</option>
+                                    <option value="MÉDIO">MÉDIO</option>
+                                    <option value="ALTO">ALTO</option>
+                                    <option value="CRÍTICO">CRÍTICO</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">IMPACTO GERAÇÃO</label>
-                                <select id="impacto" class="w-full input-field text-xs">
-                                    <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
-                                </select>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Localização / Câmera</label>
+                                <input type="text" id="local" placeholder="Ex: Perímetro Norte / Câm 04" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm">
                             </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Descrição dos Fatos</label>
+                                <textarea id="desc" rows="4" placeholder="Descreva detalhadamente o ocorrido..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm resize-none"></textarea>
+                            </div>
+                            <button onclick="salvarOcorrencia()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/20 active:scale-95 uppercase tracking-widest text-[10px]">Registrar Evento</button>
                         </div>
-                        <div>
-                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA SOLAR</label>
-                            <select id="usina" class="w-full input-field text-xs">
-                                <option value="">Escolha a usina</option>
-                            </select>
+                    </div>
+                </div>
+
+                <div class="xl:col-span-8">
+                    <div class="flex gap-4 mb-8 no-print">
+                        <div class="flex-1 relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                            <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Buscar por usina, operador, status..." class="w-full pl-14 pr-6 py-4 bg-white border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-sm shadow-sm">
                         </div>
-                        <div>
-                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">CLASSIFICAÇÃO</label>
-                            <select id="tipo" class="w-full input-field text-xs">
-                                <option>🚨 Invasão / Intrusão</option>
-                                <option>🔨 Furto / Vandalismo</option>
-                                <option>📡 Falha de Comunicação</option>
-                                <option>🛠️ Manutenção Corretiva</option>
-                                <option>👀 Atitude Suspeita</option>
-								<option>📉 Impacto na Geração</option>
-								<option>🧱 Fibra Sensitiva</option>
-								<option>🔥 Incêndio</option>
-                            </select>
-                        </div>
-                        <div>
-                            <input type="text" id="local" placeholder="Local / ID Câmera" class="w-full input-field text-xs">
-                        </div>
-                        <div>
-                            <textarea id="desc" rows="3" placeholder="Descrição detalhada..." class="w-full input-field text-xs resize-none"></textarea>
-                        </div>
-                        <div>
-                            <input type="file" id="foto" accept="image/*" class="w-full text-[10px] text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100">
-                        </div>
-                        <button onclick="salvarOcorrencia()" class="w-full btn-primary py-4 text-[11px]">REGISTRAR EVENTO</button>
+                        <button onclick="exportarExcelOcorrencias()" class="bg-white border border-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Excel
+                        </button>
+                        <button onclick="exportarPDFOcorrencias()" class="bg-white border border-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+                            <i class="fa-solid fa-file-pdf text-red-500"></i> PDF
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden" id="tabelaOcorrenciasPDF">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                    <th class="px-8 py-6">Status / Impacto</th>
+                                    <th class="px-8 py-6">Data / Usina</th>
+                                    <th class="px-8 py-6">Classificação / Local</th>
+                                    <th class="px-8 py-6 no-print">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaOcorrencias" class="divide-y divide-slate-50"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Lista de Ocorrências -->
-            <div class="xl:col-span-8">
-                <div class="flex gap-4 mb-6 no-print">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl text-xs outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all">
+            <!-- ABA STATUS UFVs -->
+            <div id="tabStatus" class="hidden">
+                <div class="flex justify-between items-center mb-8 no-print">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900 tracking-tight">Status da Infraestrutura</h2>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Monitoramento de Conectividade e Segurança</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="exportarExcelOcorrencias()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
-                            <i class="fa-solid fa-file-excel"></i> EXCEL
+                    <div class="flex gap-3">
+                        <button onclick="exportarExcelUFVs()" class="bg-white border border-slate-100 text-slate-600 px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Excel
                         </button>
-                        <button onclick="exportarPDFOcorrencias()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
-                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        <button onclick="exportarPDFStatus()" class="bg-white border border-slate-100 text-slate-600 px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+                            <i class="fa-solid fa-file-pdf text-red-500"></i> PDF
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" id="tabelaOcorrenciasPDF">
+                <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden" id="tabelaStatusPDF">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
-                                <th class="px-8 py-6">STATUS / GERAÇÃO</th>
-                                <th class="px-8 py-6">USINA / OPERADOR</th>
-                                <th class="px-8 py-6">OCORRÊNCIA</th>
-                                <th class="px-8 py-6 text-right no-print">AÇÕES</th>
+                            <tr class="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 sticky-header">
+                                <th onclick="ordenarStatus('nome')" class="px-6 py-5">UFV</th>
+                                <th onclick="ordenarStatus('statusUFV')" class="px-6 py-5">Status</th>
+                                <th onclick="ordenarStatus('digifort')" class="px-6 py-5">Digifort</th>
+                                <th onclick="ordenarStatus('anydesk')" class="px-6 py-5">Anydesk</th>
+                                <th onclick="ordenarStatus('totalCam')" class="px-6 py-5 text-center">Total</th>
+                                <th onclick="ordenarStatus('camOn')" class="px-6 py-5 text-center">ON</th>
+                                <th onclick="ordenarStatus('fibra')" class="px-6 py-5">Fibra</th>
+                                <th onclick="ordenarStatus('segurancaMobilizada')" class="px-6 py-5">Segurança</th>
+                                <th onclick="ordenarStatus('prontaResposta')" class="px-6 py-5">P. Resposta</th>
+                                <th class="px-6 py-5 no-print">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="listaOcorrencias" class="divide-y">
-                            <!-- Ocorrências via JS -->
-                        </tbody>
+                        <tbody id="listaStatusUFVs" class="divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
-        <!-- ABA STATUS UFVS -->
-        <div id="tabStatus" class="hidden">
-            <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
-                <div class="p-8 border-b flex justify-between items-center no-print">
-                    <div>
-                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Status de Infraestrutura</h2>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Painel Operacional em Tempo Real</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="exportarExcelUFVs()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
-                            <i class="fa-solid fa-file-excel"></i> EXCEL
-                        </button>
-                        <button onclick="exportarPDFStatus()" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
-                            <i class="fa-solid fa-file-pdf"></i> PDF
-                        </button>
-                    </div>
-                </div>
-                <div class="overflow-x-auto" id="tabelaStatusPDF">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="sticky-header">
-                            <tr class="bg-white text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
-                                <th class="px-8 py-5" onclick="ordenarStatus('nome')">UFV <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-								<th class="px-4 py-5 text-center" onclick="ordenarStatus('status')">Status <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-								<th class="px-4 py-5 text-center" onclick="ordenarStatus('prontaResposta')">Pronta Resposta <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('digifort')">Digifort <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('anydesk')">Anydesk <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('totalCam')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('seguranca')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-								<th class="px-4 py-5 text-center" onclick="ordenarStatus('motivodaMobilazacao')">Motivo da Mobilização <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    
-<!-- ABA CONTROLE DE ACESSO -->
-<div id="tabControleAcesso" class="hidden grid grid-cols-1 xl:grid-cols-12 gap-8">
-    <div class="xl:col-span-4 no-print">
-        <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-24">
-            <div class="flex items-center gap-2 mb-8 text-emerald-500">
-                <i class="fa-solid fa-user-check text-lg"></i>
-                <h2 class="text-[11px] font-black uppercase tracking-widest">NOVO REGISTRO DE ACESSO</h2>
-            </div>
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA DA VISITA</label>
-                    <input type="date" id="acessoDataVisita" class="w-full input-field text-xs">
-                </div>
-<div>
-                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA SOLAR</label>
-                            <select id="acessoUsina" class="w-full input-field text-xs">
-    <option value="">Escolha a usina</option>
-</select>
+            <!-- ABA CONTROLE DE ACESSO -->
+            <div id="tabControleAcesso" class="hidden grid grid-cols-1 xl:grid-cols-12 gap-8">
+                <div class="xl:col-span-4 no-print">
+                    <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-32">
+                        <div class="flex items-center gap-2 mb-8 text-emerald-500">
+                            <i class="fa-solid fa-user-check text-lg"></i>
+                            <h2 class="text-[11px] font-black uppercase tracking-widest">Novo Registro de Acesso</h2>
                         </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">HORÁRIO DE ENTRADA</label>
-                        <input type="time" id="acessoHoraEntrada" class="w-full input-field text-xs">
-                    </div>
-                    <div>
-                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">HORÁRIO DE SAÍDA</label>
-                        <input type="time" id="acessoHoraSaida" class="w-full input-field text-xs">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 tracking-widest">DATA DA VISITA</label>
+                                <input type="date" id="acessoDataVisita" class="w-full input-field">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 tracking-widest">USINA SOLAR</label>
+                                <select id="acessoUsina" class="w-full input-field"><option value="">Escolha a usina</option></select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 tracking-widest">ENTRADA</label>
+                                    <input type="time" id="acessoHoraEntrada" class="w-full input-field">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 tracking-widest">SAÍDA</label>
+                                    <input type="time" id="acessoHoraSaida" class="w-full input-field">
+                                </div>
+                            </div>
+                            <input type="text" id="acessoNomeVisitante" placeholder="Nome do Visitante" class="w-full input-field">
+                            <input type="text" id="acessoEmpresa" placeholder="Empresa" class="w-full input-field">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" id="acessoDocumento" placeholder="RG/CPF" class="w-full input-field">
+                                <input type="text" id="acessoContato" placeholder="Contato" class="w-full input-field">
+                            </div>
+                            <input type="text" id="acessoMotivo" placeholder="Motivo da Visita" class="w-full input-field">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" id="acessoResponsavel" placeholder="Responsável" class="w-full input-field">
+                                <input type="text" id="acessoPlacaVeiculo" placeholder="Placa Veículo" class="w-full input-field">
+                            </div>
+                            <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">USO DE EPI?</label>
+                                <select id="acessoUsoEPI" class="bg-transparent font-bold text-xs outline-none">
+                                    <option value="SIM">SIM</option>
+                                    <option value="NÃO">NÃO</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2 px-2">
+                                <input type="checkbox" id="acessoVisitanteRecorrente" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                <label for="acessoVisitanteRecorrente" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Visitante Recorrente?</label>
+                            </div>
+                            <button onclick="salvarControleAcesso()" class="w-full btn-primary py-4">REGISTRAR ACESSO</button>
+                        </div>
                     </div>
                 </div>
-                <input type="text" id="acessoNomeVisitante" placeholder="Nome do Visitante" class="w-full input-field text-xs">
-                <input type="text" id="acessoEmpresa" placeholder="Empresa" class="w-full input-field text-xs">
-                <input type="text" id="acessoDocumento" placeholder="Documento (RG/CPF)" class="w-full input-field text-xs">
-                <input type="text" id="acessoContato" placeholder="Contato" class="w-full input-field text-xs">
-                <textarea id="acessoMotivo" rows="2" placeholder="Motivo da Visita" class="w-full input-field text-xs resize-none"></textarea>
-                <input type="text" id="acessoResponsavel" placeholder="Responsável na Usina" class="w-full input-field text-xs">
-                <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
+
+                <div class="xl:col-span-8">
+                    <div class="flex gap-4 mb-8 no-print">
+                        <div class="flex-1 relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                            <input type="text" id="searchAcesso" oninput="renderControleAcesso()" placeholder="Filtrar por visitante, usina, empresa..." class="w-full pl-14 pr-6 py-4 bg-white border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-sm shadow-sm">
+                        </div>
+                        <button onclick="exportarExcelControleAcesso()" class="bg-white border border-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Excel
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden" id="tabelaControleAcessoPDF">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                    <th class="px-8 py-6">Data / Usina</th>
+                                    <th class="px-8 py-6">Visitante / Empresa</th>
+                                    <th class="px-8 py-6">Motivo / Responsável</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaControleAcesso" class="divide-y divide-slate-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL EDIÇÃO OCORRÊNCIA -->
+    <div id="editModal" class="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-6 no-print">
+        <div class="w-full max-w-2xl bg-white rounded-[40px] p-10 shadow-2xl">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">Editar Ocorrência</h2>
+                <button onclick="fecharModal()" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-all"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="editModalId">
+            <div class="grid grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USO DE EPI</label>
-                    <select id="acessoUsoEPI" class="w-full input-field text-xs"><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select>
-                </div>
-                <textarea id="acessoObservacoes" rows="2" placeholder="Observações" class="w-full input-field text-xs resize-none"></textarea>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="acessoVisitanteRecorrente" class="form-checkbox h-4 w-4 text-emerald-600 rounded">
-                    <label for="acessoVisitanteRecorrente" class="text-[10px] font-black text-slate-700 uppercase tracking-widest">VISITANTE RECORRENTE?</label>
-                </div>
-                <button onclick="salvarControleAcesso()" class="w-full btn-primary py-4 text-[11px]">REGISTRAR ACESSO</button>
-            </div>
-        </div>
-    </div>
- </main>
-    <div class="xl:col-span-8">
-        <div class="flex gap-4 mb-6 no-print">
-            <input type="text" id="searchAcesso" oninput="renderControleAcesso()" placeholder="Filtrar Visitante, Usina..." class="w-full px-4 py-3.5 bg-white border rounded-2xl text-xs outline-none">
-            <button onclick="exportarExcelControleAcesso()" class="bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> EXCEL</button>
-        </div>
-        <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" id="tabelaControleAcessoPDF">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
-                        <th class="px-8 py-6">DATA / USINA</th>
-                        <th class="px-8 py-6">VISITANTE / EMPRESA</th>
-                        <th class="px-8 py-6">MOTIVO / RESPONSÁVEL</th>
-                    </tr>
-                </thead>
-                <tbody id="listaControleAcesso" class="divide-y"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-    <!-- MODAL DE EDIÇÃO COMPACTO -->
-    <div id="editModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
-        <div class="bg-white shadow-2xl modal-content overflow-hidden animate-fadeIn">
-            <div class="px-8 py-6 border-b flex justify-between items-center">
-                <h2 class="text-[11px] font-black text-slate-800 uppercase tracking-widest">ATUALIZAR REGISTRO</h2>
-                <button onclick="fecharModal()" class="text-slate-300 hover:text-red-500 transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-            <div class="p-8 space-y-6">
-                <div class="bg-slate-50 rounded-2xl border border-slate-100 p-4 flex items-center justify-center min-h-[180px]">
-                    <img id="editModalFoto" src="" class="max-h-[200px] w-auto rounded-xl shadow-sm object-contain hidden">
-                    <div id="editModalSemFoto" class="text-slate-300 flex flex-col items-center gap-2">
-                        <i class="fa-solid fa-image text-3xl"></i>
-                        <span class="text-[9px] font-black uppercase tracking-widest">Sem evidência</span>
-                    </div>
-                </div>
-                <input type="hidden" id="editModalId">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">STATUS</label>
-                        <select id="editModalStatus" class="w-full input-field text-xs font-bold">
-                            <option value="ABERTO">🟠 Aberto</option>
-                            <option value="FINALIZADO">🟢 Finalizado</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">GERAÇÃO</label>
-                        <select id="editModalImpacto" class="w-full input-field text-xs font-bold">
-                            <option>⚪ Nenhum</option><option>🟠 Parcial</option><option>🔴 Total</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA</label>
-                        <select id="editModalUsina" class="w-full input-field text-xs font-bold"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA REGULARIZAÇÃO</label>
-                        <input type="datetime-local" id="editModalDataFim" class="w-full input-field text-xs font-bold">
-                    </div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Status Atual</label>
+                    <select id="editModalStatus" class="w-full input-field">
+                        <option value="ABERTO">ABERTO</option>
+                        <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                        <option value="FINALIZADO">FINALIZADO</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESUMO DA SOLUÇÃO</label>
-                    <textarea id="editModalDesc" rows="3" placeholder="Descreva as medidas tomadas..." class="w-full border border-emerald-100 rounded-xl p-4 text-xs font-medium outline-none focus:border-emerald-500 bg-emerald-50/30 resize-none"></textarea>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Impacto</label>
+                    <select id="editModalImpacto" class="w-full input-field">
+                        <option value="NENHUM">NENHUM</option>
+                        <option value="BAIXO">BAIXO</option>
+                        <option value="MÉDIO">MÉDIO</option>
+                        <option value="ALTO">ALTO</option>
+                        <option value="CRÍTICO">CRÍTICO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Usina</label>
+                    <select id="editModalUsina" class="w-full input-field"></select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Data de Regularização</label>
+                    <input type="date" id="editModalDataFim" class="w-full input-field">
                 </div>
             </div>
-            <div class="px-8 py-6 bg-slate-50 border-t flex gap-4">
-                <button onclick="fecharModal()" class="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">CANCELAR</button>
-                <button onclick="confirmarEdicao()" class="flex-[2] btn-primary py-4 text-[10px]">SALVAR ALTERAÇÕES</button>
+            <div class="mb-8">
+                <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Atualizar Descrição</label>
+                <textarea id="editModalDesc" rows="4" class="w-full input-field resize-none"></textarea>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="fecharModal()" class="flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all">Cancelar</button>
+                <button onclick="confirmarEdicao()" class="flex-2 bg-slate-900 hover:bg-black text-white px-12 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl">Salvar Alterações</button>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
-    let db = { ocorrencias: [], ufv_status: [],controleAcesso: [] };
-    let usuarioLogado = null;
-    let socket = null;
-    let sortConfig = { field: 'nome', direction: 1 };
+    <!-- MODAL EDIÇÃO UFV -->
+    <div id="editUfvModal" class="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-6 no-print">
+        <div class="w-full max-w-xl bg-white rounded-[40px] p-10 shadow-2xl">
+            <div class="flex items-center justify-between mb-8">
+                <h2 id="editUfvTitle" class="text-xl font-black text-slate-900 tracking-tight">Editar UFV</h2>
+                <button onclick="fecharUfvModal()" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-all"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="editUfvId">
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Status da Usina</label>
+                    <select id="editUfvStatusUFV" class="w-full input-field">
+                        <option value="O&M">O&M</option>
+                        <option value="CONSTRUÇÃO">CONSTRUÇÃO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Digifort</label>
+                    <select id="editUfvDigifort" class="w-full input-field">
+                        <option value="ONLINE">ONLINE</option>
+                        <option value="OFFLINE">OFFLINE</option>
+                        <option value="LENTO">LENTO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Anydesk</label>
+                    <select id="editUfvAnydesk" class="w-full input-field">
+                        <option value="ONLINE">ONLINE</option>
+                        <option value="OFFLINE">OFFLINE</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Fibra Óptica</label>
+                    <select id="editUfvFibra" class="w-full input-field">
+                        <option value="OK">OK</option>
+                        <option value="ROMPIDA">ROMPIDA</option>
+                        <option value="INSTÁVEL">INSTÁVEL</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Segurança Mobilizada</label>
+                    <select id="editUfvSegurancaMobilizada" class="w-full input-field">
+                        <option value="SIM">SIM</option>
+                        <option value="NÃO">NÃO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Pronta Resposta</label>
+                    <select id="editUfvProntaResposta" class="w-full input-field">
+                        <option value="OK">OK</option>
+                        <option value="INDISPONÍVEL">INDISPONÍVEL</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Câmeras ON</label>
+                    <input type="number" id="editUfvCamOn" class="w-full input-field">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Total Câmeras</label>
+                    <input type="number" id="editUfvTotalCam" class="w-full input-field">
+                </div>
+            </div>
+            <button onclick="confirmarEdicaoUfv()" class="w-full bg-slate-900 hover:bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl">Salvar Alterações</button>
+        </div>
+    </div>
 
-    function iniciarSocket( ) {
-        socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
-        socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
-        socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
-        socket.on('dados_iniciais', (dados) => { db = dados; popularSelectUsinas(); renderOcorrencias(); renderStatusUFVs(); renderControleAcesso(); });
-        socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
-        socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
-        socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
-        socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
-        socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
-        socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
-socket.on('dados_iniciais', (dados) => { 
-    db = dados; 
-    popularSelectUsinas(); // <-- Esta linha deve existir aqui
-    renderOcorrencias(); 
-    renderStatusUFVs(); 
-    renderControleAcesso(); 
-});
+    <div id="toastContainer" class="fixed bottom-8 right-8 z-[300] flex flex-col gap-3"></div>
 
-    function autenticar() {
-        const u = document.getElementById('userInput').value.trim();
-        const p = document.getElementById('passInput').value;
-        if (!u || !p) return toast('Preencha usuário e senha.', 'error');
-        document.getElementById('loginStatus').textContent = 'Autenticando...';
-        socket.emit('autenticar', { usuario: u, senha: p });
-    }
+    <script>
+        let socket;
+        let usuarioLogado = null;
+        let db = { ocorrencias: [], ufv_status: [], visitas: [] };
+        let sortConfig = { field: 'nome', direction: 1 };
 
-    function setStatus(type, text) {
-        const bar = document.getElementById('statusBar');
-        const dot = bar.querySelector('div');
-        const label = bar.querySelector('span');
-        label.textContent = text;
-        if (type === 'online') {
-            dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-            label.className = 'text-[10px] font-black uppercase tracking-tighter text-emerald-600';
-            bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50';
-        } else {
-            dot.className = 'w-2 h-2 rounded-full bg-red-500';
-            label.className = 'text-[10px] font-black uppercase tracking-tighter text-red-600';
-            bar.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50';
+        function toast(msg, type = 'info') {
+            const t = document.createElement('div');
+            const colors = { 
+                success: 'bg-emerald-600', 
+                error: 'bg-red-500', 
+                info: 'bg-slate-800' 
+            };
+            t.className = `${colors[type]} text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce-in font-bold text-[10px] uppercase tracking-widest`;
+            t.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check' : 'fa-info-circle'}"></i> ${msg}`;
+            document.getElementById('toastContainer').appendChild(t);
+            setTimeout(() => t.remove(), 4000);
         }
-    }
 
-    function toast(msg, type = 'success') {
-        const container = document.getElementById('toastContainer');
-        const el = document.createElement('div');
-        el.className = `toast toast-${type}`;
-        el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check-circle':'fa-exclamation-triangle'} mr-2"></i> ${msg}`;
-        container.appendChild(el);
-        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
-    }
+        function setStatus(type, text) {
+            const dot = document.getElementById('statusDot');
+            const label = document.getElementById('statusText');
+            dot.className = `w-2 h-2 rounded-full ${type === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500'}`;
+            label.textContent = text;
+            label.className = `text-[9px] font-black uppercase tracking-widest ${type === 'online' ? 'text-emerald-500' : 'text-red-500'}`;
+        }
 
-    function popularSelectUsinas() {
-    const ids = ['usina', 'editModalUsina', 'acessoUsina'];
-    
-    ids.forEach(id => {
-        const select = document.getElementById(id);
-        if (select) {
-            // Limpa o campo
-            select.innerHTML = '<option value="">Escolha a usina</option>';
-            
-            // Preenche com as usinas do banco de dados
-            if (db.ufv_status && db.ufv_status.length > 0) {
-                db.ufv_status.forEach(u => {
-                    const opt = document.createElement('option');
-                    opt.value = u.nome;
-                    opt.textContent = u.nome;
-                    // O segredo está aqui: usamos cloneNode para que cada select tenha sua própria cópia
-                    select.appendChild(opt.cloneNode(true));
-                });
+        function fazerLogin() {
+            const user = document.getElementById('loginUser').value;
+            const pass = document.getElementById('loginPass').value;
+            if (!user || !pass) return;
+            socket.emit('login', { user, pass });
+        }
+
+        function mostrarApp() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('appPage').classList.remove('hidden');
+        }
+
+        function switchTab(tab) {
+            ['ocorrencias', 'status', 'controleAcesso'].forEach(t => {
+                const tabEl = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+                const btnEl = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (tabEl) tabEl.classList.add('hidden');
+                if (btnEl) {
+                    btnEl.classList.remove('tab-active');
+                    btnEl.classList.add('text-slate-400');
+                }
+            });
+            const targetTab = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            const targetBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            if (targetTab) targetTab.classList.remove('hidden');
+            if (targetBtn) {
+                targetBtn.classList.add('tab-active');
+                targetBtn.classList.remove('text-slate-400');
+            }
+            if (tab === 'controleAcesso') renderControleAcesso();
+        }
+
+        function popularSelectUsinas() {
+            const ids = ['usina', 'editModalUsina', 'acessoUsina'];
+            ids.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = '<option value="">Escolha a usina</option>';
+                    if (db.ufv_status && db.ufv_status.length > 0) {
+                        db.ufv_status.forEach(u => {
+                            const opt = document.createElement('option');
+                            opt.value = u.nome;
+                            opt.textContent = u.nome;
+                            select.appendChild(opt.cloneNode(true));
+                        });
+                    }
+                }
+            });
+        }
+
+        function salvarOcorrencia() {
+            const dataManual = document.getElementById('dataOcorrenciaManual').value;
+            const dados = {
+                dataInicio: dataManual ? new Date(dataManual).toISOString() : new Date().toISOString(),
+                usina: document.getElementById('usina').value,
+                tipo: document.getElementById('tipo').value,
+                impacto: document.getElementById('impacto').value,
+                local: document.getElementById('local').value,
+                desc: document.getElementById('desc').value,
+                operador: usuarioLogado,
+                status: 'ABERTO'
+            };
+            if (!dados.usina || !dados.desc) return toast('Preencha a usina e a descrição!', 'error');
+            socket.emit('nova_ocorrencia', dados);
+            document.getElementById('desc').value = '';
+            document.getElementById('local').value = '';
+        }
+
+        function renderOcorrencias() {
+            const term = document.getElementById('search').value.toLowerCase();
+            const container = document.getElementById('listaOcorrencias');
+            container.innerHTML = '';
+            const filtradas = db.ocorrencias.filter(o => 
+                o.usina.toLowerCase().includes(term) || 
+                o.operador.toLowerCase().includes(term) || 
+                (o.status || '').toLowerCase().includes(term)
+            );
+            filtradas.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/50 transition-colors group";
+                const statusColor = o.status === 'FINALIZADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500';
+                tr.innerHTML = `
+                    <td class="px-8 py-6">
+                        <div class="inline-block px-3 py-1 rounded-lg ${statusColor} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
+                        ${o.dataFim ? `<div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Regularizado: ${new Date(o.dataFim).toLocaleDateString('pt-BR')}</div>` : ''}
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="text-xs font-black text-slate-900 uppercase">${new Date(o.dataInicio).toLocaleString('pt-BR')}</div>
+                        <div class="text-[10px] font-black text-slate-400 uppercase mt-1">${o.usina}</div>
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="text-xs font-black text-slate-800 uppercase">${o.tipo}</div>
+                        <div class="text-[10px] text-slate-400 font-medium mt-1">${o.local || 'Geral'}</div>
+                    </td>
+                    <td class="px-8 py-6 no-print">
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </td>
+                `;
+                container.appendChild(tr);
+            });
+        }
+
+        function abrirModalEdicao(id) {
+            const o = db.ocorrencias.find(x => x._id === id);
+            if (o) {
+                document.getElementById('editModalId').value = o._id;
+                document.getElementById('editModalStatus').value = o.status;
+                document.getElementById('editModalImpacto').value = o.impacto;
+                document.getElementById('editModalUsina').value = o.usina;
+                document.getElementById('editModalDataFim').value = o.dataFim ? o.dataFim.split('T')[0] : '';
+                document.getElementById('editModalDesc').value = o.desc;
+                document.getElementById('editModal').classList.remove('hidden');
+                document.getElementById('editModal').classList.add('flex');
             }
         }
-    });
-}
 
-    async function salvarOcorrencia() {
-        const dataInput = document.getElementById('dataHoraOcorrencia').value;
-        const dados = {
-            dataInicio: dataInput ? new Date(dataInput).toISOString() : new Date().toISOString(),
-            operador: document.getElementById('operador').value,
-            impacto: document.getElementById('impacto').value,
-            usina: document.getElementById('usina').value,
-            tipo: document.getElementById('tipo').value,
-            local: document.getElementById('local').value,
-            desc: document.getElementById('desc').value,
-            foto: ''
-        };
-        if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
-        const fileInput = document.getElementById('foto');
-        if (fileInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => { dados.foto = e.target.result; socket.emit('nova_ocorrencia', dados); limparForm(); };
-            reader.readAsDataURL(fileInput.files[0]);
-        } else {
-            socket.emit('nova_ocorrencia', dados); limparForm();
-        }
-    }
+        function fecharModal() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('editModal').classList.remove('flex'); }
 
-    function abrirModalEdicao(id) {
-        const o = db.ocorrencias.find(item => item._id === id);
-        if (!o) return;
-        document.getElementById('editModalId').value = o._id;
-        document.getElementById('editModalStatus').value = o.status || 'ABERTO';
-        document.getElementById('editModalImpacto').value = o.impacto;
-        document.getElementById('editModalUsina').value = o.usina;
-        document.getElementById('editModalDataFim').value = o.dataFim || '';
-        document.getElementById('editModalDesc').value = o.desc;
-        const img = document.getElementById('editModalFoto');
-        const semFoto = document.getElementById('editModalSemFoto');
-        if (o.foto) { img.src = o.foto; img.classList.remove('hidden'); semFoto.classList.add('hidden'); }
-        else { img.classList.add('hidden'); semFoto.classList.remove('hidden'); }
-        document.getElementById('editModal').classList.remove('hidden');
-        document.getElementById('editModal').classList.add('flex');
-    }
-
-    function fecharModal() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('editModal').classList.remove('flex'); }
-
-    function confirmarEdicao() {
-        const id = document.getElementById('editModalId').value;
-        const dados = {
-            _id: id,
-            status: document.getElementById('editModalStatus').value,
-            impacto: document.getElementById('editModalImpacto').value,
-            usina: document.getElementById('editModalUsina').value,
-            dataFim: document.getElementById('editModalDataFim').value,
-            desc: document.getElementById('editModalDesc').value
-        };
-        socket.emit('editar_ocorrencia', dados);
-        fecharModal();
-    }
-
-    function limparForm() {
-        document.getElementById('local').value = '';
-        document.getElementById('desc').value = '';
-        document.getElementById('foto').value = '';
-        document.getElementById('dataHoraOcorrencia').value = '';
-    }
-
-    function renderOcorrencias() {
-        const term = document.getElementById('search').value.toLowerCase();
-        const container = document.getElementById('listaOcorrencias');
-        container.innerHTML = '';
-        
-        const filtradas = db.ocorrencias.filter(o => {
-            const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
-            const statusStr = (o.status || 'ABERTO').toLowerCase();
-            const usinaStr = o.usina.toLowerCase();
-            const operadorStr = o.operador.toLowerCase();
-            return usinaStr.includes(term) || 
-                   operadorStr.includes(term) || 
-                   statusStr.includes(term) || 
-                   dataStr.includes(term);
-        });
-        
-        if (filtradas.length === 0) {
-            container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>';
-            return;
+        function confirmarEdicao() {
+            const id = document.getElementById('editModalId').value;
+            const dataFimInput = document.getElementById('editModalDataFim').value;
+            const dados = {
+                _id: id,
+                status: document.getElementById('editModalStatus').value,
+                impacto: document.getElementById('editModalImpacto').value,
+                usina: document.getElementById('editModalUsina').value,
+                dataFim: dataFimInput ? new Date(dataFimInput + 'T12:00:00').toISOString() : '',
+                desc: document.getElementById('editModalDesc').value
+            };
+            socket.emit('editar_ocorrencia', dados);
+            fecharModal();
         }
 
-        filtradas.forEach(o => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50/50 transition-colors group";
-            const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
-            
-            const statusColorClass = o.status === 'FINALIZADO' 
-                ? 'bg-emerald-50 text-emerald-600' 
-                : 'bg-red-50 text-red-500';
+        function excluirOcorrencia(id) { if (confirm('Excluir este registro permanentemente?')) socket.emit('excluir_ocorrencia', id); }
 
-            tr.innerHTML = `
-                <td class="px-8 py-6">
-                    <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="text-xs font-black text-emerald-600 uppercase tracking-tight">${o.usina}</div>
-                    <div class="text-[10px] font-black text-slate-800 uppercase mt-0.5">${o.operador}</div>
-                    <div class="text-[9px] text-slate-400 font-medium mt-0.5">${dataFormatada}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
-                        <span>${o.tipo.split(' ')[0]}</span>
-                        <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
-                </td>
-                <td class="px-8 py-6 text-right no-print">
-                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                        <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
-                    </div>
-                </td>
-            `;
-            container.appendChild(tr);
-        });
-    }
-
-    function ordenarStatus(campo) {
-        if (sortConfig.field === campo) {
-            sortConfig.direction *= -1;
-        } else {
-            sortConfig.field = campo;
-            sortConfig.direction = 1;
+        function renderStatusUFVs() {
+            const container = document.getElementById('listaStatusUFVs');
+            container.innerHTML = '';
+            const ordenadas = [...db.ufv_status].sort((a, b) => {
+                let valA = a[sortConfig.field], valB = b[sortConfig.field];
+                if (typeof valA === 'string') return valA.localeCompare(valB) * sortConfig.direction;
+                return (valA - valB) * sortConfig.direction;
+            });
+            ordenadas.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-5 font-black text-xs text-slate-900 uppercase">${u.nome}</td>
+                    <td class="px-6 py-5"><span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase">${u.statusUFV || 'O&M'}</span></td>
+                    <td class="px-6 py-5"><span class="text-[10px] font-black ${u.digifort === 'ONLINE' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.digifort}</span></td>
+                    <td class="px-6 py-5"><span class="text-[10px] font-black ${u.anydesk === 'ONLINE' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.anydesk}</span></td>
+                    <td class="px-6 py-5 text-center font-bold text-xs">${u.totalCam}</td>
+                    <td class="px-6 py-5 text-center font-bold text-xs text-emerald-600">${u.camOn}</td>
+                    <td class="px-6 py-5"><span class="text-[10px] font-black ${u.fibra === 'OK' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.fibra}</span></td>
+                    <td class="px-6 py-5"><span class="text-[10px] font-black ${u.segurancaMobilizada === 'SIM' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${u.segurancaMobilizada || 'NÃO'}</span></td>
+                    <td class="px-6 py-5"><span class="text-[10px] font-black ${u.prontaResposta === 'OK' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.prontaResposta}</span></td>
+                    <td class="px-6 py-5 no-print"><button onclick="abrirUfvModal('${u._id}')" class="text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button></td>
+                `;
+                container.appendChild(tr);
+            });
         }
-        renderStatusUFVs();
-    }
 
-    function renderStatusUFVs() {
-        const body = document.getElementById('tabelaStatusBody');
-        body.innerHTML = '';
-        
-        const ordenadas = [...db.ufv_status].sort((a, b) => {
-            let valA = a[sortConfig.field];
-            let valB = b[sortConfig.field];
-            if (typeof valA === 'string') {
-                valA = valA.toLowerCase();
-                valB = valB.toLowerCase();
+        function abrirUfvModal(id) {
+            const u = db.ufv_status.find(x => x._id === id);
+            if (u) {
+                document.getElementById('editUfvId').value = u._id;
+                document.getElementById('editUfvTitle').textContent = u.nome;
+                document.getElementById('editUfvStatusUFV').value = u.statusUFV || 'O&M';
+                document.getElementById('editUfvDigifort').value = u.digifort;
+                document.getElementById('editUfvAnydesk').value = u.anydesk;
+                document.getElementById('editUfvFibra').value = u.fibra;
+                document.getElementById('editUfvSegurancaMobilizada').value = u.segurancaMobilizada || 'NÃO';
+                document.getElementById('editUfvProntaResposta').value = u.prontaResposta;
+                document.getElementById('editUfvCamOn').value = u.camOn;
+                document.getElementById('editUfvTotalCam').value = u.totalCam;
+                document.getElementById('editUfvModal').classList.remove('hidden');
+                document.getElementById('editUfvModal').classList.add('flex');
             }
-            if (valA < valB) return -1 * sortConfig.direction;
-            if (valA > valB) return 1 * sortConfig.direction;
-            return 0;
-        });
-
-        ordenadas.forEach(u => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50/50 transition-colors";
-            tr.innerHTML = `
-                <td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
-				<td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'status', this.value)" class="bg-transparent outline-none cursor-pointer ${u.status==='CONSTRUÇÃO'?'text-red-500':'text-emerald-500'}"><option ${u.status==='O&M'?'selected':''}>O&M</option><option ${u.status==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option></select></td>
-				<td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${['ROMPIDA', 'OFFLINE'].includes(u.fibra) ? 'text-red-500' : 'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option><option ${u.seguranca==='PERNOITE 12H'?'selected':''}>PERNOITE 12H</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'motivodaMobilazacao', this.value)" class="bg-transparent outline-none cursor-pointer ${u.motivodaMobilazacao==='-'?'text-slate-400':'text-amber-500'}"><option ${u.motivodaMobilazacao==='DESMOBILAZAÇÃO'?'selected':''}>DESMOBILAZAÇÃO</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV'?'selected':''}>FALHA NO CFTV</option><option ${u.motivodaMobilazacao==='FALHA NA FIBRA'?'selected':''}>FALHA NA FIBRA</option><option ${u.motivodaMobilazacao==='FURTO RECENTE'?'selected':''}>FURTO RECENTE</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV + FIBRA'?'selected':''}>FALHA NO CFTV + FIBRA</option><option ${u.motivodaMobilazacao==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option><option ${u.motivodaMobilazacao==='-'?'selected':''}>-</option></select></td>
-			`;
-            body.appendChild(tr);
-        });
-    }
-
-    function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
-    function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
-    
-    function switchTab(tab) {
-    // Adicionamos 'controleAcesso' na lista abaixo para que o sistema reconheça a nova aba
-    ['ocorrencias', 'status', 'controleAcesso'].forEach(t => {
-        const tabElement = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
-        const btnElement = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
-        
-        if (tabElement) tabElement.classList.add('hidden');
-        if (btnElement) {
-            btnElement.classList.remove('tab-active');
-            btnElement.classList.add('text-slate-400');
         }
-    });
 
-    // Mostra a aba clicada
-    const targetTab = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
-    const targetBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
-    
-    if (targetTab) targetTab.classList.remove('hidden');
-    if (targetBtn) {
-        targetBtn.classList.add('tab-active');
-        targetBtn.classList.remove('text-slate-400');
-    }
-}
+        function fecharUfvModal() { document.getElementById('editUfvModal').classList.add('hidden'); document.getElementById('editUfvModal').classList.remove('flex'); }
 
-    function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
-    function logout() { location.reload(); }
-    
-    function exportarExcelOcorrencias() {
-        const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
-            "Data/Hora Início": new Date(o.dataInicio).toLocaleString('pt-BR'),
-            "Data/Hora Fim": o.dataFim ? new Date(o.dataFim).toLocaleString('pt-BR') : '',
-            Operador: o.operador,
-            Usina: o.usina,
-            Tipo: o.tipo,
-            Local: o.local,
-            Descrição: o.desc,
-            Status: o.status
-        })));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
-        XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
-    }
+        function confirmarEdicaoUfv() {
+            const dados = {
+                _id: document.getElementById('editUfvId').value,
+                statusUFV: document.getElementById('editUfvStatusUFV').value,
+                digifort: document.getElementById('editUfvDigifort').value,
+                anydesk: document.getElementById('editUfvAnydesk').value,
+                fibra: document.getElementById('editUfvFibra').value,
+                segurancaMobilizada: document.getElementById('editUfvSegurancaMobilizada').value,
+                prontaResposta: document.getElementById('editUfvProntaResposta').value,
+                camOn: parseInt(document.getElementById('editUfvCamOn').value),
+                totalCam: parseInt(document.getElementById('editUfvTotalCam').value)
+            };
+            socket.emit('atualizar_ufv', dados);
+            fecharUfvModal();
+        }
 
-    function exportarPDFOcorrencias() {
-        const element = document.getElementById('tabelaOcorrenciasPDF');
-        const opt = {
-            margin: 10,
-            filename: 'Relatorio_Ocorrencias_CFTV.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        html2pdf().set(opt).from(element).save();
-    }
+        function ordenarStatus(campo) { if (sortConfig.field === campo) { sortConfig.direction *= -1; } else { sortConfig.field = campo; sortConfig.direction = 1; } renderStatusUFVs(); }
 
-    function exportarExcelUFVs() {
-        const ws = XLSX.utils.json_to_sheet(db.ufv_status.map(u => ({
-            UFV: u.nome,
-			"Status": u.status,
-			"Pronta Resposta": u.prontaResposta,
-            Digifort: u.digifort,
-            Anydesk: u.anydesk,
-            "Total Câm": u.totalCam,
-            "Câm ON": u.camOn,
-            Fibra: u.fibra,
-            Segurança: u.seguranca,
-			"Motivo da Mobilização": u.motivodaMobilazacao
-        })));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs");
-        XLSX.writeFile(wb, "Status_Infraestrutura_UFVs.xlsx");
-    }
+        function salvarControleAcesso() {
+            const dados = {
+                dataVisita: document.getElementById('acessoDataVisita').value ? new Date(document.getElementById('acessoDataVisita').value + 'T12:00:00').toISOString() : new Date().toISOString(),
+                usina: document.getElementById('acessoUsina').value,
+                horarioEntrada: document.getElementById('acessoHoraEntrada').value,
+                horarioSaida: document.getElementById('acessoHoraSaida').value,
+                nomeVisitante: document.getElementById('acessoNomeVisitante').value,
+                empresa: document.getElementById('acessoEmpresa').value,
+                documento: document.getElementById('acessoDocumento').value,
+                contato: document.getElementById('acessoContato').value,
+                motivoVisita: document.getElementById('acessoMotivo').value,
+                responsavelUsina: document.getElementById('acessoResponsavel').value,
+                placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
+                usoEPI: document.getElementById('acessoUsoEPI').value,
+                observacoes: document.getElementById('acessoObservacoes').value,
+                visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
+            };
+            if (!dados.usina || !dados.nomeVisitante) return toast('Preencha a Usina e o Nome!', 'error');
+            socket.emit('nova_visita', dados);
+            toast('Acesso registrado!', 'success');
+            ['acessoNomeVisitante', 'acessoEmpresa', 'acessoMotivo', 'acessoDocumento', 'acessoContato', 'acessoResponsavel', 'acessoPlacaVeiculo', 'acessoObservacoes'].forEach(id => document.getElementById(id).value = '');
+        }
 
-    function exportarPDFStatus() {
-        const element = document.getElementById('tabelaStatusPDF');
-        const opt = {
-            margin: 10,
-            filename: 'Status_Infraestrutura_UFVs.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        html2pdf().set(opt).from(element).save();
-    }
-function salvarControleAcesso() {
-    const dados = {
-        dataVisita: document.getElementById('acessoDataVisita').value ? new Date(document.getElementById('acessoDataVisita').value + 'T00:00:00').toISOString() : new Date().toISOString(),
-        usina: document.getElementById('acessoUsina').value,
-        horarioEntrada: document.getElementById('acessoHoraEntrada').value,
-        horarioSaida: document.getElementById('acessoHoraSaida').value,
-        nomeVisitante: document.getElementById('acessoNomeVisitante').value,
-        empresa: document.getElementById('acessoEmpresa').value,
-        documento: document.getElementById('acessoDocumento').value,
-        contato: document.getElementById('acessoContato').value,
-        motivoVisita: document.getElementById('acessoMotivo').value,
-        responsavelUsina: document.getElementById('acessoResponsavel').value,
-        placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
-        usoEPI: document.getElementById('acessoUsoEPI').value,
-        observacoes: document.getElementById('acessoObservacoes').value,
-        visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
-    };
-    if (!dados.usina || !dados.nomeVisitante) return toast('Preencha os campos obrigatórios!', 'error');
-    socket.emit('nova_visita', dados);
-    toast('Acesso registrado!', 'success');
-}
+        function renderControleAcesso() {
+            const term = document.getElementById('searchAcesso').value.toLowerCase();
+            const container = document.getElementById('listaControleAcesso');
+            container.innerHTML = '';
+            if (!db.visitas) db.visitas = [];
+            const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + (v.empresa || '')).toLowerCase().includes(term));
+            filtradas.forEach(v => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div><div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div></td>
+                    <td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div><div class="text-[10px] text-slate-400 uppercase">${v.empresa || 'Particular'}</div></td>
+                    <td class="px-8 py-6"><div class="text-xs font-black text-slate-800">${v.motivoVisita}</div><div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina || 'N/A'}</div></td>
+                `;
+                container.appendChild(tr);
+            });
+        }
 
-function renderControleAcesso() {
-    const term = document.getElementById('searchAcesso').value.toLowerCase();
-    const container = document.getElementById('listaControleAcesso');
-    container.innerHTML = '';
-    const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + v.empresa).toLowerCase().includes(term));
-    filtradas.forEach(v => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div><div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div></td><td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div><div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div></td><td class="px-8 py-6"><div class="text-xs font-black text-slate-800">${v.motivoVisita}</div><div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div></td>`;
-        container.appendChild(tr);
-    });
-}
+        function exportarExcelOcorrencias() {
+            const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({ "Data Início": new Date(o.dataInicio).toLocaleString('pt-BR'), "Data Fim": o.dataFim ? new Date(o.dataFim).toLocaleString('pt-BR') : '', Operador: o.operador, Usina: o.usina, Tipo: o.tipo, Impacto: o.impacto, Local: o.local, Descrição: o.desc, Status: o.status })));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
+            XLSX.writeFile(wb, "Relatorio_Ocorrencias.xlsx");
+        }
 
-function exportarExcelControleAcesso() {
-    const ws = XLSX.utils.json_to_sheet(db.visitas.map(v => ({ "Data": new Date(v.dataVisita).toLocaleDateString('pt-BR'), Usina: v.usina, Entrada: v.horarioEntrada, Saída: v.horarioSaida, Visitante: v.nomeVisitante, Empresa: v.empresa, Documento: v.documento, Contato: v.contato, Motivo: v.motivoVisita, Responsável: v.responsavelUsina, Placa: v.placaVeiculo, EPI: v.usoEPI, Observações: v.observacoes, Recorrente: v.visitanteRecorrente ? 'Sim' : 'Não' })));
-    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Acessos");
-    XLSX.writeFile(wb, "Controle_Acesso_UFVs.xlsx");
-}
-    window.onload = iniciarSocket;
-</script>
+        function exportarExcelUFVs() {
+            const ws = XLSX.utils.json_to_sheet(db.ufv_status.map(u => ({ UFV: u.nome, Status: u.statusUFV, Digifort: u.digifort, Anydesk: u.anydesk, "Total Câm": u.totalCam, "Câm ON": u.camOn, Fibra: u.fibra, "Segurança Mobilizada": u.segurancaMobilizada, "Pronta Resposta": u.prontaResposta })));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Status_UFVs");
+            XLSX.writeFile(wb, "Status_Infraestrutura_UFVs.xlsx");
+        }
+
+        function exportarExcelControleAcesso() {
+            const ws = XLSX.utils.json_to_sheet(db.visitas.map(v => ({ Data: new Date(v.dataVisita).toLocaleDateString('pt-BR'), Usina: v.usina, Entrada: v.horarioEntrada, Saída: v.horarioSaida, Visitante: v.nomeVisitante, Empresa: v.empresa, Documento: v.documento, Contato: v.contato, Motivo: v.motivoVisita, Responsável: v.responsavelUsina, Placa: v.placaVeiculo, EPI: v.usoEPI, Observações: v.observacoes, Recorrente: v.visitanteRecorrente ? 'Sim' : 'Não' })));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Acessos");
+            XLSX.writeFile(wb, "Controle_Acesso_UFVs.xlsx");
+        }
+
+        function iniciarSocket() {
+            socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
+            socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
+            socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
+            socket.on('dados_iniciais', (dados) => { db = dados; popularSelectUsinas(); renderOcorrencias(); renderStatusUFVs(); renderControleAcesso(); });
+            socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
+            socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
+            socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
+            socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
+            socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
+            socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
+            socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
+        }
+
+        window.onload = iniciarSocket;
+    </script>
 </body>
 </html>
