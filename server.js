@@ -89,6 +89,16 @@ socket.on('nova_visita', async (d) => {
         await v.save(); 
         io.emit('visita_registrada', v); 
     });
+    socket.on('editar_visita', async (d) => {
+    const { _id, ...upd } = d;
+    const v = await Visita.findByIdAndUpdate(_id, upd, { new: true });
+    io.emit('visita_editada', v);
+});
+
+socket.on('excluir_visita', async (id) => {
+    await Visita.findByIdAndDelete(id);
+    io.emit('visita_excluida', id);
+});
 
 }); // <- fecha o io.on('connection', ...)
 
