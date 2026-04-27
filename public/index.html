@@ -211,8 +211,8 @@
         </div>
     
 <!-- ABA CONTROLE DE ACESSO -->
-<div id="tabControleAcesso" class="hidden" style="display:none">
-    <div class="xl:col-span-4 no-print">
+<div id="tabControleAcesso" style="display:none; gap:2rem; grid-template-columns: 4fr 8fr;">
+    <div class="no-print">
         <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-24">
             <div class="flex items-center gap-2 mb-8 text-emerald-500">
                 <i class="fa-solid fa-user-check text-lg"></i>
@@ -223,12 +223,12 @@
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA DA VISITA</label>
                     <input type="date" id="acessoDataVisita" class="w-full input-field text-xs">
                 </div>
-<div>
-                            <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA SOLAR</label>
-                            <select id="acessoUsina" class="w-full input-field text-xs">
-                                <option value="">Escolha a usina</option>
-                            </select>
-                        </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USINA SOLAR</label>
+                    <select id="acessoUsina" class="w-full input-field text-xs">
+                        <option value="">Escolha a usina</option>
+                    </select>
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">HORÁRIO DE ENTRADA</label>
@@ -248,7 +248,10 @@
                 <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USO DE EPI</label>
-                    <select id="acessoUsoEPI" class="w-full input-field text-xs"><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select>
+                    <select id="acessoUsoEPI" class="w-full input-field text-xs">
+                        <option value="SIM">SIM</option>
+                        <option value="NÃO">NÃO</option>
+                    </select>
                 </div>
                 <textarea id="acessoObservacoes" rows="2" placeholder="Observações" class="w-full input-field text-xs resize-none"></textarea>
                 <div class="flex items-center gap-2">
@@ -259,7 +262,7 @@
             </div>
         </div>
     </div>
-    <div class="xl:col-span-8">
+    <div>
         <div class="flex gap-4 mb-6 no-print">
             <input type="text" id="searchAcesso" oninput="renderControleAcesso()" placeholder="Filtrar Visitante, Usina..." class="w-full px-4 py-3.5 bg-white border rounded-2xl text-xs outline-none">
             <button onclick="exportarExcelControleAcesso()" class="bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> EXCEL</button>
