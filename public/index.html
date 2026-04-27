@@ -391,7 +391,6 @@ socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.v
     function popularSelectUsinas() {
         const select = document.getElementById('usina');
         const modalSelect = document.getElementById('editModalUsina');
-const acessoSelect = document.getElementById('acessoUsina'); // <-- Nova linha para a aba de acesso
         select.innerHTML = '<option value="">Escolha a usina</option>';
         modalSelect.innerHTML = '';
         db.ufv_status.forEach(u => {
