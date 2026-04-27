@@ -78,6 +78,7 @@
     <main class="flex-1 p-8 overflow-auto">
         <!-- ABA OCORRÊNCIAS -->
         <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            <!-- Formulário Lateral -->
             <div class="xl:col-span-4 no-print">
                 <div class="bg-white rounded-3xl shadow-sm border p-8 sticky top-24">
                     <div class="flex items-center gap-2 mb-8 text-emerald-500">
@@ -137,6 +138,7 @@
                 </div>
             </div>
 
+            <!-- Lista de Ocorrências -->
             <div class="xl:col-span-8">
                 <div class="flex gap-4 mb-6 no-print">
                     <div class="relative flex-1">
@@ -214,32 +216,32 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 tracking-widest">DATA DA VISITA</label>
-                            <input type="date" id="acessoDataVisita" class="w-full input-field">
+                            <input type="date" id="acessoDataVisita" class="w-full input-field text-xs">
                         </div>
                         <div>
                             <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 tracking-widest">USINA SOLAR</label>
-                            <select id="acessoUsina" class="w-full input-field"><option value="">Escolha a usina</option></select>
+                            <select id="acessoUsina" class="w-full input-field text-xs"><option value="">Escolha a usina</option></select>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 tracking-widest">ENTRADA</label>
-                                <input type="time" id="acessoHoraEntrada" class="w-full input-field">
+                                <input type="time" id="acessoHoraEntrada" class="w-full input-field text-xs">
                             </div>
                             <div>
                                 <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 tracking-widest">SAÍDA</label>
-                                <input type="time" id="acessoHoraSaida" class="w-full input-field">
+                                <input type="time" id="acessoHoraSaida" class="w-full input-field text-xs">
                             </div>
                         </div>
-                        <input type="text" id="acessoNomeVisitante" placeholder="Nome do Visitante" class="w-full input-field">
-                        <input type="text" id="acessoEmpresa" placeholder="Empresa" class="w-full input-field">
+                        <input type="text" id="acessoNomeVisitante" placeholder="Nome do Visitante" class="w-full input-field text-xs">
+                        <input type="text" id="acessoEmpresa" placeholder="Empresa" class="w-full input-field text-xs">
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="text" id="acessoDocumento" placeholder="RG/CPF" class="w-full input-field">
-                            <input type="text" id="acessoContato" placeholder="Contato" class="w-full input-field">
+                            <input type="text" id="acessoDocumento" placeholder="RG/CPF" class="w-full input-field text-xs">
+                            <input type="text" id="acessoContato" placeholder="Contato" class="w-full input-field text-xs">
                         </div>
-                        <input type="text" id="acessoMotivo" placeholder="Motivo da Visita" class="w-full input-field">
+                        <input type="text" id="acessoMotivo" placeholder="Motivo da Visita" class="w-full input-field text-xs">
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="text" id="acessoResponsavel" placeholder="Responsável na Usina" class="w-full input-field">
-                            <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field">
+                            <input type="text" id="acessoResponsavel" placeholder="Responsável na Usina" class="w-full input-field text-xs">
+                            <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                         </div>
                         <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
                             <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">USO DE EPI?</label>
@@ -252,8 +254,8 @@
                             <input type="checkbox" id="acessoVisitanteRecorrente" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                             <label for="acessoVisitanteRecorrente" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Visitante Recorrente?</label>
                         </div>
-                        <textarea id="acessoObservacoes" placeholder="Observações..." class="w-full input-field resize-none" rows="2"></textarea>
-                        <button onclick="salvarControleAcesso()" class="w-full btn-primary py-4">REGISTRAR ACESSO</button>
+                        <textarea id="acessoObservacoes" placeholder="Observações..." class="w-full input-field text-xs resize-none" rows="2"></textarea>
+                        <button onclick="salvarControleAcesso()" class="w-full btn-primary py-4 text-[11px]">REGISTRAR ACESSO</button>
                     </div>
                 </div>
             </div>
@@ -409,7 +411,7 @@
 
     function toast(msg, type = 'info') {
         const t = document.createElement('div');
-        t.className = `toast toast-${type === 'success' ? 'success' : 'error'}`;
+        t.className = 'toast toast-' + (type === 'success' ? 'success' : 'error');
         t.innerHTML = msg;
         document.getElementById('toastContainer').appendChild(t);
         setTimeout(() => t.remove(), 3000);
@@ -419,7 +421,7 @@
         const bar = document.getElementById('statusBar');
         const dot = bar.querySelector('div');
         const label = bar.querySelector('span');
-        dot.className = `w-2 h-2 rounded-full ${type === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500'}`;
+        dot.className = 'w-2 h-2 rounded-full ' + (type === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500');
         label.textContent = text;
     }
 
@@ -476,27 +478,25 @@
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50/50 transition-colors group";
             const statusColor = o.status === 'FINALIZADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500';
-            tr.innerHTML = `
-                <td class="px-8 py-6">
-                    <div class="inline-block px-3 py-1 rounded-lg ${statusColor} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
-                    ${o.dataFim ? `<div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Regularizado: ${new Date(o.dataFim).toLocaleDateString('pt-BR')}</div>` : ''}
-                </td>
-                <td class="px-8 py-6">
-                    <div class="text-xs font-black text-slate-900 uppercase">${new Date(o.dataInicio).toLocaleString('pt-BR')}</div>
-                    <div class="text-[10px] font-black text-slate-400 uppercase mt-1">${o.usina}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="text-xs font-black text-slate-800 uppercase">${o.tipo}</div>
-                    <div class="text-[10px] text-slate-400 font-medium mt-1">${o.local || 'Geral'}</div>
-                </td>
-                <td class="px-8 py-6 no-print">
-                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                </td>
-            `;
+            tr.innerHTML = '<td class="px-8 py-6">' +
+                '<div class="inline-block px-3 py-1 rounded-lg ' + statusColor + ' text-[10px] font-black uppercase mb-1">' + (o.status || 'ABERTO') + '</div>' +
+                '<div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ' + o.impacto + '</div>' +
+                (o.dataFim ? '<div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Regularizado: ' + new Date(o.dataFim).toLocaleDateString('pt-BR') + '</div>' : '') +
+                '</td>' +
+                '<td class="px-8 py-6">' +
+                '<div class="text-xs font-black text-slate-900 uppercase">' + new Date(o.dataInicio).toLocaleString('pt-BR') + '</div>' +
+                '<div class="text-[10px] font-black text-slate-400 uppercase mt-1">' + o.usina + '</div>' +
+                '</td>' +
+                '<td class="px-8 py-6">' +
+                '<div class="text-xs font-black text-slate-800 uppercase">' + o.tipo + '</div>' +
+                '<div class="text-[10px] text-slate-400 font-medium mt-1">' + (o.local || 'Geral') + '</div>' +
+                '</td>' +
+                '<td class="px-8 py-6 no-print">' +
+                '<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">' +
+                '<button onclick="abrirModalEdicao(\'' + o._id + '\')" class="p-2 text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                '<button onclick="excluirOcorrencia(\'' + o._id + '\')" class="p-2 text-slate-300 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>' +
+                '</div>' +
+                '</td>';
             container.appendChild(tr);
         });
     }
@@ -544,18 +544,16 @@
         });
         ordenadas.forEach(u => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="px-6 py-5 font-black text-xs text-slate-900 uppercase">${u.nome}</td>
-                <td class="px-6 py-5"><span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase">${u.status || 'O&M'}</span></td>
-                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.prontaResposta === 'OK' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.prontaResposta}</span></td>
-                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.digifort === 'ONLINE' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.digifort}</span></td>
-                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.anydesk === 'ONLINE' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.anydesk}</span></td>
-                <td class="px-6 py-5 text-center font-bold text-xs">${u.totalCam}</td>
-                <td class="px-6 py-5 text-center font-bold text-xs text-emerald-600">${u.camOn}</td>
-                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.fibra === 'OK' ? 'text-emerald-500' : 'text-red-500'} uppercase">${u.fibra}</span></td>
-                <td class="px-6 py-5"><span class="text-[10px] font-black ${u.seguranca === 'SIM' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${u.seguranca}</span></td>
-                <td class="px-6 py-5 no-print"><button onclick="abrirUfvModal('${u._id}')" class="text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button></td>
-            `;
+            tr.innerHTML = '<td class="px-6 py-5 font-black text-xs text-slate-900 uppercase">' + u.nome + '</td>' +
+                '<td class="px-6 py-5"><span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase">' + (u.status || 'O&M') + '</span></td>' +
+                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.prontaResposta === 'OK' ? 'text-emerald-500' : 'text-red-500') + ' uppercase">' + u.prontaResposta + '</span></td>' +
+                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.digifort === 'ONLINE' ? 'text-emerald-500' : 'text-red-500') + ' uppercase">' + u.digifort + '</span></td>' +
+                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.anydesk === 'ONLINE' ? 'text-emerald-500' : 'text-red-500') + ' uppercase">' + u.anydesk + '</span></td>' +
+                '<td class="px-6 py-5 text-center font-bold text-xs">' + u.totalCam + '</td>' +
+                '<td class="px-6 py-5 text-center font-bold text-xs text-emerald-600">' + u.camOn + '</td>' +
+                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.fibra === 'OK' ? 'text-emerald-500' : 'text-red-500') + ' uppercase">' + u.fibra + '</span></td>' +
+                '<td class="px-6 py-5"><span class="text-[10px] font-black ' + (u.seguranca === 'SIM' ? 'text-emerald-500' : 'text-slate-400') + ' uppercase">' + u.seguranca + '</span></td>' +
+                '<td class="px-6 py-5 no-print"><button onclick="abrirUfvModal(\'' + u._id + '\')" class="text-slate-300 hover:text-emerald-500"><i class="fa-solid fa-pen-to-square"></i></button></td>';
             container.appendChild(tr);
         });
     }
@@ -631,11 +629,9 @@
         const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + (v.empresa || '')).toLowerCase().includes(term));
         filtradas.forEach(v => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">${new Date(v.dataVisita).toLocaleDateString('pt-BR')}</div><div class="text-[10px] font-black text-slate-800 uppercase">${v.usina}</div></td>
-                <td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">${v.nomeVisitante}</div><div class="text-[10px] text-slate-400 uppercase">${v.empresa || 'Particular'}</div></td>
-                <td class="px-8 py-6"><div class="text-xs font-black text-slate-800">${v.motivoVisita}</div><div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina || 'N/A'}</div></td>
-            `;
+            tr.innerHTML = '<td class="px-8 py-6"><div class="text-xs font-black text-emerald-600 uppercase">' + new Date(v.dataVisita).toLocaleDateString('pt-BR') + '</div><div class="text-[10px] font-black text-slate-800 uppercase">' + v.usina + '</div></td>' +
+                '<td class="px-8 py-6"><div class="text-xs font-black text-slate-800 uppercase">' + v.nomeVisitante + '</div><div class="text-[10px] text-slate-400 uppercase">' + (v.empresa || 'Particular') + '</div></td>' +
+                '<td class="px-8 py-6"><div class="text-xs font-black text-slate-800">' + v.motivoVisita + '</div><div class="text-[10px] text-slate-400 uppercase">Resp: ' + (v.responsavelUsina || 'N/A') + '</div></td>';
             container.appendChild(tr);
         });
     }
