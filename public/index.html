@@ -391,21 +391,22 @@ socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.v
     function popularSelectUsinas() {
     const select = document.getElementById('usina');
     const modalSelect = document.getElementById('editModalUsina');
-    const acessoSelect = document.getElementById('acessoUsina'); // já existia, mas não era usado
+    const acessoSelect = document.getElementById('acessoUsina');
 
     select.innerHTML = '<option value="">Escolha a usina</option>';
     modalSelect.innerHTML = '';
-    acessoSelect.innerHTML = '<option value="">Escolha a usina</option>'; // linha que faltava
+    acessoSelect.innerHTML = '<option value="">Escolha a usina</option>';
 
     db.ufv_status.forEach(u => {
-        const opt = document.createElement('option');
-        opt.value = u.nome; opt.textContent = u.nome;
-        select.appendChild(opt.cloneNode(true));
-        modalSelect.appendChild(opt.cloneNode(true));
-        acessoSelect.appendChild(opt.cloneNode(true)); // linha que faltava
+        // Cria um option novo para cada select — sem clonar o mesmo nó
+        [select, modalSelect, acessoSelect].forEach(el => {
+            const opt = document.createElement('option');
+            opt.value = u.nome;
+            opt.textContent = u.nome;
+            el.appendChild(opt);
+        });
     });
 }
-
     async function salvarOcorrencia() {
         const dataInput = document.getElementById('dataHoraOcorrencia').value;
         const dados = {
