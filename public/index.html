@@ -311,6 +311,16 @@
                     <input type="date" id="editVisitaDataFim" class="w-full input-field text-xs">
                 </div>
             </div>
+			<div class="grid grid-cols-2 gap-4">
+    <div>
+        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">HORÁRIO DE ENTRADA</label>
+        <input type="time" id="editVisitaHoraEntrada" class="w-full input-field text-xs">
+    </div>
+    <div>
+        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">HORÁRIO DE SAÍDA</label>
+        <input type="time" id="editVisitaHoraSaida" class="w-full input-field text-xs">
+    </div>
+</div>
             <div>
                 <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">OBSERVAÇÕES</label>
                 <textarea id="editVisitaObs" rows="4" placeholder="Observações..." class="w-full border border-emerald-100 rounded-xl p-4 text-xs font-medium outline-none focus:border-emerald-500 bg-emerald-50/30 resize-none"></textarea>
@@ -421,6 +431,8 @@ function abrirModalVisita(id) {
     document.getElementById('editVisitaStatus').value = v.status || 'ABERTO';
     document.getElementById('editVisitaDataInicio').value = v.dataVisita ? v.dataVisita.split('T')[0] : '';
     document.getElementById('editVisitaDataFim').value = v.dataFim || '';
+    document.getElementById('editVisitaHoraEntrada').value = v.horarioEntrada || '';
+    document.getElementById('editVisitaHoraSaida').value = v.horarioSaida || '';
     document.getElementById('editVisitaObs').value = v.observacoes || '';
     document.getElementById('editVisitaModal').classList.remove('hidden');
     document.getElementById('editVisitaModal').classList.add('flex');
@@ -438,6 +450,8 @@ function confirmarEdicaoVisita() {
         status: document.getElementById('editVisitaStatus').value,
         dataVisita: document.getElementById('editVisitaDataInicio').value,
         dataFim: document.getElementById('editVisitaDataFim').value,
+        horarioEntrada: document.getElementById('editVisitaHoraEntrada').value,
+        horarioSaida: document.getElementById('editVisitaHoraSaida').value,
         observacoes: document.getElementById('editVisitaObs').value
     };
     socket.emit('editar_visita', dados);
