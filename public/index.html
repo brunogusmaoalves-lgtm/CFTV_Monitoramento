@@ -538,38 +538,38 @@ function excluirVisita(id) {
         }
     }
 
-    function abrirModalEdicao(id) {
-        const o = db.ocorrencias.find(item => item._id === id);
-        if (!o) return;
-        document.getElementById('editModalId').value = o._id;
-        document.getElementById('editModalStatus').value = o.status || 'ABERTO';
-        document.getElementById('editModalImpacto').value = o.impacto;
-        document.getElementById('editModalUsina').value = o.usina;
-        document.getElementById('editModalDataFim').value = o.dataFim || '';
-        document.getElementById('editModalDesc').value = o.desc;
-        const img = document.getElementById('editModalFoto');
-        const semFoto = document.getElementById('editModalSemFoto');
-        if (o.foto) { img.src = o.foto; img.classList.remove('hidden'); semFoto.classList.add('hidden'); }
-        else { img.classList.add('hidden'); semFoto.classList.remove('hidden'); }
-        document.getElementById('editModal').classList.remove('hidden');
-        document.getElementById('editModal').classList.add('flex');
-    }
-
+   function abrirModalEdicao(id) {
+    const o = db.ocorrencias.find(item => item._id === id);
+    if (!o) return;
+    document.getElementById('editModalId').value = o._id;
+    document.getElementById('editModalStatus').value = o.status || 'ABERTO';
+    document.getElementById('editModalImpacto').value = o.impacto;
+    document.getElementById('editModalUsina').value = o.usina;
+    document.getElementById('editModalDataFim').value = o.dataFim ? o.dataFim.slice(0, 16) : '';
+    document.getElementById('editModalDesc').value = o.desc;
+    const img = document.getElementById('editModalFoto');
+    const semFoto = document.getElementById('editModalSemFoto');
+    if (o.foto) { img.src = o.foto; img.classList.remove('hidden'); semFoto.classList.add('hidden'); }
+    else { img.classList.add('hidden'); semFoto.classList.remove('hidden'); }
+    document.getElementById('editModal').classList.remove('hidden');
+    document.getElementById('editModal').classList.add('flex');
+}
     function fecharModal() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('editModal').classList.remove('flex'); }
 
     function confirmarEdicao() {
-        const id = document.getElementById('editModalId').value;
-        const dados = {
-            _id: id,
-            status: document.getElementById('editModalStatus').value,
-            impacto: document.getElementById('editModalImpacto').value,
-            usina: document.getElementById('editModalUsina').value,
-            dataFim: document.getElementById('editModalDataFim').value,
-            desc: document.getElementById('editModalDesc').value
-        };
-        socket.emit('editar_ocorrencia', dados);
-        fecharModal();
-    }
+    const id = document.getElementById('editModalId').value;
+    const dataFimVal = document.getElementById('editModalDataFim').value;
+    const dados = {
+        _id: id,
+        status: document.getElementById('editModalStatus').value,
+        impacto: document.getElementById('editModalImpacto').value,
+        usina: document.getElementById('editModalUsina').value,
+        dataFim: dataFimVal ? new Date(dataFimVal).toISOString() : '',
+        desc: document.getElementById('editModalDesc').value
+    };
+    socket.emit('editar_ocorrencia', dados);
+    fecharModal();
+}
 
     function limparForm() {
         document.getElementById('local').value = '';
