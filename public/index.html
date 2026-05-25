@@ -247,7 +247,7 @@
                 <input type="text" id="acessoResponsavel" placeholder="Responsável na Usina" class="w-full input-field text-xs">
                 <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">USO DE EPI</label>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">REALIZADO O TESTE DE FIBRA</label>
                     <select id="acessoUsoEPI" class="w-full input-field text-xs">
                         <option value="SIM">SIM</option>
                         <option value="NÃO">NÃO</option>
@@ -830,7 +830,7 @@ function renderControleAcesso() {
 }
 
 function exportarExcelControleAcesso() {
-    const ws = XLSX.utils.json_to_sheet(db.visitas.map(v => ({ "Data": new Date(v.dataVisita).toLocaleDateString('pt-BR'), Usina: v.usina, Entrada: v.horarioEntrada, Saída: v.horarioSaida, Visitante: v.nomeVisitante, Empresa: v.empresa, Documento: v.documento, Contato: v.contato, Motivo: v.motivoVisita, Responsável: v.responsavelUsina, Placa: v.placaVeiculo, EPI: v.usoEPI, Observações: v.observacoes, Recorrente: v.visitanteRecorrente ? 'Sim' : 'Não' })));
+    const ws = XLSX.utils.json_to_sheet(db.visitas.map(v => ({ "Data": new Date(v.dataVisita).toLocaleDateString('pt-BR'), Usina: v.usina, Entrada: v.horarioEntrada, Saída: v.horarioSaida, Visitante: v.nomeVisitante, Empresa: v.empresa, Documento: v.documento, Contato: v.contato, Motivo: v.motivoVisita, Responsável: v.responsavelUsina, Placa: v.placaVeiculo, TESTE DE FIBRA: v.usoEPI, Observações: v.observacoes, Recorrente: v.visitanteRecorrente ? 'Sim' : 'Não' })));
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Acessos");
     XLSX.writeFile(wb, "Controle_Acesso_UFVs.xlsx");
 }
