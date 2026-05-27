@@ -248,7 +248,7 @@
                 <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
-                    <select id="acessoUsoEPI" class="w-full input-field text-xs">
+                    <select id="editVisitaTesteFibra" class="w-full input-field text-xs">
                         <option value="SIM">SIM</option>
                         <option value="NÃO">NÃO</option>
                     </select>
@@ -310,6 +310,13 @@
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">DATA DE FIM</label>
                     <input type="date" id="editVisitaDataFim" class="w-full input-field text-xs">
                 </div>
+				<div>
+        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
+        <select id="editVisitaTesteFibra" class="w-full input-field text-xs">
+            <option value="SIM">SIM</option>
+            <option value="NÃO">NÃO</option>
+        </select>
+    </div>
             </div>
 			<div class="grid grid-cols-2 gap-4">
     <div>
@@ -431,6 +438,7 @@ function abrirModalVisita(id) {
     document.getElementById('editVisitaStatus').value = v.status || 'ABERTO';
     document.getElementById('editVisitaDataInicio').value = v.dataVisita ? v.dataVisita.split('T')[0] : '';
     document.getElementById('editVisitaDataFim').value = v.dataFim || '';
+	document.getElementById('editVisitaTesteFibra').value = v.usoEPI || 'SIM';
     document.getElementById('editVisitaHoraEntrada').value = v.horarioEntrada || '';
     document.getElementById('editVisitaHoraSaida').value = v.horarioSaida || '';
     document.getElementById('editVisitaObs').value = v.observacoes || '';
@@ -780,7 +788,7 @@ function salvarControleAcesso() {
         motivoVisita: document.getElementById('acessoMotivo').value,
         responsavelUsina: document.getElementById('acessoResponsavel').value,
         placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
-        usoEPI: document.getElementById('acessoUsoEPI').value,
+        usoEPI: document.getElementById('editVisitaTesteFibra').value,
         observacoes: document.getElementById('acessoObservacoes').value,
         visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
     };
