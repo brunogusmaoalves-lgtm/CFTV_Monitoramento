@@ -923,12 +923,25 @@ function previewFoto(num) {
 function salvarFotosUfv() {
     const id = document.getElementById('fotoUfvId').value;
     const u = db.ufv_status.find(item => item._id === id);
-    const dados = {
-        _id: id,
-        foto1: document.getElementById('previewFoto1').src.startsWith('data:') ? document.getElementById('previewFoto1').src : (u.foto1 || ''),
-        foto2: document.getElementById('previewFoto2').src.startsWith('data:') ? document.getElementById('previewFoto2').src : (u.foto2 || '')
-    };
+    if (!u) return;
+
+    const foto1 = document.getElementById('previewFoto1').src.startsWith('data:') 
+        ? document.getElementById('previewFoto1').src 
+        : (u.foto1 || '');
+    const foto2 = document.getElementById('previewFoto2') 
+        ? (document.getElementById('previewFoto2').src.startsWith('data:') 
+            ? document.getElementById('previewFoto2').src 
+            : (u.foto2 || ''))
+        : (u.foto2 || '');
+
+    const dados = { _id: id, foto1: foto1, foto2: foto2 };
+
+    // Atualiza banco local imediatamente
+    u.foto1 = foto1;
+    u.foto2 = foto2;
+
     socket.emit('atualizar_ufv', dados);
+    if (typeof renderStatusUFVs === 'function') renderStatusUFVs();
     toast('Fotos salvas com sucesso!', 'success');
     fecharModalFotos();
 }
