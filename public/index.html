@@ -209,7 +209,48 @@
                 </div>
             </div>
         </div>
-    
+    <!-- MODAL FOTOS UFV -->
+<div id="fotoUfvModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
+    <div class="bg-white shadow-2xl rounded-3xl overflow-hidden w-full max-w-lg">
+        <div class="px-8 py-6 border-b flex justify-between items-center">
+            <h2 class="text-[11px] font-black text-slate-800 uppercase tracking-widest" id="fotoUfvModalTitulo">FOTOS DA USINA</h2>
+            <button onclick="fecharModalFotos()" class="text-slate-300 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div class="p-8 space-y-6">
+            <input type="hidden" id="fotoUfvId">
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">FOTO 1</label>
+                    <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-400 transition-colors" onclick="document.getElementById('inputFoto1').click()">
+                        <img id="previewFoto1" class="w-full h-32 object-cover rounded-xl hidden mb-2">
+                        <div id="placeholderFoto1" class="py-6">
+                            <i class="fa-solid fa-camera text-slate-300 text-2xl mb-2"></i>
+                            <p class="text-[9px] text-slate-400 font-black uppercase">Clique para anexar</p>
+                        </div>
+                    </div>
+                    <input type="file" id="inputFoto1" accept="image/*" class="hidden" onchange="previewFoto(1)">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">FOTO 2</label>
+                    <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-400 transition-colors" onclick="document.getElementById('inputFoto2').click()">
+                        <img id="previewFoto2" class="w-full h-32 object-cover rounded-xl hidden mb-2">
+                        <div id="placeholderFoto2" class="py-6">
+                            <i class="fa-solid fa-camera text-slate-300 text-2xl mb-2"></i>
+                            <p class="text-[9px] text-slate-400 font-black uppercase">Clique para anexar</p>
+                        </div>
+                    </div>
+                    <input type="file" id="inputFoto2" accept="image/*" class="hidden" onchange="previewFoto(2)">
+                </div>
+            </div>
+        </div>
+        <div class="px-8 py-6 bg-slate-50 border-t flex gap-4">
+            <button onclick="fecharModalFotos()" class="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">CANCELAR</button>
+            <button onclick="salvarFotosUfv()" class="flex-[2] btn-primary py-4 text-[10px]">SALVAR FOTOS</button>
+        </div>
+    </div>
+</div>
 <!-- ABA CONTROLE DE ACESSO -->
 <div id="tabControleAcesso" style="display:none; gap:2rem; grid-template-columns: 4fr 8fr;">
     <div class="no-print">
@@ -336,48 +377,6 @@
         <div class="px-8 py-6 bg-slate-50 border-t flex gap-4">
             <button onclick="fecharModalVisita()" class="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">CANCELAR</button>
             <button onclick="confirmarEdicaoVisita()" class="flex-[2] btn-primary py-4 text-[10px]">SALVAR ALTERAÇÕES</button>
-        </div>
-    </div>
-</div>
-	<!-- MODAL FOTOS UFV -->
-<div id="fotoUfvModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
-    <div class="bg-white shadow-2xl rounded-3xl overflow-hidden w-full max-w-lg">
-        <div class="px-8 py-6 border-b flex justify-between items-center">
-            <h2 class="text-[11px] font-black text-slate-800 uppercase tracking-widest" id="fotoUfvModalTitulo">FOTOS DA USINA</h2>
-            <button onclick="fecharModalFotos()" class="text-slate-300 hover:text-red-500 transition-colors">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-        </div>
-        <div class="p-8 space-y-6">
-            <input type="hidden" id="fotoUfvId">
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">FOTO 1</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-400 transition-colors" onclick="document.getElementById('inputFoto1').click()">
-                        <img id="previewFoto1" class="w-full h-32 object-cover rounded-xl hidden mb-2">
-                        <div id="placeholderFoto1" class="py-6">
-                            <i class="fa-solid fa-camera text-slate-300 text-2xl mb-2"></i>
-                            <p class="text-[9px] text-slate-400 font-black uppercase">Clique para anexar</p>
-                        </div>
-                    </div>
-                    <input type="file" id="inputFoto1" accept="image/*" class="hidden" onchange="previewFoto(1)">
-                </div>
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">FOTO 2</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center cursor-pointer hover:border-emerald-400 transition-colors" onclick="document.getElementById('inputFoto2').click()">
-                        <img id="previewFoto2" class="w-full h-32 object-cover rounded-xl hidden mb-2">
-                        <div id="placeholderFoto2" class="py-6">
-                            <i class="fa-solid fa-camera text-slate-300 text-2xl mb-2"></i>
-                            <p class="text-[9px] text-slate-400 font-black uppercase">Clique para anexar</p>
-                        </div>
-                    </div>
-                    <input type="file" id="inputFoto2" accept="image/*" class="hidden" onchange="previewFoto(2)">
-                </div>
-            </div>
-        </div>
-        <div class="px-8 py-6 bg-slate-50 border-t flex gap-4">
-            <button onclick="fecharModalFotos()" class="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">CANCELAR</button>
-            <button onclick="salvarFotosUfv()" class="flex-[2] btn-primary py-4 text-[10px]">SALVAR FOTOS</button>
         </div>
     </div>
 </div>
@@ -699,7 +698,9 @@ function excluirVisita(id) {
     function renderStatusUFVs() {
         const body = document.getElementById('tabelaStatusBody');
         body.innerHTML = '';
-        
+        <button onclick="abrirModalFotos('${u._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors" title="Fotos da ronda">
+    <i class="fa-solid fa-camera text-lg"></i>
+</button>
         const ordenadas = [...db.ufv_status].sort((a, b) => {
             let valA = a[sortConfig.field];
             let valB = b[sortConfig.field];
