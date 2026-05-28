@@ -1,12 +1,20 @@
 const express = require('express');
-const http = require('http' );
+const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const mongoose = require('mongoose');
 
 const app = express();
-const server = http.createServer(app );
+
+// 1. Libera o Express para aceitar textos longos (Base64 da imagem)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+const server = http.createServer(app);
+
+// 2. AUMENTA O LIMITE DO SOCKET PARA 10MB (maxHttpBufferSize)
 const io = new Server(server, {
+    maxHttpBufferSize: 1e7, // 10MB em bytes
     cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
@@ -24,11 +32,15 @@ const Ocorrencia = mongoose.model('Ocorrencia', new mongoose.Schema({
     tipo: String, local: String, desc: String, foto: String, status: { type: String, default: 'ABERTO' }
 }, { timestamps: true }));
 
+// 3. ATUALIZADO: Schema agora aceita o campo limpo 'foto' além dos antigos por segurança
 const UfvStatus = mongoose.model('UfvStatus', new mongoose.Schema({
     nome: { type: String, unique: true }, digifort: { type: String, default: 'OK' },
     anydesk: { type: String, default: 'OK' }, totalCam: { type: Number, default: 8 },
     camOn: { type: Number, default: 8 }, fibra: { type: String, default: 'OK' },
-    seguranca: { type: String, default: 'SEM NECESSIDADE' }, prontaResposta: { type: String, default: 'ATIVO' }, status: { type: String, default: 'O&M' }, motivodaMobilazacao: { type: String, default: '-' },foto1: { type: String, default: '' },
+    seguranca: { type: String, default: 'SEM NECESSIDADE' }, prontaResposta: { type: String, default: 'ATIVO' }, 
+    status: { type: String, default: 'O&M' }, motivodaMobilazacao: { type: String, default: '-' },
+    foto: { type: String, default: '' }, // Novo campo unificado
+    foto1: { type: String, default: '' },
     foto2: { type: String, default: '' }
 }));
 
