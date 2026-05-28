@@ -854,14 +854,12 @@ function excluirVisita(id) {
         `;
 
         if (temFoto) {
-            const foto1 = u.foto1 || u.foto || '';
-            const foto2 = u.foto2 || '';
+            const foto = u.foto1 || u.foto || '';
             htmlConteudo += `
                 <tr class="foto-row">
                     <td colspan="10">
                         <div class="foto-container">
-                            ${foto1 ? `<img src="${foto1}">` : ''}
-                            ${foto2 ? `<img src="${foto2}">` : ''}
+                            ${foto ? `<img src="${foto1}">` : ''}
                         </div>
                     </td>
                 </tr>
