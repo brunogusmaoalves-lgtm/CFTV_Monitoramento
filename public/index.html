@@ -875,7 +875,8 @@ function abrirModalFotos(id) {
     document.getElementById('fotoUfvId').value = u._id;
     // Alterado o título para o singular "FOTO"
     document.getElementById('fotoUfvModalTitulo').textContent = 'FOTO — ' + u.nome;
-
+const inputArquivo = document.getElementById('inputFoto1');
+    if (inputArquivo) inputArquivo.value = '';
     const preview = document.getElementById('previewFoto1');
     const placeholder = document.getElementById('placeholderFoto1');
 
