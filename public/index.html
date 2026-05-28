@@ -797,16 +797,96 @@ function excluirVisita(id) {
     }
 
     function exportarPDFStatus() {
-        const element = document.getElementById('tabelaStatusPDF');
-        const opt = {
-            margin: 10,
-            filename: 'Status_Infraestrutura_UFVs.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        html2pdf().set(opt).from(element).save();
-    }
+        // Monta um HTML temporário com a tabela + fotos
+    const linhas = [...db.ufv_status].sort((a, b) => a.nome.localeCompare(b.nome));
+    
+    let htmlConteudo = `
+        <style>
+            body { font-family: Arial, sans-serif; font-size: 10px; color: #1e293b; }
+            h1 { font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #10b981; margin-bottom: 4px; }
+            p.sub { font-size: 9px; color: #94a3b8; margin-bottom: 16px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+            th { background: #f8fafc; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; padding: 8px; border-bottom: 2px solid #e2e8f0; text-align: center; }
+            td { padding: 8px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 700; }
+            td.nome { text-align: left; font-weight: 900; text-transform: uppercase; }
+            .ok { color: #10b981; }
+            .erro { color: #ef4444; }
+            .foto-row td { padding: 12px 8px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+            .foto-container { display: flex; gap: 12px; align-items: flex-start; }
+            .foto-container img { max-height: 180px; max-width: 45%; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; }
+            .sem-foto { color: #cbd5e1; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 12px; }
+        </style>
+        <h1>Status de Infraestrutura — IVI Energia</h1>
+        <p class="sub">Gerado em ${new Date().toLocaleString('pt-BR')}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align:left">UFV</th>
+                    <th>Status</th>
+                    <th>Pronta Resp.</th>
+                    <th>Digifort</th>
+                    <th>Anydesk</th>
+                    <th>Total Câm</th>
+                    <th>Câm ON</th>
+                    <th>Fibra</th>
+                    <th>Segurança</th>
+                    <th>Motivo Mob.</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    linhas.forEach(u => {
+        const temFoto = u.foto1 || u.foto2 || u.foto;
+        htmlConteudo += `
+            <tr>
+                <td class="nome">${u.nome}</td>
+                <td class="${u.status === 'CONSTRUÇÃO' ? 'erro' : 'ok'}">${u.status}</td>
+                <td class="${u.prontaResposta === 'INATIVO' ? 'erro' : 'ok'}">${u.prontaResposta}</td>
+                <td class="${u.digifort === 'OFFLINE' ? 'erro' : 'ok'}">${u.digifort}</td>
+                <td class="${u.anydesk === 'OFFLINE' ? 'erro' : 'ok'}">${u.anydesk}</td>
+                <td>${u.totalCam}</td>
+                <td class="${u.camOn < u.totalCam ? 'erro' : 'ok'}">${u.camOn}</td>
+                <td class="${['ROMPIDA','OFFLINE'].includes(u.fibra) ? 'erro' : 'ok'}">${u.fibra}</td>
+                <td class="${u.seguranca === 'MOBILIZADA' ? 'erro' : 'ok'}">${u.seguranca}</td>
+                <td>${u.motivodaMobilazacao}</td>
+            </tr>
+        `;
+
+        if (temFoto) {
+            const foto1 = u.foto1 || u.foto || '';
+            const foto2 = u.foto2 || '';
+            htmlConteudo += `
+                <tr class="foto-row">
+                    <td colspan="10">
+                        <div class="foto-container">
+                            ${foto1 ? `<img src="${foto1}">` : ''}
+                            ${foto2 ? `<img src="${foto2}">` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+    });
+
+    htmlConteudo += `</tbody></table>`;
+
+    const opt = {
+        margin: 10,
+        filename: 'Status_Infraestrutura_UFVs.pdf',
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+
+    const elemento = document.createElement('div');
+    elemento.innerHTML = htmlConteudo;
+    document.body.appendChild(elemento);
+    
+    html2pdf().set(opt).from(elemento).save().then(() => {
+        document.body.removeChild(elemento);
+    });
+}
 function salvarControleAcesso() {
     const dados = {
         dataVisita: document.getElementById('acessoDataVisita').value ? new Date(document.getElementById('acessoDataVisita').value + 'T00:00:00').toISOString() : new Date().toISOString(),
