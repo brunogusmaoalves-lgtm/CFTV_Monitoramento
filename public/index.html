@@ -924,7 +924,6 @@ function salvarFotosUfv() {
     const id = document.getElementById('fotoUfvId').value;
     const u = db.ufv_status.find(item => item._id === id);
     if (!u) return;
-
     const foto1 = document.getElementById('previewFoto1').src.startsWith('data:') 
         ? document.getElementById('previewFoto1').src 
         : (u.foto1 || '');
@@ -933,32 +932,12 @@ function salvarFotosUfv() {
             ? document.getElementById('previewFoto2').src 
             : (u.foto2 || ''))
         : (u.foto2 || '');
-
     const dados = { _id: id, foto1: foto1, foto2: foto2 };
-
-    // Atualiza banco local imediatamente
     u.foto1 = foto1;
     u.foto2 = foto2;
-
     socket.emit('atualizar_ufv', dados);
     if (typeof renderStatusUFVs === 'function') renderStatusUFVs();
     toast('Fotos salvas com sucesso!', 'success');
-    fecharModalFotos();
-}
-    // --- ADICIONADO: Atualiza o banco local de memória imediatamente para a tela não dar "flash" com a foto antiga ---
-    const u = db.ufv_status.find(item => item._id === id);
-    if (u) {
-        u.foto = novaFoto;
-        u.foto1 = novaFoto; // Mantém compatibilidade caso usem a nomenclatura antiga
-    }
-
-    // Envia para o servidor persistir de vez no banco real
-    socket.emit('atualizar_ufv', dados);
-    
-    // Atualiza a tabela na tela para mostrar o novo ícone ou estado se necessário
-    if (typeof renderStatusUFVs === 'function') renderStatusUFVs();
-
-    if (typeof toast === 'function') toast('Foto atualizada com sucesso!', 'success');
     fecharModalFotos();
 }
 function exportarExcelControleAcesso() {
