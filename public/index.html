@@ -906,56 +906,30 @@ function fecharModalFotos() {
 }
 
 function previewFoto(num) {
-    // Mantém o (num) caso seu HTML passe o parâmetro, mas foca no input principal
-    const numero = num || 1;
-    const input = document.getElementById('inputFoto' + numero);
-    const preview = document.getElementById('previewFoto' + numero);
-    const placeholder = document.getElementById('placeholderFoto' + numero);
-    
-    if (!input || !input.files) return;
+    const input = document.getElementById('inputFoto' + num);
+    const preview = document.getElementById('previewFoto' + num);
+    const placeholder = document.getElementById('placeholderFoto' + num);
     const file = input.files[0];
     if (!file) return;
-    
     const reader = new FileReader();
     reader.onload = (e) => {
-        const img = new Image();
-        img.src = e.target.result;
-        img.onload = () => {
-            // Cria um canvas para redimensionar fotos pesadas de celular
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            const maxW = 800; // Reduz o tamanho máximo para 800px de largura
-            const escala = maxW / img.width;
-            canvas.width = maxW;
-            canvas.height = img.height * escala;
-            
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Converte para JPEG leve com 70% de qualidade
-            const fotoComprimida = canvas.toDataURL('image/jpeg', 0.7);
-            
-            preview.src = fotoComprimida;
-            preview.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-        };
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
     };
     reader.readAsDataURL(file);
 }
+
 function salvarFotosUfv() {
     const id = document.getElementById('fotoUfvId').value;
-    const preview = document.getElementById('previewFoto1');
-    const novaFoto = !preview.classList.contains('hidden') ? preview.src : '';
-
+    const u = db.ufv_status.find(item => item._id === id);
     const dados = {
         _id: id,
-        foto: novaFoto,   // Salva no campo novo do banco
-        foto1: novaFoto,  // Mantém no foto1 para garantir retrocompatibilidade
-        foto2: ''
+        foto1: document.getElementById('previewFoto1').src.startsWith('data:') ? document.getElementById('previewFoto1').src : (u.foto1 || ''),
+        foto2: document.getElementById('previewFoto2').src.startsWith('data:') ? document.getElementById('previewFoto2').src : (u.foto2 || '')
     };
-
     socket.emit('atualizar_ufv', dados);
-    if (typeof toast === 'function') toast('Foto salva com sucesso!', 'success');
+    toast('Fotos salvas com sucesso!', 'success');
     fecharModalFotos();
 }
     // --- ADICIONADO: Atualiza o banco local de memória imediatamente para a tela não dar "flash" com a foto antiga ---
