@@ -49,7 +49,7 @@ async function inicializarUFVs() {
             console.log('[!] Recriando lista de UFVs...');
             await UfvStatus.deleteMany({}); // Limpa o que tiver
             await UfvStatus.insertMany(UFVS_INICIAIS.map(nome => ({ nome })));
-            console.log('✅ 57 UFVs criadas com sucesso!');
+            console.log('✅ 62 UFVs criadas com sucesso!');
         } else {
             console.log(`[OK] Banco já possui ${count} UFVs.`);
         }
