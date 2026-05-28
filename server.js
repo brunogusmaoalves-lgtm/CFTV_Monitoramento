@@ -28,7 +28,8 @@ const UfvStatus = mongoose.model('UfvStatus', new mongoose.Schema({
     nome: { type: String, unique: true }, digifort: { type: String, default: 'OK' },
     anydesk: { type: String, default: 'OK' }, totalCam: { type: Number, default: 8 },
     camOn: { type: Number, default: 8 }, fibra: { type: String, default: 'OK' },
-    seguranca: { type: String, default: 'SEM NECESSIDADE' }, prontaResposta: { type: String, default: 'ATIVO' }, status: { type: String, default: 'O&M' }, motivodaMobilazacao: { type: String, default: '-' }
+    seguranca: { type: String, default: 'SEM NECESSIDADE' }, prontaResposta: { type: String, default: 'ATIVO' }, status: { type: String, default: 'O&M' }, motivodaMobilazacao: { type: String, default: '-' },foto1: { type: String, default: '' },
+    foto2: { type: String, default: '' }
 }));
 
 const Visita = mongoose.model('Visita', new mongoose.Schema({
