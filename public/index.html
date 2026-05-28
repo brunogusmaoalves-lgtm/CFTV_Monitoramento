@@ -885,27 +885,24 @@ function renderControleAcesso() {
 function abrirModalFotos(id) {
     const u = db.ufv_status.find(item => item._id === id);
     if (!u) return;
+    
     document.getElementById('fotoUfvId').value = u._id;
-    document.getElementById('fotoUfvModalTitulo').textContent = 'FOTOS — ' + u.nome;
+    // Alterado o título para o singular "FOTO"
+    document.getElementById('fotoUfvModalTitulo').textContent = 'FOTO — ' + u.nome;
 
-    // Foto 1
-    if (u.foto1) {
-        document.getElementById('previewFoto1').src = u.foto1;
-        document.getElementById('previewFoto1').classList.remove('hidden');
-        document.getElementById('placeholderFoto1').classList.add('hidden');
-    } else {
-        document.getElementById('previewFoto1').classList.add('hidden');
-        document.getElementById('placeholderFoto1').classList.remove('hidden');
-    }
+    const preview = document.getElementById('previewFoto1');
+    const placeholder = document.getElementById('placeholderFoto1');
 
-    // Foto 2
-    if (u.foto2) {
-        document.getElementById('previewFoto2').src = u.foto2;
-        document.getElementById('previewFoto2').classList.remove('hidden');
-        document.getElementById('placeholderFoto2').classList.add('hidden');
+    // Verifica se existe a propriedade 'foto' ou a antiga 'foto1' no banco para reaproveitar
+    const fotoExistente = u.foto || u.foto1;
+
+    if (fotoExistente) {
+        preview.src = fotoExistente;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
     } else {
-        document.getElementById('previewFoto2').classList.add('hidden');
-        document.getElementById('placeholderFoto2').classList.remove('hidden');
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
     }
 
     document.getElementById('fotoUfvModal').classList.remove('hidden');
@@ -915,16 +912,23 @@ function abrirModalFotos(id) {
 function fecharModalFotos() {
     document.getElementById('fotoUfvModal').classList.add('hidden');
     document.getElementById('fotoUfvModal').classList.remove('flex');
-    document.getElementById('inputFoto1').value = '';
-    document.getElementById('inputFoto2').value = '';
+    
+    // Limpa apenas o campo da foto principal
+    const input = document.getElementById('inputFoto1');
+    if (input) input.value = '';
 }
 
 function previewFoto(num) {
-    const input = document.getElementById('inputFoto' + num);
-    const preview = document.getElementById('previewFoto' + num);
-    const placeholder = document.getElementById('placeholderFoto' + num);
+    // Mantém o (num) caso seu HTML passe o parâmetro, mas foca no input principal
+    const numero = num || 1;
+    const input = document.getElementById('inputFoto' + numero);
+    const preview = document.getElementById('previewFoto' + numero);
+    const placeholder = document.getElementById('placeholderFoto' + numero);
+    
+    if (!input || !input.files) return;
     const file = input.files[0];
     if (!file) return;
+    
     const reader = new FileReader();
     reader.onload = (e) => {
         preview.src = e.target.result;
@@ -936,14 +940,20 @@ function previewFoto(num) {
 
 function salvarFotosUfv() {
     const id = document.getElementById('fotoUfvId').value;
-    const u = db.ufv_status.find(item => item._id === id);
+    const preview = document.getElementById('previewFoto1');
+
     const dados = {
         _id: id,
-        foto1: document.getElementById('previewFoto1').src.startsWith('data:') ? document.getElementById('previewFoto1').src : (u.foto1 || ''),
-        foto2: document.getElementById('previewFoto2').src.startsWith('data:') ? document.getElementById('previewFoto2').src : (u.foto2 || '')
+        // Envia uma única propriedade limpa chamada 'foto' com o valor que está na tela
+        foto: !preview.classList.contains('hidden') ? preview.src : ''
     };
+
+    // Envia os dados simplificados para o back-end
     socket.emit('atualizar_ufv', dados);
-    toast('Fotos salvas com sucesso!', 'success');
+    
+    if (typeof toast === 'function') {
+        toast('Foto salva com sucesso!', 'success');
+    }
     fecharModalFotos();
 }
 function exportarExcelControleAcesso() {
