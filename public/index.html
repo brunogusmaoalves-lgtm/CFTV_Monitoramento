@@ -614,7 +614,9 @@ function excluirVisita(id) {
         impacto: document.getElementById('editModalImpacto').value,
         usina: document.getElementById('editModalUsina').value,
         dataFim: dataFimVal ? new Date(dataFimVal).toISOString() : '',
-        desc: document.getElementById('editModalDesc').value
+        desc: document.getElementById('editModalDesc').value,
+		foto: imgElement.classList.contains('hidden') ? '' : imgElement.src 
+    };
     };
     socket.emit('editar_ocorrencia', dados);
     fecharModal();
