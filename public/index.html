@@ -797,7 +797,7 @@ function excluirVisita(id) {
     }
 
     function exportarPDFStatus() {
-        // Monta um HTML temporário com a tabela + fotos
+    // Monta um HTML temporário com a tabela + fotos
     const linhas = [...db.ufv_status].sort((a, b) => a.nome.localeCompare(b.nome));
     
     let htmlConteudo = `
@@ -835,6 +835,58 @@ function excluirVisita(id) {
             </thead>
             <tbody>
     `;
+
+    linhas.forEach(u => {
+        const temFoto = u.foto1 || u.foto2 || u.foto;
+        htmlConteudo += `
+            <tr>
+                <td class="nome">${u.nome}</td>
+                <td class="${u.status === 'CONSTRUÇÃO' ? 'erro' : 'ok'}">${u.status}</td>
+                <td class="${u.prontaResposta === 'INATIVO' ? 'erro' : 'ok'}">${u.prontaResposta}</td>
+                <td class="${u.digifort === 'OFFLINE' ? 'erro' : 'ok'}">${u.digifort}</td>
+                <td class="${u.anydesk === 'OFFLINE' ? 'erro' : 'ok'}">${u.anydesk}</td>
+                <td>${u.totalCam}</td>
+                <td class="${u.camOn < u.totalCam ? 'erro' : 'ok'}">${u.camOn}</td>
+                <td class="${['ROMPIDA','OFFLINE'].includes(u.fibra) ? 'erro' : 'ok'}">${u.fibra}</td>
+                <td class="${u.seguranca === 'MOBILIZADA' ? 'erro' : 'ok'}">${u.seguranca}</td>
+                <td>${u.motivodaMobilazacao}</td>
+            </tr>
+        `;
+
+        if (temFoto) {
+            const foto1 = u.foto1 || u.foto || '';
+            const foto2 = u.foto2 || '';
+            htmlConteudo += `
+                <tr class="foto-row">
+                    <td colspan="10">
+                        <div class="foto-container">
+                            ${foto1 ? `<img src="${foto1}">` : ''}
+                            ${foto2 ? `<img src="${foto2}">` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+    });
+
+    htmlConteudo += `</tbody></table>`;
+
+    const opt = {
+        margin: 10,
+        filename: 'Status_Infraestrutura_UFVs.pdf',
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+
+    const elemento = document.createElement('div');
+    elemento.innerHTML = htmlConteudo;
+    document.body.appendChild(elemento);
+    
+    html2pdf().set(opt).from(elemento).save().then(() => {
+        document.body.removeChild(elemento);
+    });
+}
 
     linhas.forEach(u => {
         const temFoto = u.foto1 || u.foto2 || u.foto;
