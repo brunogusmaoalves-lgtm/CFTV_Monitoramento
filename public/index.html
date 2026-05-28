@@ -617,7 +617,6 @@ function excluirVisita(id) {
         desc: document.getElementById('editModalDesc').value,
 		foto: imgElement.classList.contains('hidden') ? '' : imgElement.src 
     };
-    };
     socket.emit('editar_ocorrencia', dados);
     fecharModal();
 }
