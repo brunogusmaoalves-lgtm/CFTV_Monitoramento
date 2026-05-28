@@ -928,19 +928,27 @@ function previewFoto(num) {
 function salvarFotosUfv() {
     const id = document.getElementById('fotoUfvId').value;
     const preview = document.getElementById('previewFoto1');
+const novaFoto = !preview.classList.contains('hidden') ? preview.src : '';
 
     const dados = {
         _id: id,
-        // Envia uma única propriedade limpa chamada 'foto' com o valor que está na tela
-        foto: !preview.classList.contains('hidden') ? preview.src : ''
+        foto: novaFoto
     };
 
-    // Envia os dados simplificados para o back-end
+    // --- ADICIONADO: Atualiza o banco local de memória imediatamente para a tela não dar "flash" com a foto antiga ---
+    const u = db.ufv_status.find(item => item._id === id);
+    if (u) {
+        u.foto = novaFoto;
+        u.foto1 = novaFoto; // Mantém compatibilidade caso usem a nomenclatura antiga
+    }
+
+    // Envia para o servidor persistir de vez no banco real
     socket.emit('atualizar_ufv', dados);
     
-    if (typeof toast === 'function') {
-        toast('Foto salva com sucesso!', 'success');
-    }
+    // Atualiza a tabela na tela para mostrar o novo ícone ou estado se necessário
+    if (typeof renderStatusUFVs === 'function') renderStatusUFVs();
+
+    if (typeof toast === 'function') toast('Foto atualizada com sucesso!', 'success');
     fecharModalFotos();
 }
 function exportarExcelControleAcesso() {
