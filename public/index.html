@@ -881,24 +881,6 @@ function excluirVisita(id) {
     });
 }
 
-    htmlConteudo += `</tbody></table>`;
-
-    const opt = {
-        margin: 10,
-        filename: 'Status_Infraestrutura_UFVs.pdf',
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, allowTaint: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-    };
-
-    const elemento = document.createElement('div');
-    elemento.innerHTML = htmlConteudo;
-    document.body.appendChild(elemento);
-    
-    html2pdf().set(opt).from(elemento).save().then(() => {
-        document.body.removeChild(elemento);
-    });
-}
 function salvarControleAcesso() {
     const dados = {
         dataVisita: document.getElementById('acessoDataVisita').value ? new Date(document.getElementById('acessoDataVisita').value + 'T00:00:00').toISOString() : new Date().toISOString(),
