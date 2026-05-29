@@ -44,15 +44,14 @@ const UFVS_INICIAIS = ["Água Clara", "Almino Afonso", "Aloândia 1", "Aparecida
 
 async function inicializarUFVs() {
     try {
-        const count = await UfvStatus.countDocuments();
-        if (count < 50) { // Se tiver menos que 50, algo deu errado, vamos recriar
-            console.log('[!] Recriando lista de UFVs...');
-            await UfvStatus.deleteMany({}); // Limpa o que tiver
-            await UfvStatus.insertMany(UFVS_INICIAIS.map(nome => ({ nome })));
-            console.log('✅ 62 UFVs criadas com sucesso!');
-        } else {
-            console.log(`[OK] Banco já possui ${count} UFVs.`);
+        for (const nome of UFVS_INICIAIS) {
+            await UfvStatus.findOneAndUpdate(
+                { nome }, 
+                { $setOnInsert: { nome } }, 
+                { upsert: true, new: true }
+            );
         }
+        console.log(`✅ UFVs sincronizadas com sucesso!`);
     } catch (err) { console.error('❌ Erro inicialização:', err.message); }
 }
 
