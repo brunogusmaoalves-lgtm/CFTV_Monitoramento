@@ -591,9 +591,10 @@ function excluirVisita(id) {
 }
     function fecharModal() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('editModal').classList.remove('flex'); }
 
-    function confirmarEdicao() {
+   function confirmarEdicao() {
     const id = document.getElementById('editModalId').value;
     const dataFimVal = document.getElementById('editModalDataFim').value;
+    const img = document.getElementById('editModalFoto');
     const dados = {
         _id: id,
         status: document.getElementById('editModalStatus').value,
@@ -601,7 +602,7 @@ function excluirVisita(id) {
         usina: document.getElementById('editModalUsina').value,
         dataFim: dataFimVal ? new Date(dataFimVal).toISOString() : '',
         desc: document.getElementById('editModalDesc').value,
-		foto: imgElement.classList.contains('hidden') ? '' : imgElement.src 
+        foto: img.classList.contains('hidden') ? '' : img.src
     };
     socket.emit('editar_ocorrencia', dados);
     fecharModal();
