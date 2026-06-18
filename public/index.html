@@ -717,43 +717,58 @@ function excluirVisita(id) {
     }
 
     function renderStatusUFVs() {
-        const body = document.getElementById('tabelaStatusBody');
-        body.innerHTML = '';
-        const ordenadas = [...db.ufv_status].sort((a, b) => {
-            let valA = a[sortConfig.field];
-            let valB = b[sortConfig.field];
-            if (typeof valA === 'string') {
-                valA = valA.toLowerCase();
-                valB = valB.toLowerCase();
-            }
-            if (valA < valB) return -1 * sortConfig.direction;
-            if (valA > valB) return 1 * sortConfig.direction;
-            return 0; 
-        });
+    const body = document.getElementById('tabelaStatusBody');
+    body.innerHTML = '';
+    const ordenadas = [...db.ufv_status].sort((a, b) => {
+        let valA = a[sortConfig.field];
+        let valB = b[sortConfig.field];
+        if (typeof valA === 'string') {
+            valA = valA.toLowerCase();
+            valB = valB.toLowerCase();
+        }
+        if (valA < valB) return -1 * sortConfig.direction;
+        if (valA > valB) return 1 * sortConfig.direction;
+        return 0; 
+    });
 
-        ordenadas.forEach(u => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50/50 transition-colors";
-            tr.innerHTML = `
-                <td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
-				<td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'status', this.value)" class="bg-transparent outline-none cursor-pointer ${u.status==='CONSTRUÇÃO'?'text-red-500':'text-emerald-500'}"><option ${u.status==='O&M'?'selected':''}>O&M</option><option ${u.status==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option></select></td>
-				<td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${['ROMPIDA', 'OFFLINE'].includes(u.fibra) ? 'text-red-500' : 'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option><option ${u.seguranca==='PERNOITE 12H'?'selected':''}>PERNOITE 12H</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'motivodaMobilazacao', this.value)" class="bg-transparent outline-none cursor-pointer ${u.motivodaMobilazacao==='-'?'text-slate-400':'text-amber-500'}"><option ${u.motivodaMobilazacao==='DESMOBILAZAÇÃO'?'selected':''}>DESMOBILAZAÇÃO</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV'?'selected':''}>FALHA NO CFTV</option><option ${u.motivodaMobilazacao==='FALHA NA FIBRA'?'selected':''}>FALHA NA FIBRA</option><option ${u.motivodaMobilazacao==='FURTO RECENTE'?'selected':''}>FURTO RECENTE</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV + FIBRA'?'selected':''}>FALHA NO CFTV + FIBRA</option><option ${u.motivodaMobilazacao==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option><option ${u.motivodaMobilazacao==='-'?'selected':''}>-</option></select></td>
-			<td class="px-4 py-5 text-center">
+    ordenadas.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/50 transition-colors";
+        tr.innerHTML = `
+            <td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'status', this.value)" class="bg-transparent outline-none cursor-pointer ${u.status==='CONSTRUÇÃO'?'text-red-500':'text-emerald-500'}"><option ${u.status==='O&M'?'selected':''}>O&M</option><option ${u.status==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+            <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
+            <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${['ROMPIDA', 'OFFLINE'].includes(u.fibra) ? 'text-red-500' : 'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option><option ${u.seguranca==='PERNOITE 12H'?'selected':''}>PERNOITE 12H</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'motivodaMobilazacao', this.value)" class="bg-transparent outline-none cursor-pointer ${u.motivodaMobilazacao==='-'?'text-slate-400':'text-amber-500'}"><option ${u.motivodaMobilazacao==='DESMOBILAZAÇÃO'?'selected':''}>DESMOBILAZAÇÃO</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV'?'selected':''}>FALHA NO CFTV</option><option ${u.motivodaMobilazacao==='FALHA NA FIBRA'?'selected':''}>FALHA NA FIBRA</option><option ${u.motivodaMobilazacao==='FURTO RECENTE'?'selected':''}>FURTO RECENTE</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV + FIBRA'?'selected':''}>FALHA NO CFTV + FIBRA</option><option ${u.motivodaMobilazacao==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option><option ${u.motivodaMobilazacao==='-'?'selected':''}>-</option></select></td>
+            <td class="px-4 py-5 text-center">
                 <button onclick="abrirModalFotos('${u._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors">
                     <i class="fa-solid fa-camera text-lg"></i>
                 </button>
             </td>
-			`;
-            body.appendChild(tr);
-        });
-    }
+        `;
+        body.appendChild(tr);
+    });
+
+    atualizarTotalizador();
+}
+
+function atualizarTotalizador() {
+    const ufvs = db.ufv_status;
+    const el = (id) => document.getElementById(id);
+    if (!el('totalUFVs')) return; // segurança caso o HTML ainda não tenha o totalizador
+    el('totalUFVs').textContent = ufvs.length;
+    el('totalProntaResposta').textContent = ufvs.filter(u => u.prontaResposta === 'ATIVO').length;
+    el('totalCameras').textContent = ufvs.reduce((s, u) => s + (Number(u.totalCam) || 0), 0);
+    el('totalCamerasOn').textContent = ufvs.reduce((s, u) => s + (Number(u.camOn) || 0), 0);
+    el('totalFibra').textContent = ufvs.filter(u => u.fibra !== 'NÃO TEM').length;
+    el('totalSeguranca').textContent = ufvs.filter(u => u.seguranca === 'MOBILIZADA').length;
+    el('totalPernoite').textContent = ufvs.filter(u => u.seguranca === 'PERNOITE 12H').length;
+}
 
     function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
     function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
