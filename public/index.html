@@ -184,8 +184,12 @@
         <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Total UFVs</div>
     </div>
     <div class="bg-white rounded-2xl p-4 border text-center">
-        <div class="text-2xl font-black text-emerald-600" id="totalProntaResposta">0</div>
-        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Pronta Resposta Ativo</div>
+        <div class="text-2xl font-black text-emerald-600" id="totalFibra">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">UFVs com Fibra</div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border text-center">
+        <div class="text-2xl font-black text-emerald-600" id="totalFibraOk">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Fibra OK</div>
     </div>
     <div class="bg-white rounded-2xl p-4 border text-center">
         <div class="text-2xl font-black text-slate-800" id="totalCameras">0</div>
@@ -194,10 +198,6 @@
     <div class="bg-white rounded-2xl p-4 border text-center">
         <div class="text-2xl font-black text-emerald-600" id="totalCamerasOn">0</div>
         <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Câmeras ON</div>
-    </div>
-    <div class="bg-white rounded-2xl p-4 border text-center">
-        <div class="text-2xl font-black text-emerald-600" id="totalFibra">0</div>
-        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">UFVs com Fibra</div>
     </div>
     <div class="bg-white rounded-2xl p-4 border text-center">
         <div class="text-2xl font-black text-amber-500" id="totalSeguranca">0</div>
@@ -760,12 +760,12 @@ function excluirVisita(id) {
 function atualizarTotalizador() {
     const ufvs = db.ufv_status;
     const el = (id) => document.getElementById(id);
-    if (!el('totalUFVs')) return; // segurança caso o HTML ainda não tenha o totalizador
+    if (!el('totalUFVs')) return;
     el('totalUFVs').textContent = ufvs.length;
-    el('totalProntaResposta').textContent = ufvs.filter(u => u.prontaResposta === 'ATIVO').length;
+    el('totalFibra').textContent = ufvs.filter(u => u.fibra !== 'NÃO TEM').length;
+    el('totalFibraOk').textContent = ufvs.filter(u => u.fibra === 'OK').length;
     el('totalCameras').textContent = ufvs.reduce((s, u) => s + (Number(u.totalCam) || 0), 0);
     el('totalCamerasOn').textContent = ufvs.reduce((s, u) => s + (Number(u.camOn) || 0), 0);
-    el('totalFibra').textContent = ufvs.filter(u => u.fibra !== 'NÃO TEM').length;
     el('totalSeguranca').textContent = ufvs.filter(u => u.seguranca === 'MOBILIZADA').length;
     el('totalPernoite').textContent = ufvs.filter(u => u.seguranca === 'PERNOITE 12H').length;
 }
