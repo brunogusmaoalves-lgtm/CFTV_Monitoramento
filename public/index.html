@@ -310,18 +310,11 @@
                 <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
-                    <select id="editVisitaTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('campoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
+                    <select id="editVisitaTesteFibra" class="w-full input-field text-xs">
                         <option value="SIM">SIM</option>
                         <option value="NÃO">NÃO</option>
                     </select>
                 </div>
-				<div id="campoResultadoFibra" style="display:none">
-    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESULTADO DO TESTE</label>
-    <select id="acessoResultadoFibra" class="w-full input-field text-xs">
-        <option value="APROVADO">✅ Aprovado</option>
-        <option value="REPROVADO">❌ Reprovado</option>
-    </select>
-</div>
                 <textarea id="acessoObservacoes" rows="2" placeholder="Observações" class="w-full input-field text-xs resize-none"></textarea>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="acessoVisitanteRecorrente" class="form-checkbox h-4 w-4 text-emerald-600 rounded">
@@ -366,16 +359,9 @@
 
 				<div>
     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">STATUS</label>
-    <select id="editVisitaTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('editCampoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
-    <option value="SIM">SIM</option>
-    <option value="NÃO">NÃO</option>
-</select>
-</div>
-<div id="editCampoResultadoFibra" style="display:none">
-    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESULTADO DO TESTE</label>
-    <select id="editVisitaResultadoFibra" class="w-full input-field text-xs">
-        <option value="APROVADO">✅ Aprovado</option>
-        <option value="REPROVADO">❌ Reprovado</option>
+    <select id="editVisitaStatus" class="w-full input-field text-xs font-bold">
+        <option value="ABERTO">🟠 Aberto</option>
+        <option value="FECHADO">🟢 Fechado</option>
     </select>
 </div>
                 <div>
@@ -521,9 +507,6 @@ function abrirModalVisita(id) {
     document.getElementById('editVisitaModal').classList.remove('hidden');
     document.getElementById('editVisitaModal').classList.add('flex');
 }
-	const campoResultado = document.getElementById('editCampoResultadoFibra');
-campoResultado.style.display = v.usoEPI === 'SIM' ? 'block' : 'none';
-document.getElementById('editVisitaResultadoFibra').value = v.resultadoFibra || 'APROVADO';
 
 function fecharModalVisita() {
     document.getElementById('editVisitaModal').classList.add('hidden');
@@ -539,7 +522,6 @@ function confirmarEdicaoVisita() {
         dataFim: document.getElementById('editVisitaDataFim').value,
         horarioEntrada: document.getElementById('editVisitaHoraEntrada').value,
         horarioSaida: document.getElementById('editVisitaHoraSaida').value,
-		resultadoFibra: document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('editVisitaResultadoFibra').value : '',
         observacoes: document.getElementById('editVisitaObs').value
     };
     socket.emit('editar_visita', dados);
@@ -980,7 +962,6 @@ function salvarControleAcesso() {
         placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
         usoEPI: document.getElementById('editVisitaTesteFibra').value,
         observacoes: document.getElementById('acessoObservacoes').value,
-		resultadoFibra: document.getElementById('acessoResultadoFibra').value && document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('acessoResultadoFibra').value : '',
         visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
     };
     if (!dados.usina || !dados.nomeVisitante) return toast('Preencha os campos obrigatórios!', 'error');
@@ -1015,8 +996,7 @@ function renderControleAcesso() {
         </td>
         <td class="px-8 py-6">
             <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
-<div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
-${v.usoEPI === 'SIM' ? `<div class="text-[10px] font-black mt-1 ${v.resultadoFibra === 'REPROVADO' ? 'text-red-500' : 'text-emerald-500'}">Fibra: ${v.resultadoFibra || 'APROVADO'}</div>` : ''}
+            <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
         </td>
         <td class="px-8 py-6 text-right no-print">
             <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1123,3 +1103,4 @@ function exportarExcelControleAcesso() {
 </script>
 </body>
 </html>
+
