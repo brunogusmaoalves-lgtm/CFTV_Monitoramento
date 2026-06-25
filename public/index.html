@@ -537,7 +537,7 @@ function confirmarEdicaoVisita() {
         horarioEntrada: document.getElementById('editVisitaHoraEntrada').value,
         horarioSaida: document.getElementById('editVisitaHoraSaida').value,
         observacoes: document.getElementById('editVisitaObs').value,
-		resultadoFibra: document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('editVisitaResultadoFibra').value : ''
+		resultadoFibra: document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('editVisitaResultadoFibra').value : '',
     };
     socket.emit('editar_visita', dados);
     fecharModalVisita();
