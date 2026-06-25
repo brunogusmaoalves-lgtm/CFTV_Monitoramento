@@ -310,14 +310,14 @@
                 <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
-                   <select id="editVisitaTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('campoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
+                   <select id="acessoTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('acessoCampoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
                         <option value="SIM">SIM</option>
                         <option value="NÃO">NÃO</option>
                     </select>
                 </div>
-				<div id="editCampoResultadoFibra" style="display:none">
+				<div id="acessoCampoResultadoFibra" style="display:block">
     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESULTADO DO TESTE</label>
-    <select id="editVisitaResultadoFibra" class="w-full input-field text-xs">
+    <select id="acessoResultadoFibra" class="w-full input-field text-xs">
         <option value="APROVADO">✅ Aprovado</option>
         <option value="REPROVADO">❌ Reprovado</option>
     </select>
@@ -386,7 +386,7 @@
     <option value="NÃO">NÃO</option>
 </select>
 </div>
-<div id="editCampoResultadoFibra" style="display:none">
+<div id="editCampoResultadoFibra" style="display:block">
     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESULTADO DO TESTE</label>
     <select id="editVisitaResultadoFibra" class="w-full input-field text-xs">
         <option value="APROVADO">✅ Aprovado</option>
@@ -514,7 +514,9 @@ function abrirModalVisita(id) {
     document.getElementById('editVisitaStatus').value = v.status || 'ABERTO';
     document.getElementById('editVisitaDataInicio').value = v.dataVisita ? v.dataVisita.split('T')[0] : '';
     document.getElementById('editVisitaDataFim').value = v.dataFim || '';
-	document.getElementById('editVisitaTesteFibra').value = v.usoEPI || 'SIM';
+    document.getElementById('editVisitaTesteFibra').value = v.usoEPI || 'SIM';
+    document.getElementById('editCampoResultadoFibra').style.display = (v.usoEPI === 'NÃO') ? 'none' : 'block';
+    document.getElementById('editVisitaResultadoFibra').value = v.resultadoFibra || 'APROVADO';
     document.getElementById('editVisitaHoraEntrada').value = v.horarioEntrada || '';
     document.getElementById('editVisitaHoraSaida').value = v.horarioSaida || '';
     document.getElementById('editVisitaObs').value = v.observacoes || '';
@@ -975,8 +977,8 @@ function salvarControleAcesso() {
         motivoVisita: document.getElementById('acessoMotivo').value,
         responsavelUsina: document.getElementById('acessoResponsavel').value,
         placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
-        usoEPI: document.getElementById('editVisitaTesteFibra').value,
-resultadoFibra: document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('acessoResultadoFibra').value : '',
+        usoEPI: document.getElementById('acessoTesteFibra').value,
+        resultadoFibra: document.getElementById('acessoTesteFibra').value === 'SIM' ? document.getElementById('acessoResultadoFibra').value : '',
         observacoes: document.getElementById('acessoObservacoes').value,
         visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
     };
@@ -1120,4 +1122,3 @@ function exportarExcelControleAcesso() {
 </script>
 </body>
 </html>
-
