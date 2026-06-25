@@ -310,14 +310,14 @@
                 <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
-                    <select id="editVisitaTesteFibra" class="w-full input-field text-xs">
+                   <select id="editVisitaTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('campoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
                         <option value="SIM">SIM</option>
                         <option value="NÃO">NÃO</option>
                     </select>
                 </div>
-				<div id="campoResultadoFibra" style="display:none">
+				<div id="editCampoResultadoFibra" style="display:none">
     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESULTADO DO TESTE</label>
-    <select id="acessoResultadoFibra" class="w-full input-field text-xs">
+    <select id="editVisitaResultadoFibra" class="w-full input-field text-xs">
         <option value="APROVADO">✅ Aprovado</option>
         <option value="REPROVADO">❌ Reprovado</option>
     </select>
@@ -381,10 +381,17 @@
                 </div>
 				<div>
         <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
-        <select id="editVisitaTesteFibra" class="w-full input-field text-xs">
-            <option value="SIM">SIM</option>
-            <option value="NÃO">NÃO</option>
-        </select>
+        <select id="editVisitaTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('editCampoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
+    <option value="SIM">SIM</option>
+    <option value="NÃO">NÃO</option>
+</select>
+</div>
+<div id="editCampoResultadoFibra" style="display:none">
+    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESULTADO DO TESTE</label>
+    <select id="editVisitaResultadoFibra" class="w-full input-field text-xs">
+        <option value="APROVADO">✅ Aprovado</option>
+        <option value="REPROVADO">❌ Reprovado</option>
+    </select>
     </div>
             </div>
 			<div class="grid grid-cols-2 gap-4">
@@ -529,7 +536,8 @@ function confirmarEdicaoVisita() {
         dataFim: document.getElementById('editVisitaDataFim').value,
         horarioEntrada: document.getElementById('editVisitaHoraEntrada').value,
         horarioSaida: document.getElementById('editVisitaHoraSaida').value,
-        observacoes: document.getElementById('editVisitaObs').value
+        observacoes: document.getElementById('editVisitaObs').value,
+		resultadoFibra: document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('editVisitaResultadoFibra').value : ''
     };
     socket.emit('editar_visita', dados);
     fecharModalVisita();
@@ -968,6 +976,7 @@ function salvarControleAcesso() {
         responsavelUsina: document.getElementById('acessoResponsavel').value,
         placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
         usoEPI: document.getElementById('editVisitaTesteFibra').value,
+resultadoFibra: document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('acessoResultadoFibra').value : '',
         observacoes: document.getElementById('acessoObservacoes').value,
         visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
     };
@@ -1002,9 +1011,10 @@ function renderControleAcesso() {
             <div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div>
         </td>
         <td class="px-8 py-6">
-            <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
-            <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
-        </td>
+    <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
+    <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
+    ${v.usoEPI === 'SIM' ? `<div class="text-[10px] font-black mt-1 ${v.resultadoFibra === 'REPROVADO' ? 'text-red-500' : 'text-emerald-500'}">Fibra: ${v.resultadoFibra || 'APROVADO'}</div>` : ''}
+</td>
         <td class="px-8 py-6 text-right no-print">
             <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onclick="abrirModalVisita('${v._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
