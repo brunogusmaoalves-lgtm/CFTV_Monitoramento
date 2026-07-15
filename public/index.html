@@ -982,11 +982,29 @@ function salvarControleAcesso() {
         observacoes: document.getElementById('acessoObservacoes').value,
         visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
     };
-    if (!dados.usina || !dados.nomeVisitante) return toast('Preencha os campos obrigatórios!', 'error');
+   if (!dados.usina || !dados.nomeVisitante) return toast('Preencha os campos obrigatórios!', 'error');
     socket.emit('nova_visita', dados);
     toast('Acesso registrado!', 'success');
+    limparFormAcesso(); 
 }
-
+function limparFormAcesso() {
+    document.getElementById('acessoDataVisita').value = '';
+    document.getElementById('acessoUsina').value = '';
+    document.getElementById('acessoHoraEntrada').value = '';
+    document.getElementById('acessoHoraSaida').value = '';
+    document.getElementById('acessoNomeVisitante').value = '';
+    document.getElementById('acessoEmpresa').value = '';
+    document.getElementById('acessoDocumento').value = '';
+    document.getElementById('acessoContato').value = '';
+    document.getElementById('acessoMotivo').value = '';
+    document.getElementById('acessoResponsavel').value = '';
+    document.getElementById('acessoPlacaVeiculo').value = '';
+    document.getElementById('acessoTesteFibra').value = 'SIM';
+    document.getElementById('acessoResultadoFibra').value = 'APROVADO';
+    document.getElementById('acessoCampoResultadoFibra').style.display = 'block';
+    document.getElementById('acessoObservacoes').value = '';
+    document.getElementById('acessoVisitanteRecorrente').checked = false;
+}
 function renderControleAcesso() {
     const term = document.getElementById('searchAcesso').value.toLowerCase();
     const container = document.getElementById('listaControleAcesso');
