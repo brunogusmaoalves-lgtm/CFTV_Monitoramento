@@ -210,8 +210,8 @@
         <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Total Câmeras</div>
     </div>
     <div class="bg-white rounded-2xl p-4 border text-center">
-        <div class="text-2xl font-black text-emerald-600" id="totalCamerasOn">0</div>
-        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Câmeras ON</div>
+        <div class="text-2xl font-black text-red-500" id="totalCamerasOn">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Câmeras OFF</div>
     </div>
     <div class="bg-white rounded-2xl p-4 border text-center">
         <div class="text-2xl font-black text-amber-500" id="totalSeguranca">0</div>
@@ -784,7 +784,7 @@ function atualizarTotalizador() {
     el('totalFibra').textContent = ufvs.filter(u => u.fibra !== 'NÃO TEM').length;
     el('totalFibraOk').textContent = ufvs.filter(u => u.fibra === 'OK').length;
     el('totalCameras').textContent = ufvs.reduce((s, u) => s + (Number(u.totalCam) || 0), 0);
-    el('totalCamerasOn').textContent = ufvs.reduce((s, u) => s + (Number(u.camOn) || 0), 0);
+    el('totalCamerasOn').textContent = ufvs.reduce((s, u) => s + ((Number(u.totalCam) || 0) - (Number(u.camOn) || 0)), 0);
     el('totalSeguranca').textContent = ufvs.filter(u => u.seguranca === 'MOBILIZADA').length;
     el('totalPernoite').textContent = ufvs.filter(u => u.seguranca === 'PERNOITE 12H').length;
 }
