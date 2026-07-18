@@ -945,7 +945,7 @@ function atualizarTotalizador() {
         <div class="total-card"><div class="valor verde">${db.ufv_status.filter(u => u.fibra !== 'NÃO TEM').length}</div><div class="label">UFVs com Fibra</div></div>
         <div class="total-card"><div class="valor verde">${db.ufv_status.filter(u => u.fibra === 'OK').length}</div><div class="label">Fibra OK</div></div>
         <div class="total-card"><div class="valor">${db.ufv_status.reduce((s, u) => s + (Number(u.totalCam) || 0), 0)}</div><div class="label">Total Câmeras</div></div>
-        <div class="total-card"><div class="valor verde">${db.ufv_status.reduce((s, u) => s + (Number(u.camOn) || 0), 0)}</div><div class="label">Câmeras ON</div></div>
+        <div class="total-card"><div class="valor" style="color:#ef4444">${db.ufv_status.reduce((s, u) => s + ((Number(u.totalCam) || 0) - (Number(u.camOn) || 0)), 0)}</div><div class="label">Câmeras OFF</div></div>
         <div class="total-card"><div class="valor laranja">${db.ufv_status.filter(u => u.seguranca === 'MOBILIZADA').length}</div><div class="label">Seg. Mobilizada</div></div>
         <div class="total-card"><div class="valor laranja">${db.ufv_status.filter(u => u.seguranca === 'PERNOITE 12H').length}</div><div class="label">Pernoites</div></div>
     </div>
