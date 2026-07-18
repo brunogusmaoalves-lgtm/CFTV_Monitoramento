@@ -477,36 +477,51 @@
     let socket = null;
     let sortConfig = { field: 'nome', direction: 1 };
 
-    function iniciarSocket( ) {
-        socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
-        socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
-        socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
-		socket.on('dados_iniciais', (dados) => {
-    db = dados;
-    if (!db.visitas) db.visitas = [];
-    popularSelectUsinas();
-    renderOcorrencias();
-    renderStatusUFVs();
-    renderControleAcesso();
-});
-        
-        socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
-        socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
-        socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
-        socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
-        socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
-        socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
-socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
-		socket.on('visita_editada', (editada) => {
-    const idx = db.visitas.findIndex(v => v._id === editada._id);
-    if (idx !== -1) { db.visitas[idx] = editada; renderControleAcesso(); toast('Visita atualizada!', 'success'); }
-});
-socket.on('visita_excluida', (id) => {
-    db.visitas = db.visitas.filter(v => v._id !== id);
-    renderControleAcesso();
-    toast('Visita removida.', 'info');
-});
-    }
+    function iniciarSocket() {
+    socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
+    socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
+    socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
+    socket.on('dados_iniciais', (dados) => {
+        db = dados;
+        if (!db.visitas) db.visitas = [];
+        popularSelectUsinas();
+        renderOcorrencias();
+        renderStatusUFVs();
+        renderControleAcesso();
+    });
+    socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
+    socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
+    socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
+    socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
+    socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
+    socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
+    socket.on('foto_ufv_carregada', (data) => {
+        const u = db.ufv_status.find(item => item._id === data._id);
+        if (u) { u.foto1 = data.foto1; u.foto2 = data.foto2; }
+        const preview = document.getElementById('previewFoto1');
+        const placeholder = document.getElementById('placeholderFoto1');
+        const foto = data.foto1 || data.foto2 || '';
+        if (foto) {
+            preview.src = foto;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        } else {
+            placeholder.innerHTML = '<i class="fa-solid fa-camera text-slate-300 text-3xl mb-2"></i><p class="text-[9px] text-slate-400 font-black uppercase">Clique para anexar</p>';
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
+    });
+    socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
+    socket.on('visita_editada', (editada) => {
+        const idx = db.visitas.findIndex(v => v._id === editada._id);
+        if (idx !== -1) { db.visitas[idx] = editada; renderControleAcesso(); toast('Visita atualizada!', 'success'); }
+    });
+    socket.on('visita_excluida', (id) => {
+        db.visitas = db.visitas.filter(v => v._id !== id);
+        renderControleAcesso();
+        toast('Visita removida.', 'info');
+    });
+}
 function abrirModalVisita(id) {
     const v = db.visitas.find(item => item._id === id);
     if (!v) return;
@@ -864,7 +879,25 @@ function atualizarTotalizador() {
         XLSX.writeFile(wb, "Status_Infraestrutura_UFVs.xlsx");
     }
 
-    function exportarPDFStatus() {
+    async function exportarPDFStatus() {
+    toast('Carregando fotos, aguarde...', 'success');
+
+    // Busca todas as fotos antes de gerar o PDF
+    await Promise.all(db.ufv_status.map(u => new Promise((resolve) => {
+        if (u.foto1) { resolve(); return; }
+        const handler = (data) => {
+            if (data._id === u._id) {
+                u.foto1 = data.foto1;
+                u.foto2 = data.foto2;
+                socket.off('foto_ufv_carregada', handler);
+                resolve();
+            }
+        };
+        socket.on('foto_ufv_carregada', handler);
+        socket.emit('carregar_foto_ufv', u._id);
+        setTimeout(() => { socket.off('foto_ufv_carregada', handler); resolve(); }, 3000);
+    })));
+
     const linhas = [...db.ufv_status].sort((a, b) => a.nome.localeCompare(b.nome));
     
     let htmlConteudo = `
@@ -907,7 +940,7 @@ function atualizarTotalizador() {
                 <th>Digifort</th>
                 <th>Anydesk</th>
                 <th>Total Câm</th>
-                <th>Câm On</th>
+                <th>Câm ON</th>
                 <th>Fibra</th>
                 <th>Segurança</th>
                 <th>Motivo Mob.</th>
@@ -1048,29 +1081,23 @@ function renderControleAcesso() {
 function abrirModalFotos(id) {
     const u = db.ufv_status.find(item => item._id === id);
     if (!u) return;
-    
+
     document.getElementById('fotoUfvId').value = u._id;
-    // Alterado o título para o singular "FOTO"
     document.getElementById('fotoUfvModalTitulo').textContent = 'FOTO — ' + u.nome;
-const inputArquivo = document.getElementById('inputFoto1');
-    if (inputArquivo) inputArquivo.value = '';
+
+    const input = document.getElementById('inputFoto1');
+    if (input) input.value = '';
+
     const preview = document.getElementById('previewFoto1');
     const placeholder = document.getElementById('placeholderFoto1');
-
-    // Verifica se existe a propriedade 'foto' ou a antiga 'foto1' no banco para reaproveitar
-    const fotoExistente = u.foto || u.foto1;
-
-    if (fotoExistente) {
-        preview.src = fotoExistente;
-        preview.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-    } else {
-        preview.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-    }
+    preview.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+    placeholder.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-slate-300 text-3xl mb-2"></i><p class="text-[9px] text-slate-400 font-black uppercase">Carregando...</p>';
 
     document.getElementById('fotoUfvModal').classList.remove('hidden');
     document.getElementById('fotoUfvModal').classList.add('flex');
+
+    socket.emit('carregar_foto_ufv', u._id);
 }
 
 function fecharModalFotos() {
