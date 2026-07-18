@@ -477,7 +477,7 @@
     let socket = null;
     let sortConfig = { field: 'nome', direction: 1 };
 
-    function iniciarSocket() {
+   function iniciarSocket() {
     socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
     socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
     socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
@@ -509,6 +509,18 @@
             placeholder.innerHTML = '<i class="fa-solid fa-camera text-slate-300 text-3xl mb-2"></i><p class="text-[9px] text-slate-400 font-black uppercase">Clique para anexar</p>';
             preview.classList.add('hidden');
             placeholder.classList.remove('hidden');
+        }
+    });
+    socket.on('foto_ocorrencia_carregada', (data) => {
+        const img = document.getElementById('editModalFoto');
+        const semFoto = document.getElementById('editModalSemFoto');
+        if (data.foto) {
+            img.src = data.foto;
+            img.classList.remove('hidden');
+            semFoto.classList.add('hidden');
+        } else {
+            img.classList.add('hidden');
+            semFoto.classList.remove('hidden');
         }
     });
     socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
@@ -649,12 +661,18 @@ function excluirVisita(id) {
     document.getElementById('editModalUsina').value = o.usina;
     document.getElementById('editModalDataFim').value = o.dataFim ? o.dataFim.slice(0, 16) : '';
     document.getElementById('editModalDesc').value = o.desc;
+    
+    // Mostra spinner enquanto carrega a foto
     const img = document.getElementById('editModalFoto');
     const semFoto = document.getElementById('editModalSemFoto');
-    if (o.foto) { img.src = o.foto; img.classList.remove('hidden'); semFoto.classList.add('hidden'); }
-    else { img.classList.add('hidden'); semFoto.classList.remove('hidden'); }
+    img.classList.add('hidden');
+    semFoto.classList.remove('hidden');
+    
     document.getElementById('editModal').classList.remove('hidden');
     document.getElementById('editModal').classList.add('flex');
+    
+    // Busca a foto do servidor
+    socket.emit('carregar_foto_ocorrencia', o._id);
 }
     function fecharModal() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('editModal').classList.remove('flex'); }
 
