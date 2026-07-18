@@ -61,9 +61,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
     // Envia os dados IMEDIATAMENTE ao conectar, sem esperar o login
     async function enviarDados() {
-    const ocorrencias = await Ocorrencia.find().sort({ createdAt: -1 });
-    const ufv_status = await UfvStatus.find({}, { foto1: 0, foto2: 0 }).sort({ nome: 1 });
-    const visitas = await Visita.find().sort({ createdAt: -1 });
+    const ocorrencias = await Ocorrencia.find().sort({ createdAt: -1 }).lean();
+    const ufv_status = await UfvStatus.find({}, { foto1: 0, foto2: 0 }).sort({ nome: 1 }).lean();
+    const visitas = await Visita.find().sort({ createdAt: -1 }).lean();
     socket.emit('dados_iniciais', { ocorrencias, ufv_status, visitas });
 }
     enviarDados();
@@ -102,7 +102,7 @@ socket.on('excluir_visita', async (id) => {
     io.emit('visita_excluida', id);
 });
 socket.on('carregar_foto_ufv', async (id) => {
-    const u = await UfvStatus.findById(id, { foto1: 1, foto2: 1 });
+    const u = await UfvStatus.findById(id, { foto1: 1, foto2: 1 }).lean();
     socket.emit('foto_ufv_carregada', { _id: id, foto1: u?.foto1 || '', foto2: u?.foto2 || '' });
 });
 }); // <- fecha o io.on('connection', ...)
