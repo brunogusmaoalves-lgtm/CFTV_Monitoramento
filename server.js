@@ -105,6 +105,10 @@ socket.on('carregar_foto_ufv', async (id) => {
     const u = await UfvStatus.findById(id, { foto1: 1, foto2: 1 }).lean();
     socket.emit('foto_ufv_carregada', { _id: id, foto1: u?.foto1 || '', foto2: u?.foto2 || '' });
 });
+    socket.on('carregar_foto_ocorrencia', async (id) => {
+    const o = await Ocorrencia.findById(id, { foto: 1 }).lean();
+    socket.emit('foto_ocorrencia_carregada', { _id: id, foto: o?.foto || '' });
+});
 }); // <- fecha o io.on('connection', ...)
 
 const PORT = process.env.PORT || 3000;
