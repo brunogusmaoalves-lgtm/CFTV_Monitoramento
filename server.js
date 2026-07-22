@@ -61,9 +61,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
     // Envia os dados IMEDIATAMENTE ao conectar, sem esperar o login
     async function enviarDados() {
-    const ocorrencias = await Ocorrencia.find({}, { foto: 0 }).sort({ createdAt: -1 }).limit(1000).lean();
+    const ocorrencias = await Ocorrencia.find({}, { foto: 0 }).sort({ createdAt: -1 }).limit(500).lean();
     const ufv_status = await UfvStatus.find({}, { foto1: 0, foto2: 0 }).sort({ nome: 1 }).lean();
-    const visitas = await Visita.find().sort({ createdAt: -1 }).limit(1000).lean();
+    const visitas = await Visita.find().sort({ createdAt: -1 }).limit(500).lean();
     socket.emit('dados_iniciais', { ocorrencias, ufv_status, visitas });
 }
     enviarDados();
