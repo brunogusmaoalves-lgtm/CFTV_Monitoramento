@@ -63,7 +63,7 @@ io.on('connection', (socket) => {
     async function enviarDados() {
     const ocorrencias = await Ocorrencia.find({}, { foto: 0 }).sort({ createdAt: -1 }).limit(200).lean();
     const ufv_status = await UfvStatus.find({}, { foto1: 0, foto2: 0 }).sort({ nome: 1 }).lean();
-    const visitas = await Visita.find().sort({ createdAt: -1 }).limit(200).lean();
+    const visitas = await Visita.find().sort({ createdAt: -1 }).limit(400).lean();
     socket.emit('dados_iniciais', { ocorrencias, ufv_status, visitas });
 }
     enviarDados();
