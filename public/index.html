@@ -478,7 +478,8 @@
     let sortConfig = { field: 'nome', direction: 1 };
 
    function iniciarSocket() {
-    socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
+    socket = io({ 
+    transports: ['websocket', 'polling'], reconnectionAttempts: 10, reconnectionDelay: 5000, timeout: 60000});
     socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
     socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
     socket.on('dados_iniciais', (dados) => {
