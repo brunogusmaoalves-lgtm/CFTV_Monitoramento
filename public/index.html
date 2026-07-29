@@ -632,27 +632,45 @@ function excluirVisita(id) {
     });
 }
     async function salvarOcorrencia() {
-        const dataInput = document.getElementById('dataHoraOcorrencia').value;
-        const dados = {
-            dataInicio: dataInput ? new Date(dataInput).toISOString() : new Date().toISOString(),
-            operador: document.getElementById('operador').value,
-            impacto: document.getElementById('impacto').value,
-            usina: document.getElementById('usina').value,
-            tipo: document.getElementById('tipo').value,
-            local: document.getElementById('local').value,
-            desc: document.getElementById('desc').value,
-            foto: ''
+    const dataInput = document.getElementById('dataHoraOcorrencia').value;
+    const dados = {
+        dataInicio: dataInput ? new Date(dataInput).toISOString() : new Date().toISOString(),
+        operador: document.getElementById('operador').value,
+        impacto: document.getElementById('impacto').value,
+        usina: document.getElementById('usina').value,
+        tipo: document.getElementById('tipo').value,
+        local: document.getElementById('local').value,
+        desc: document.getElementById('desc').value,
+        foto: ''
+    };
+    if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
+    
+    const fileInput = document.getElementById('foto');
+    if (fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const maxWidth = 800;
+                const scale = Math.min(1, maxWidth / img.width);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                dados.foto = canvas.toDataURL('image/jpeg', 0.6);
+                socket.emit('nova_ocorrencia', dados);
+                limparForm();
+            };
+            img.src = e.target.result;
         };
-        if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
-        const fileInput = document.getElementById('foto');
-        if (fileInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => { dados.foto = e.target.result; socket.emit('nova_ocorrencia', dados); limparForm(); };
-            reader.readAsDataURL(fileInput.files[0]);
-        } else {
-            socket.emit('nova_ocorrencia', dados); limparForm();
-        }
+        reader.readAsDataURL(file);
+    } else {
+        socket.emit('nova_ocorrencia', dados);
+        limparForm();
     }
+}
 
    function abrirModalEdicao(id) {
     const o = db.ocorrencias.find(item => item._id === id);
