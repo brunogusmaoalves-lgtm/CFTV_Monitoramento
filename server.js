@@ -70,10 +70,11 @@ io.on('connection', (socket) => {
 
     socket.on('autenticar', ({ usuario, senha }) => {
         const USUARIOS = [
-            { usuario: 'admin', senha: 'usina2026', nome: 'Gestor CFTV' },
-            { usuario: 'everaldo', senha: 'cftv2026', nome: 'Everaldo' },
+            { usuario: 'admin', senha: 'ivienergia', nome: 'Gestor CFTV' },
+            { usuario: 'bruno', senha: 'cftv2026', nome: 'Bruno' },
             { usuario: 'layla', senha: 'cftv2026', nome: 'Layla' },
             { usuario: 'geilson', senha: 'cftv2026', nome: 'Geilson' },
+            { usuario: 'elaine', senha: 'cftv2026', nome: 'Geilson' },
             { usuario: 'vanuzia', senha: 'cftv2026', nome: 'Vanuzia' }
         ];
         const user = USUARIOS.find(u => u.usuario === usuario && u.senha === senha);
