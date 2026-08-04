@@ -81,7 +81,19 @@ io.on('connection', (socket) => {
         if (user) socket.emit('autenticado', { nome: user.nome });
         else socket.emit('auth_erro', { msg: 'Usuário ou senha inválidos.' });
     });
-
+socket.on('nova_visita', async (d, callback) => { 
+    try {
+        const v = new Visita(d); 
+        await v.save(); 
+        io.emit('visita_registrada', v);
+        
+        // Confirma para o front-end que deu certo
+        if (typeof callback === 'function') callback({ success: true });
+    } catch (err) {
+        console.error('❌ Erro ao salvar visita:', err.message);
+        if (typeof callback === 'function') callback({ success: false, error: err.message });
+    }
+});
     socket.on('carregar_dados', enviarDados);
     socket.on('nova_ocorrencia', async (d) => { const n = new Ocorrencia(d); await n.save(); io.emit('ocorrencia_criada', n); });
     socket.on('editar_ocorrencia', async (d) => { const { _id, ...upd } = d; const e = await Ocorrencia.findByIdAndUpdate(_id, upd, { new: true }); io.emit('ocorrencia_editada', e); });
