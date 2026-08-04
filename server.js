@@ -99,16 +99,19 @@ socket.on('nova_visita', async (d, callback) => {
     socket.on('editar_ocorrencia', async (d) => { const { _id, ...upd } = d; const e = await Ocorrencia.findByIdAndUpdate(_id, upd, { new: true }); io.emit('ocorrencia_editada', e); });
     socket.on('excluir_ocorrencia', async (id) => { await Ocorrencia.findByIdAndDelete(id); io.emit('ocorrencia_excluida', id); });
     socket.on('atualizar_ufv', async (d) => { const { _id, ...upd } = d; const a = await UfvStatus.findByIdAndUpdate(_id, upd, { new: true }); io.emit('ufv_atualizada', a); });
-socket.on('nova_visita', async (d) => { 
-    try {
-        const v = new Visita(d); 
-        await v.save(); 
-        console.log(`✅ Nova visita salva com sucesso: ${v.nomeVisitante} na usina ${v.usina}`);
-        io.emit('visita_registrada', v); 
-    } catch (err) {
-        console.error('❌ Erro ao salvar visita:', err.message);
-    }
-});
+socket.on('nova_visita', async (d, callback) => { 
+        try {
+            const v = new Visita(d); 
+            await v.save(); 
+            console.log(`✅ Nova visita salva com sucesso: ${v.nomeVisitante} na usina ${v.usina}`);
+            io.emit('visita_registrada', v); 
+            
+            if (typeof callback === 'function') callback({ success: true });
+        } catch (err) {
+            console.error('❌ Erro ao salvar visita:', err.message);
+            if (typeof callback === 'function') callback({ success: false, error: err.message });
+        }
+    });
     socket.on('editar_visita', async (d) => {
     const { _id, ...upd } = d;
     const v = await Visita.findByIdAndUpdate(_id, upd, { new: true });
