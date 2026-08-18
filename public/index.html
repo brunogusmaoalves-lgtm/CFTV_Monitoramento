@@ -181,7 +181,7 @@
             <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
                 <div class="p-8 border-b flex justify-between items-center no-print">
 					<div>
-                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Status de Infraestrutura</h2>
+                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Relatório Diário de Operação</h2>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Painel Operacional em Tempo Real</p>
                     <div class="flex gap-2">
                         <button onclick="exportarExcelUFVs()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
@@ -989,7 +989,7 @@ function atualizarTotalizador() {
         .foto-row td { padding: 12px 8px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
         .foto-container img { max-height: 180px; max-width: 40%; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; }
     </style>
-    <h1>Status de Infraestrutura — IVI Energia</h1>
+    <h1>Relatório Diário de Operação — IVI Energia</h1>
     <p class="sub">Gerado em ${new Date().toLocaleString('pt-BR')}</p>
     <div class="totais">
         <div class="total-card"><div class="valor">${db.ufv_status.length}</div><div class="label">Total UFVs</div></div>
