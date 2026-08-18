@@ -140,20 +140,23 @@
 
             <!-- Lista de Ocorrências -->
             <div class="xl:col-span-8">
-                <div class="flex gap-4 mb-6 no-print">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl text-xs outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all">
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="exportarExcelOcorrencias()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
-                            <i class="fa-solid fa-file-excel"></i> EXCEL
-                        </button>
-                        <button onclick="exportarPDFOcorrencias()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
-                            <i class="fa-solid fa-file-pdf"></i> PDF
-                        </button>
-                    </div>
-                </div>
+               <div class="flex gap-4 mb-6 no-print">
+    <div class="relative flex-1">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl text-xs outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all">
+    </div>
+    <input type="date" id="filtroDataInicio" onchange="renderOcorrencias()" class="px-4 py-3.5 bg-white border rounded-2xl text-xs outline-none">
+    <input type="date" id="filtroDataFim" onchange="renderOcorrencias()" class="px-4 py-3.5 bg-white border rounded-2xl text-xs outline-none">
+    <button onclick="limparFiltros()" class="px-4 py-3.5 bg-slate-100 hover:bg-slate-200 rounded-2xl text-xs font-black text-slate-500 uppercase tracking-widest transition-all">Limpar</button>
+    <div class="flex gap-2">
+        <button onclick="exportarExcelOcorrencias()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-file-excel"></i> EXCEL
+        </button>
+        <button onclick="exportarPDFOcorrencias()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-file-pdf"></i> PDF
+        </button>
+    </div>
+</div>
 
                 <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" id="tabelaOcorrenciasPDF">
                     <table class="w-full text-left border-collapse">
@@ -720,63 +723,72 @@ function excluirVisita(id) {
         document.getElementById('dataHoraOcorrencia').value = '';
     }
 
-    function renderOcorrencias() {
-        const term = document.getElementById('search').value.toLowerCase();
-        const container = document.getElementById('listaOcorrencias');
-        container.innerHTML = '';
-        
-        const filtradas = db.ocorrencias.filter(o => {
-            const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
-            const statusStr = (o.status || 'ABERTO').toLowerCase();
-            const usinaStr = o.usina.toLowerCase();
-            const operadorStr = o.operador.toLowerCase();
-            return usinaStr.includes(term) || 
-                   operadorStr.includes(term) || 
-                   statusStr.includes(term) || 
-                   dataStr.includes(term);
-        });
-        
-        if (filtradas.length === 0) {
-            container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>';
-            return;
-        }
+   function renderOcorrencias() {
+    const term = document.getElementById('search').value.toLowerCase();
+    const dataInicio = document.getElementById('filtroDataInicio').value;
+    const dataFim = document.getElementById('filtroDataFim').value;
+    const container = document.getElementById('listaOcorrencias');
+    container.innerHTML = '';
 
-        filtradas.forEach(o => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50/50 transition-colors group";
-            const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
-            
-            const statusColorClass = o.status === 'FINALIZADO' 
-                ? 'bg-emerald-50 text-emerald-600' 
-                : 'bg-red-50 text-red-500';
+    const filtradas = db.ocorrencias.filter(o => {
+        const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
+        const statusStr = (o.status || 'ABERTO').toLowerCase();
+        const usinaStr = o.usina.toLowerCase();
+        const operadorStr = o.operador.toLowerCase();
 
-            tr.innerHTML = `
-                <td class="px-8 py-6">
-                    <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="text-xs font-black text-emerald-600 uppercase tracking-tight">${o.usina}</div>
-                    <div class="text-[10px] font-black text-slate-800 uppercase mt-0.5">${o.operador}</div>
-                    <div class="text-[9px] text-slate-400 font-medium mt-0.5">${dataFormatada}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
-                        <span>${o.tipo.split(' ')[0]}</span>
-                        <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
-                </td>
-                <td class="px-8 py-6 text-right no-print">
-                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                        <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
-                    </div>
-                </td>
-            `;
-            container.appendChild(tr);
-        });
+        const termOk = usinaStr.includes(term) || operadorStr.includes(term) || statusStr.includes(term) || dataStr.includes(term);
+
+        const dataOcorrencia = new Date(o.dataInicio);
+        const inicioOk = dataInicio ? dataOcorrencia >= new Date(dataInicio + 'T00:00:00') : true;
+        const fimOk = dataFim ? dataOcorrencia <= new Date(dataFim + 'T23:59:59') : true;
+
+        return termOk && inicioOk && fimOk;
+    });
+
+    if (filtradas.length === 0) {
+        container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>';
+        return;
     }
+
+    filtradas.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/50 transition-colors group";
+        const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
+        const statusColorClass = o.status === 'FINALIZADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500';
+        tr.innerHTML = `
+            <td class="px-8 py-6">
+                <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
+                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
+            </td>
+            <td class="px-8 py-6">
+                <div class="text-xs font-black text-emerald-600 uppercase tracking-tight">${o.usina}</div>
+                <div class="text-[10px] font-black text-slate-800 uppercase mt-0.5">${o.operador}</div>
+                <div class="text-[9px] text-slate-400 font-medium mt-0.5">${dataFormatada}</div>
+            </td>
+            <td class="px-8 py-6">
+                <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
+                    <span>${o.tipo.split(' ')[0]}</span>
+                    <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
+                </div>
+                <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
+            </td>
+            <td class="px-8 py-6 text-right no-print">
+                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                    <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
+                </div>
+            </td>
+        `;
+        container.appendChild(tr);
+    });
+}
+
+function limparFiltros() {
+    document.getElementById('search').value = '';
+    document.getElementById('filtroDataInicio').value = '';
+    document.getElementById('filtroDataFim').value = '';
+    renderOcorrencias();
+}
 
     function ordenarStatus(campo) {
         if (sortConfig.field === campo) {
