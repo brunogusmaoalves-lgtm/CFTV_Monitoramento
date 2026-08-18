@@ -238,6 +238,7 @@
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('totalCam')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+								<th class="px-4 py-5 text-center">Último Teste</th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('seguranca')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
 								<th class="px-4 py-5 text-center" onclick="ordenarStatus('motivodaMobilazacao')">Motivo da Mobilização <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                             </tr>
@@ -804,7 +805,7 @@ function limparFiltros() {
         renderStatusUFVs();
     }
 
-    function renderStatusUFVs() {
+   function renderStatusUFVs() {
     const body = document.getElementById('tabelaStatusBody');
     body.innerHTML = '';
     const ordenadas = [...db.ufv_status].sort((a, b) => {
@@ -816,10 +817,20 @@ function limparFiltros() {
         }
         if (valA < valB) return -1 * sortConfig.direction;
         if (valA > valB) return 1 * sortConfig.direction;
-        return 0; 
+        return 0;
     });
 
     ordenadas.forEach(u => {
+        const visitasUsina = db.visitas
+            .filter(v => v.usina === u.nome && v.usoEPI === 'SIM')
+            .sort((a, b) => new Date(b.dataVisita) - new Date(a.dataVisita));
+        const ultimoTeste = visitasUsina[0];
+        const ultimaDataTeste = ultimoTeste
+            ? new Date(ultimoTeste.dataVisita + 'T12:00:00').toLocaleDateString('pt-BR')
+            : '-';
+        const resultadoTeste = ultimoTeste ? (ultimoTeste.resultadoFibra || 'APROVADO') : '';
+        const corResultado = resultadoTeste === 'REPROVADO' ? 'text-red-500' : 'text-emerald-600';
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50/50 transition-colors";
         tr.innerHTML = `
@@ -831,6 +842,10 @@ function limparFiltros() {
             <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
             <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
             <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${['ROMPIDA', 'OFFLINE'].includes(u.fibra) ? 'text-red-500' : 'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+            <td class="px-4 py-5 text-center">
+                <div class="text-[10px] font-black ${corResultado}">${ultimaDataTeste}</div>
+                ${resultadoTeste ? `<div class="text-[9px] font-black ${corResultado}">${resultadoTeste}</div>` : ''}
+            </td>
             <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option><option ${u.seguranca==='PERNOITE 12H'?'selected':''}>PERNOITE 12H</option></select></td>
             <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'motivodaMobilazacao', this.value)" class="bg-transparent outline-none cursor-pointer ${u.motivodaMobilazacao==='-'?'text-slate-400':'text-amber-500'}"><option ${u.motivodaMobilazacao==='DESMOBILIZAÇÃO'?'selected':''}>DESMOBILIZAÇÃO</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV'?'selected':''}>FALHA NO CFTV</option><option ${u.motivodaMobilazacao==='FALHA NA FIBRA'?'selected':''}>FALHA NA FIBRA</option><option ${u.motivodaMobilazacao==='FURTO RECENTE'?'selected':''}>FURTO RECENTE</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV + FIBRA'?'selected':''}>FALHA NO CFTV + FIBRA</option><option ${u.motivodaMobilazacao==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option><option ${u.motivodaMobilazacao==='-'?'selected':''}>-</option></select></td>
             <td class="px-4 py-5 text-center">
