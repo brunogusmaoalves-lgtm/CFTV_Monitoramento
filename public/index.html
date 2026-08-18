@@ -125,7 +125,7 @@
                             </select>
                         </div>
                         <div>
-                            <input type="text" id="local" placeholder="Local / ID Câmera" class="w-full input-field text-xs">
+                            <input type="text" id="local" placeholder="Motivo" class="w-full input-field text-xs">
                         </div>
                         <div>
                             <textarea id="desc" rows="3" placeholder="Descrição detalhada..." class="w-full input-field text-xs resize-none"></textarea>
@@ -727,22 +727,26 @@ function excluirVisita(id) {
     const term = document.getElementById('search').value.toLowerCase();
     const dataInicio = document.getElementById('filtroDataInicio').value;
     const dataFim = document.getElementById('filtroDataFim').value;
+    const filtroStatus = document.getElementById('filtroStatus') ? document.getElementById('filtroStatus').value : '';
     const container = document.getElementById('listaOcorrencias');
     container.innerHTML = '';
 
     const filtradas = db.ocorrencias.filter(o => {
         const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
         const statusStr = (o.status || 'ABERTO').toLowerCase();
-        const usinaStr = o.usina.toLowerCase();
-        const operadorStr = o.operador.toLowerCase();
+        const usinaStr = (o.usina || '').toLowerCase();
+        const operadorStr = (o.operador || '').toLowerCase();
+        const tipoStr = (o.tipo || '').toLowerCase();
+        const descStr = (o.desc || '').toLowerCase();
+        const localStr = (o.local || '').toLowerCase();
 
-        const termOk = usinaStr.includes(term) || operadorStr.includes(term) || statusStr.includes(term) || dataStr.includes(term);
-
+        const termOk = usinaStr.includes(term) || operadorStr.includes(term) || statusStr.includes(term) || dataStr.includes(term) || tipoStr.includes(term) || descStr.includes(term) || localStr.includes(term);
         const dataOcorrencia = new Date(o.dataInicio);
         const inicioOk = dataInicio ? dataOcorrencia >= new Date(dataInicio + 'T00:00:00') : true;
         const fimOk = dataFim ? dataOcorrencia <= new Date(dataFim + 'T23:59:59') : true;
+        const statusOk = filtroStatus ? (o.status || 'ABERTO') === filtroStatus : true;
 
-        return termOk && inicioOk && fimOk;
+        return termOk && inicioOk && fimOk && statusOk;
     });
 
     if (filtradas.length === 0) {
