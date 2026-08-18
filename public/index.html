@@ -825,9 +825,10 @@ function limparFiltros() {
             .filter(v => v.usina === u.nome && v.usoEPI === 'SIM')
             .sort((a, b) => new Date(b.dataVisita) - new Date(a.dataVisita));
         const ultimoTeste = visitasUsina[0];
-        const ultimaDataTeste = ultimoTeste
-            ? new Date(ultimoTeste.dataVisita + 'T12:00:00').toLocaleDateString('pt-BR')
-            : '-';
+        const ultimaDataTeste = ultimoTeste ? (() => {
+    const d = new Date(ultimoTeste.dataVisita + 'T12:00:00');
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('pt-BR');
+})() : '-';
         const resultadoTeste = ultimoTeste ? (ultimoTeste.resultadoFibra || 'APROVADO') : '';
         const corResultado = resultadoTeste === 'REPROVADO' ? 'text-red-500' : 'text-emerald-600';
 
@@ -1025,16 +1026,17 @@ function atualizarTotalizador() {
         .filter(v => v.usina === u.nome && v.usoEPI === 'SIM')
         .sort((a, b) => new Date(b.dataVisita) - new Date(a.dataVisita));
     const ultimoTeste = visitasUsina[0];
-    const ultimaDataTeste = ultimoTeste
-        ? new Date(ultimoTeste.dataVisita + 'T12:00:00').toLocaleDateString('pt-BR')
-        : '-';
+    const ultimaDataTeste = ultimoTeste ? (() => {
+    const d = new Date(ultimoTeste.dataVisita + 'T12:00:00');
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('pt-BR');
+})() : '-';
     const resultadoTeste = ultimoTeste ? (ultimoTeste.resultadoFibra || 'APROVADO') : '';
     const corTeste = resultadoTeste === 'REPROVADO' ? '#ef4444' : '#10b981';
 
     htmlConteudo += `
         <tr>
             <td class="nome">${u.nome}</td>
-            <td class="${u.status === 'CONSTRUÇÃO' ? 'erro' : 'ok'}">${u.status}</td>
+            <td class="${u.status === 'CONSTRUÇÃO' ? 'erro' : 'ok'}">${u.status || 'O&M'}</td>
             <td class="${u.prontaResposta === 'INATIVO' ? 'erro' : 'ok'}">${u.prontaResposta}</td>
             <td class="${u.digifort === 'OFFLINE' ? 'erro' : 'ok'}">${u.digifort}</td>
             <td class="${u.anydesk === 'OFFLINE' ? 'erro' : 'ok'}">${u.anydesk}</td>
