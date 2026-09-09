@@ -903,22 +903,44 @@ function atualizarTotalizador() {
     function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
     function logout() { location.reload(); }
     
-    function exportarExcelOcorrencias() {
-        const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
-            "Data/Hora Início": new Date(o.dataInicio).toLocaleString('pt-BR'),
-            "Data/Hora Fim": o.dataFim ? new Date(o.dataFim).toLocaleString('pt-BR') : '',
-            Operador: o.operador,
-            Usina: o.usina,
-            Tipo: o.tipo,
-            Local: o.local,
-            Descrição: o.desc,
-            Status: o.status
-        })));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
-        XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
-    }
+   function exportarExcelOcorrencias() {
+    const term = document.getElementById('search').value.toLowerCase();
+    const dataInicio = document.getElementById('filtroDataInicio').value;
+    const dataFim = document.getElementById('filtroDataFim').value;
+    const filtroStatus = document.getElementById('filtroStatus') ? document.getElementById('filtroStatus').value : '';
 
+    const filtradas = db.ocorrencias.filter(o => {
+        const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
+        const statusStr = (o.status || 'ABERTO').toLowerCase();
+        const usinaStr = (o.usina || '').toLowerCase();
+        const operadorStr = (o.operador || '').toLowerCase();
+        const tipoStr = (o.tipo || '').toLowerCase();
+        const descStr = (o.desc || '').toLowerCase();
+        const localStr = (o.local || '').toLowerCase();
+
+        const termOk = !term || usinaStr.includes(term) || operadorStr.includes(term) || statusStr.includes(term) || dataStr.includes(term) || tipoStr.includes(term) || descStr.includes(term) || localStr.includes(term);
+        const dataOcorrencia = new Date(o.dataInicio);
+        const inicioOk = dataInicio ? dataOcorrencia >= new Date(dataInicio + 'T00:00:00') : true;
+        const fimOk = dataFim ? dataOcorrencia <= new Date(dataFim + 'T23:59:59') : true;
+        const statusOk = filtroStatus ? (o.status || 'ABERTO') === filtroStatus : true;
+
+        return termOk && inicioOk && fimOk && statusOk;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(filtradas.map(o => ({
+        "Data/Hora Início": new Date(o.dataInicio).toLocaleString('pt-BR'),
+        "Data/Hora Fim": o.dataFim ? new Date(o.dataFim).toLocaleString('pt-BR') : '',
+        Operador: o.operador,
+        Usina: o.usina,
+        Tipo: o.tipo,
+        Local: o.local,
+        Descrição: o.desc,
+        Status: o.status
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
+    XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
+}
     function exportarPDFOcorrencias() {
         const element = document.getElementById('tabelaOcorrenciasPDF');
         const opt = {
