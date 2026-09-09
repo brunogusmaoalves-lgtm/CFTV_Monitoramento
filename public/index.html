@@ -238,12 +238,7 @@
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('totalCam')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-								<th class="px-4 py-5 text-center" onclick="ordenarStatus('ultimaDataTeste')">Último Teste de Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('resultadoFibra')">
-    Último Teste de Fibra
-    <i class="fa-solid fa-sort ml-1 opacity-30"></i>
-</th>
-
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('resultadoFibra')">Último Teste de Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
 								<th class="px-4 py-5 text-center" onclick="ordenarStatus('motivodaMobilazacao')">Motivo da Mobilização <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                             </tr>
                         </thead>
@@ -799,16 +794,6 @@ function limparFiltros() {
     renderOcorrencias();
 }
 
-    function ordenarStatus(campo) {
-        if (sortConfig.field === campo) {
-            sortConfig.direction *= -1;
-        } else {
-            sortConfig.field = campo;
-            sortConfig.direction = 1;
-        }
-        renderStatusUFVs();
-    }
-
 	function ordenarStatus(campo) {
         if (sortConfig.field === campo) {
             sortConfig.direction *= -1;
@@ -823,16 +808,65 @@ function limparFiltros() {
     const body = document.getElementById('tabelaStatusBody');
     body.innerHTML = '';
     const ordenadas = [...db.ufv_status].sort((a, b) => {
-        let valA = a[sortConfig.field];
-        let valB = b[sortConfig.field];
-        if (typeof valA === 'string') {
-            valA = valA.toLowerCase();
-            valB = valB.toLowerCase();
+    // Ordenação especial pelo resultado do último teste de fibra
+    if (sortConfig.field === 'resultadoFibra') {
+        function obterResultado(nomeUsina) {
+            const visita = (db.visitas || [])
+                .filter(v => v.usina === nomeUsina && v.usoEPI === 'SIM')
+                .sort((x, y) => {
+                    const valorX = String(x.dataVisita || '');
+                    const valorY = String(y.dataVisita || '');
+
+                    const dataX = new Date(
+                        valorX.includes('T') ? valorX : `${valorX}T12:00:00`
+                    );
+
+                    const dataY = new Date(
+                        valorY.includes('T') ? valorY : `${valorY}T12:00:00`
+                    );
+
+                    return dataY - dataX;
+                })[0];
+
+            return visita
+                ? (visita.resultadoFibra || 'APROVADO')
+                : '';
         }
-        if (valA < valB) return -1 * sortConfig.direction;
-        if (valA > valB) return 1 * sortConfig.direction;
+
+        const resultadoA = obterResultado(a.nome);
+        const resultadoB = obterResultado(b.nome);
+
+        // Usinas sem teste permanecem no final
+        if (!resultadoA && resultadoB) return 1;
+        if (resultadoA && !resultadoB) return -1;
+        if (!resultadoA && !resultadoB) return 0;
+
+        const ordemResultado = {
+            'APROVADO': 1,
+            'REPROVADO': 2
+        };
+
+        const valorA = ordemResultado[resultadoA] || 3;
+        const valorB = ordemResultado[resultadoB] || 3;
+
+        if (valorA < valorB) return -1 * sortConfig.direction;
+        if (valorA > valorB) return 1 * sortConfig.direction;
         return 0;
-    });
+    }
+
+    // Ordenação original dos demais campos
+    let valA = a[sortConfig.field];
+    let valB = b[sortConfig.field];
+
+    if (typeof valA === 'string') {
+        valA = valA.toLowerCase();
+        valB = valB.toLowerCase();
+    }
+
+    if (valA < valB) return -1 * sortConfig.direction;
+    if (valA > valB) return 1 * sortConfig.direction;
+    return 0;
+});
 
     ordenadas.forEach(u => {
         const visitasUsina = db.visitas
