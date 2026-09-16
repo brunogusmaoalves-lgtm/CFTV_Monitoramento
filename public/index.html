@@ -59,7 +59,6 @@
                 <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
                 <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
 		<button id="tabBtnControleAcesso" onclick="switchTab('controleAcesso')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">CONTROLE DE ACESSO</button>
-				<button id="tabBtnDashboard" onclick="switchTab('dashboard')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">DASHBOARD</button>
             </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -352,46 +351,6 @@
                 <tbody id="listaControleAcesso" class="divide-y"></tbody>
             </table>
         </div>
-    </div>
-</div>
-		<!-- ABA DASHBOARD -->
-<div id="tabDashboard" class="hidden">
-    <div class="mb-6">
-        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Dashboard Operacional</h2>
-        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Indicadores em Tempo Real</p>
-    </div>
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-        <!-- Gráfico Testes de Fibra por Supervisor -->
-        <div class="bg-white rounded-3xl shadow-sm border p-6">
-            <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Testes na Fibra Sensitiva por Supervisor</h3>
-            <div class="overflow-x-auto mb-4">
-                <table class="w-full text-left text-xs border-collapse" id="tabelaFibraSupervisor">
-                    <thead>
-                        <tr class="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
-                            <th class="px-3 py-2">Supervisor</th>
-                            <th class="px-3 py-2 text-center">Nº Mínimo</th>
-                            <th class="px-3 py-2 text-center">Visitas</th>
-                            <th class="px-3 py-2 text-center">%</th>
-                            <th class="px-3 py-2 text-center">Testes</th>
-                            <th class="px-3 py-2 text-center">%</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaFibraBody" class="divide-y"></tbody>
-                    <tfoot id="tabelaFibraTotal" class="border-t-2 font-black"></tfoot>
-                </table>
-            </div>
-            <canvas id="graficoFibraSupervisor" height="200"></canvas>
-        </div>
-        <!-- Gráfico Status Sistema de Segurança -->
-        <div class="bg-white rounded-3xl shadow-sm border p-6">
-            <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Status do Sistema de Segurança das UFVs</h3>
-            <canvas id="graficoStatusSeguranca" height="200"></canvas>
-        </div>
-    </div>
-    <!-- Gráfico Acionamentos Pronta Resposta -->
-    <div class="bg-white rounded-3xl shadow-sm border p-6">
-        <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Acionamentos de Pronta Resposta por Mês</h3>
-        <canvas id="graficoProntaResposta" height="100"></canvas>
     </div>
 </div>
 </main>
@@ -979,7 +938,7 @@ function atualizarTotalizador() {
     function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
     
     function switchTab(tab) {
-    ['ocorrencias', 'status', 'controleAcesso', 'dashboard'].forEach(t => {
+    ['ocorrencias', 'status', 'controleAcesso'].forEach(t => {
         const tabElement = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
         const btnElement = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
         if (tabElement) tabElement.style.display = 'none';
@@ -999,10 +958,6 @@ function atualizarTotalizador() {
         targetBtn.classList.add('tab-active');
         targetBtn.classList.remove('text-slate-400');
     }
-		if (targetTab) {
-    targetTab.style.display = (tab === 'controleAcesso' || tab === 'ocorrencias') ? 'grid' : 'block';
-    if (tab === 'dashboard') renderDashboard();
-}
 }
 
     function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
@@ -1375,165 +1330,5 @@ function exportarExcelControleAcesso() {
 }
     window.onload = iniciarSocket;
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	let graficoFibraInstance = null;
-let graficoSegurancaInstance = null;
-let graficoProntaRespostaInstance = null;
-
-function renderDashboard() {
-    renderGraficoFibraSupervisor();
-    renderGraficoStatusSeguranca();
-    renderGraficoProntaResposta();
-}
-
-function renderGraficoFibraSupervisor() {
-    // Agrupa visitas por supervisor (responsavelUsina)
-    const supervisores = {};
-    db.visitas.forEach(v => {
-        const sup = v.responsavelUsina || 'Sem Supervisor';
-        if (!supervisores[sup]) supervisores[sup] = { visitas: 0, testes: 0 };
-        supervisores[sup].visitas++;
-        if (v.usoEPI === 'SIM') supervisores[sup].testes++;
-    });
-
-    const nomes = Object.keys(supervisores);
-    const visitas = nomes.map(n => supervisores[n].visitas);
-    const testes = nomes.map(n => supervisores[n].testes);
-    const total = { visitas: visitas.reduce((s, v) => s + v, 0), testes: testes.reduce((s, v) => s + v, 0) };
-
-    // Tabela
-    const tbody = document.getElementById('tabelaFibraBody');
-    const tfoot = document.getElementById('tabelaFibraTotal');
-    if (tbody) {
-        tbody.innerHTML = nomes.map((n, i) => `
-            <tr class="hover:bg-slate-50">
-                <td class="px-3 py-2 font-black text-slate-700">${n}</td>
-                <td class="px-3 py-2 text-center text-slate-400">-</td>
-                <td class="px-3 py-2 text-center font-black text-emerald-600">${visitas[i]}</td>
-                <td class="px-3 py-2 text-center text-slate-500">${total.visitas ? Math.round(visitas[i]/total.visitas*100) : 0}%</td>
-                <td class="px-3 py-2 text-center font-black text-blue-600">${testes[i]}</td>
-                <td class="px-3 py-2 text-center text-slate-500">${visitas[i] ? Math.round(testes[i]/visitas[i]*100) : 0}%</td>
-            </tr>
-        `).join('');
-        tfoot.innerHTML = `
-            <tr class="bg-slate-50">
-                <td class="px-3 py-2 font-black text-slate-800 uppercase text-[9px]">TOTAL</td>
-                <td class="px-3 py-2 text-center">-</td>
-                <td class="px-3 py-2 text-center font-black text-emerald-600">${total.visitas}</td>
-                <td class="px-3 py-2 text-center">100%</td>
-                <td class="px-3 py-2 text-center font-black text-blue-600">${total.testes}</td>
-                <td class="px-3 py-2 text-center">${total.visitas ? Math.round(total.testes/total.visitas*100) : 0}%</td>
-            </tr>
-        `;
-    }
-
-    // Gráfico
-    const canvas = document.getElementById('graficoFibraSupervisor');
-    if (!canvas) return;
-    if (graficoFibraInstance) graficoFibraInstance.destroy();
-    graficoFibraInstance = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: nomes.map(n => n.toUpperCase()),
-            datasets: [
-                { label: 'Testes', data: testes, backgroundColor: '#6b8ec7', borderRadius: 6 },
-                { label: 'Visitas', data: visitas, backgroundColor: '#e8a4a4', borderRadius: 6 }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { font: { size: 10, weight: 'bold' } } } },
-            scales: {
-                y: { beginAtZero: true, ticks: { font: { size: 9 } } },
-                x: { ticks: { font: { size: 9 } } }
-            }
-        }
-    });
-}
-
-function renderGraficoStatusSeguranca() {
-    // Agrupa câmeras e fibra por supervisor baseado nas UFVs
-    const supervisores = {};
-    db.visitas.forEach(v => {
-        const sup = v.responsavelUsina || 'Sem Supervisor';
-        if (!supervisores[sup]) supervisores[sup] = { camOn: 0, camOff: 0, fibraOk: 0, fibraRompida: 0, ufvs: new Set() };
-        supervisores[sup].ufvs.add(v.usina);
-    });
-
-    // Busca dados reais das UFVs por supervisor
-    Object.keys(supervisores).forEach(sup => {
-        supervisores[sup].ufvs.forEach(nomeUsina => {
-            const ufv = db.ufv_status.find(u => u.nome === nomeUsina);
-            if (ufv) {
-                supervisores[sup].camOn += Number(ufv.camOn) || 0;
-                supervisores[sup].camOff += Math.max(0, (Number(ufv.totalCam) || 0) - (Number(ufv.camOn) || 0));
-                if (ufv.fibra === 'OK') supervisores[sup].fibraOk++;
-                if (ufv.fibra === 'ROMPIDA') supervisores[sup].fibraRompida++;
-            }
-        });
-    });
-
-    const nomes = Object.keys(supervisores);
-    const canvas = document.getElementById('graficoStatusSeguranca');
-    if (!canvas) return;
-    if (graficoSegurancaInstance) graficoSegurancaInstance.destroy();
-    graficoSegurancaInstance = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: nomes.map(n => n.split(' ')[0].toUpperCase()),
-            datasets: [
-                { label: 'Câmeras Online', data: nomes.map(n => supervisores[n].camOn), backgroundColor: '#3b5fa0', borderRadius: 4 },
-                { label: 'Câmera Offline', data: nomes.map(n => supervisores[n].camOff), backgroundColor: '#e8a4a4', borderRadius: 4 },
-                { label: 'Fibra Online', data: nomes.map(n => supervisores[n].fibraOk), backgroundColor: '#6ab187', borderRadius: 4 },
-                { label: 'Fibra Rompida', data: nomes.map(n => supervisores[n].fibraRompida), backgroundColor: '#8b6bb1', borderRadius: 4 }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { font: { size: 10, weight: 'bold' } } } },
-            scales: {
-                y: { beginAtZero: true, ticks: { font: { size: 9 } } },
-                x: { ticks: { font: { size: 9 } } }
-            }
-        }
-    });
-}
-
-function renderGraficoProntaResposta() {
-    // Conta acionamentos de pronta resposta por mês
-    const meses = {};
-    db.ocorrencias.filter(o => o.tipo && o.tipo.includes('Pronta Resposta')).forEach(o => {
-        const d = new Date(o.dataInicio);
-        const chave = `${d.getMonth() + 1}/${d.getFullYear()}`;
-        meses[chave] = (meses[chave] || 0) + 1;
-    });
-
-    const labels = Object.keys(meses);
-    const valores = Object.values(meses);
-
-    const canvas = document.getElementById('graficoProntaResposta');
-    if (!canvas) return;
-    if (graficoProntaRespostaInstance) graficoProntaRespostaInstance.destroy();
-    graficoProntaRespostaInstance = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Acionamentos',
-                data: valores,
-                backgroundColor: '#10b981',
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { font: { size: 10, weight: 'bold' } } } },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } } },
-                x: { ticks: { font: { size: 9 } } }
-            }
-        }
-    });
-}
 </body>
 </html>
