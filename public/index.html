@@ -391,14 +391,25 @@
 	                    </div>
 	                </section>
 
-	                <section class="dashboard-card p-6 2xl:col-span-2">
+	                <section class="dashboard-card p-6">
 	                    <div class="mb-5">
-	                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Segurança mobilizada por usina</h3>
-	                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">UFVs com segurança mobilizada ou pernoite de 12 horas</p>
+	                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Cobertura e pronta resposta por usina</h3>
+	                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Quantidade histórica de coberturas e acionamentos por UFV</p>
 	                    </div>
 	                    <div class="dashboard-chart">
-	                        <canvas id="chartSegurancaMobilizada"></canvas>
-	                        <div id="emptySegurancaMobilizada" class="dashboard-empty"><i class="fa-solid fa-user-shield text-2xl mb-3"></i>Nenhuma segurança mobilizada para os filtros selecionados</div>
+	                        <canvas id="chartCoberturaProntaUsina"></canvas>
+	                        <div id="emptyCoberturaProntaUsina" class="dashboard-empty"><i class="fa-solid fa-user-shield text-2xl mb-3"></i>Sem coberturas ou acionamentos para os filtros selecionados</div>
+	                    </div>
+	                </section>
+
+	                <section class="dashboard-card p-6">
+	                    <div class="mb-5">
+	                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Eventos de segurança por usina</h3>
+	                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Invasão/intrusão e furto/vandalismo registrados por UFV</p>
+	                    </div>
+	                    <div class="dashboard-chart">
+	                        <canvas id="chartEventosCriminaisUsina"></canvas>
+	                        <div id="emptyEventosCriminaisUsina" class="dashboard-empty"><i class="fa-solid fa-shield-halved text-2xl mb-3"></i>Sem invasões, intrusões, furtos ou vandalismos no período</div>
 	                    </div>
 	                </section>
 	            </div>
@@ -1386,20 +1397,24 @@ function renderDashboard() {
 	        return possuiTeste && supervisorOk && usinaOk && dataAtendeFiltroDashboard(v.dataVisita, filtros);
     });
 
-	    const prontaResposta = (db.ocorrencias || []).filter(o => {
-	        const tipo = String(o.tipo || '').toLowerCase();
-	        const ehProntaResposta = tipo.includes('pronta resposta');
-        const supervisorOk = !filtros.supervisor || obterSupervisorOcorrencia(o) === filtros.supervisor;
-        const usinaOk = !filtros.usina || o.usina === filtros.usina;
-	        return ehProntaResposta && supervisorOk && usinaOk && dataAtendeFiltroDashboard(o.dataInicio, filtros);
-	    });
-
-	    const coberturaSeguranca = (db.ocorrencias || []).filter(o => {
-	        const tipo = String(o.tipo || '').toLowerCase();
-	        const ehCoberturaSeguranca = tipo.includes('cobertura com segurança');
+	    const ocorrenciasFiltradas = (db.ocorrencias || []).filter(o => {
 	        const supervisorOk = !filtros.supervisor || obterSupervisorOcorrencia(o) === filtros.supervisor;
 	        const usinaOk = !filtros.usina || o.usina === filtros.usina;
-	        return ehCoberturaSeguranca && supervisorOk && usinaOk && dataAtendeFiltroDashboard(o.dataInicio, filtros);
+	        return supervisorOk && usinaOk && dataAtendeFiltroDashboard(o.dataInicio, filtros);
+	    });
+	    const normalizarTipo = valor => String(valor || '')
+	        .normalize('NFD')
+	        .replace(/[\u0300-\u036f]/g, '')
+	        .toLowerCase();
+	    const prontaResposta = ocorrenciasFiltradas.filter(o => normalizarTipo(o.tipo).includes('pronta resposta'));
+	    const coberturaSeguranca = ocorrenciasFiltradas.filter(o => normalizarTipo(o.tipo).includes('cobertura com seguranca'));
+	    const invasaoIntrusao = ocorrenciasFiltradas.filter(o => {
+	        const tipo = normalizarTipo(o.tipo);
+	        return tipo.includes('invasao') || tipo.includes('intrusao');
+	    });
+	    const furtoVandalismo = ocorrenciasFiltradas.filter(o => {
+	        const tipo = normalizarTipo(o.tipo);
+	        return tipo.includes('furto') || tipo.includes('vandalismo');
 	    });
 
     const ufvs = (db.ufv_status || []).filter(u => {
@@ -1463,14 +1478,27 @@ function renderDashboard() {
 	        { label: 'Fibra rompida/offline', data: labelsSistemas.map(label => sistemas[label].fibraRompida), backgroundColor: '#8b5cf6', borderRadius: 6, maxBarThickness: 34 }
 	    ]);
 
-	    const segurancaMobilizada = ufvs.filter(ufv => ['MOBILIZADA', 'PERNOITE 12H'].includes(String(ufv.seguranca || '').toUpperCase()));
-	    const labelsSegurancaMobilizada = segurancaMobilizada
-	        .map(ufv => ufv.nome || 'Usina não informada')
-	        .sort((a, b) => a.localeCompare(b, 'pt-BR'));
-	    const segurancaPorUsina = Object.fromEntries(segurancaMobilizada.map(ufv => [ufv.nome || 'Usina não informada', String(ufv.seguranca || '').toUpperCase()]));
-	    desenharGraficoDashboard('segurancaMobilizada', 'chartSegurancaMobilizada', 'emptySegurancaMobilizada', labelsSegurancaMobilizada, [
-	        { label: 'Mobilizada', data: labelsSegurancaMobilizada.map(usina => segurancaPorUsina[usina] === 'MOBILIZADA' ? 1 : 0), backgroundColor: '#8b5cf6', borderRadius: 7, maxBarThickness: 52 },
-	        { label: 'Pernoite 12h', data: labelsSegurancaMobilizada.map(usina => segurancaPorUsina[usina] === 'PERNOITE 12H' ? 1 : 0), backgroundColor: '#0ea5e9', borderRadius: 7, maxBarThickness: 52 }
+	    const contarOcorrenciasPorUsina = itens => itens.reduce((acc, ocorrencia) => {
+	        const usina = String(ocorrencia.usina || 'Não informada').trim() || 'Não informada';
+	        acc[usina] = (acc[usina] || 0) + 1;
+	        return acc;
+	    }, {});
+
+	    const coberturaPorUsina = contarOcorrenciasPorUsina(coberturaSeguranca);
+	    const labelsCoberturaPronta = [...new Set([...Object.keys(coberturaPorUsina), ...Object.keys(prontaPorUsina)])]
+	        .sort((a, b) => ((coberturaPorUsina[b] || 0) + (prontaPorUsina[b] || 0)) - ((coberturaPorUsina[a] || 0) + (prontaPorUsina[a] || 0)) || a.localeCompare(b, 'pt-BR'));
+	    desenharGraficoDashboard('coberturaProntaUsina', 'chartCoberturaProntaUsina', 'emptyCoberturaProntaUsina', labelsCoberturaPronta, [
+	        { label: 'Cobertura com segurança', data: labelsCoberturaPronta.map(usina => coberturaPorUsina[usina] || 0), backgroundColor: '#8b5cf6', borderRadius: 7, maxBarThickness: 46 },
+	        { label: 'Pronta resposta', data: labelsCoberturaPronta.map(usina => prontaPorUsina[usina] || 0), backgroundColor: '#f59e0b', borderRadius: 7, maxBarThickness: 46 }
+	    ]);
+
+	    const invasaoPorUsina = contarOcorrenciasPorUsina(invasaoIntrusao);
+	    const furtoPorUsina = contarOcorrenciasPorUsina(furtoVandalismo);
+	    const labelsEventosCriminais = [...new Set([...Object.keys(invasaoPorUsina), ...Object.keys(furtoPorUsina)])]
+	        .sort((a, b) => ((invasaoPorUsina[b] || 0) + (furtoPorUsina[b] || 0)) - ((invasaoPorUsina[a] || 0) + (furtoPorUsina[a] || 0)) || a.localeCompare(b, 'pt-BR'));
+	    desenharGraficoDashboard('eventosCriminaisUsina', 'chartEventosCriminaisUsina', 'emptyEventosCriminaisUsina', labelsEventosCriminais, [
+	        { label: 'Invasão / Intrusão', data: labelsEventosCriminais.map(usina => invasaoPorUsina[usina] || 0), backgroundColor: '#ef4444', borderRadius: 7, maxBarThickness: 46 },
+	        { label: 'Furto / Vandalismo', data: labelsEventosCriminais.map(usina => furtoPorUsina[usina] || 0), backgroundColor: '#334155', borderRadius: 7, maxBarThickness: 46 }
 	    ]);
 	}
 
@@ -1907,3 +1935,4 @@ function salvarFotosUfv() {
 </script>
 </body>
 </html>
+
