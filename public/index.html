@@ -445,7 +445,12 @@
                 <input type="text" id="acessoDocumento" placeholder="Documento (RG/CPF)" class="w-full input-field text-xs">
                 <input type="text" id="acessoContato" placeholder="Contato" class="w-full input-field text-xs">
                 <textarea id="acessoMotivo" rows="2" placeholder="Motivo da Visita" class="w-full input-field text-xs resize-none"></textarea>
-                <input type="text" id="acessoResponsavel" placeholder="Supervisor" class="w-full input-field text-xs">
+                <div>
+                    <label for="acessoResponsavel" class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">SUPERVISOR</label>
+                    <select id="acessoResponsavel" class="w-full input-field text-xs">
+                        <option value="">Selecione o supervisor</option>
+                    </select>
+                </div>
                 <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
@@ -473,6 +478,7 @@
     <div>
         <div class="flex gap-4 mb-6 no-print">
             <input type="text" id="searchAcesso" oninput="renderControleAcesso()" placeholder="Filtrar Visitante, Usina..." class="w-full px-4 py-3.5 bg-white border rounded-2xl text-xs outline-none">
+            <button onclick="corrigirSupervisoresHistoricos()" class="bg-sky-600 hover:bg-sky-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap"><i class="fa-solid fa-wand-magic-sparkles"></i> PADRONIZAR SUPERVISORES</button>
             <button onclick="exportarExcelControleAcesso()" class="bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> EXCEL</button>
         </div>
         <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" id="tabelaControleAcessoPDF">
@@ -519,7 +525,14 @@
                     <input type="date" id="editVisitaDataFim" class="w-full input-field text-xs">
                 </div>
 				<div>
-        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
+	    <label for="editVisitaSupervisor" class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">SUPERVISOR</label>
+	    <select id="editVisitaSupervisor" class="w-full input-field text-xs font-bold">
+	        <option value="">Selecione o supervisor</option>
+	    </select>
+	    <p id="editVisitaSupervisorAnterior" class="text-[8px] text-amber-500 font-bold uppercase tracking-wide mt-1 hidden"></p>
+	</div>
+					<div>
+	        <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
         <select id="editVisitaTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('editCampoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
     <option value="SIM">SIM</option>
     <option value="NÃO">NÃO</option>
@@ -618,8 +631,60 @@
 	    let sortConfig = { field: 'nome', direction: 1 };
 	    let dashboardCharts = {};
 
-   function iniciarSocket() {
-    socket = io({ 
+    // Altere somente esta lista quando houver entrada, saída ou mudança de nome de supervisor.
+    const SUPERVISORES_PADRAO = [
+        { nome: 'Eduardo Barbosa', aliases: ['Eduardo', 'Eduardo Barboza', 'Ed. Barbosa'] },
+        { nome: 'Marcel Araujo', aliases: ['Marcel', 'Marcel Araújo', 'Marcel Aroujo'] },
+        { nome: 'Wdyson Rocha', aliases: ['Wdyson', 'Wydson Rocha', 'Wdysson Rocha', 'Wdyson R.'] },
+        { nome: 'Rafael Santos', aliases: ['Rafael', 'Rafael Santo', 'Rafael S.'] },
+        { nome: 'Heloísa', aliases: ['Heloisa', 'Heloiza'] }
+    ];
+
+    function chaveNomeSupervisor(valor) {
+        return String(valor || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, '');
+    }
+
+    function localizarSupervisorPadrao(valor) {
+        const chave = chaveNomeSupervisor(valor);
+        if (!chave) return '';
+
+        const supervisor = SUPERVISORES_PADRAO.find(item =>
+            [item.nome, ...(item.aliases || [])].some(nome => chaveNomeSupervisor(nome) === chave)
+        );
+        return supervisor ? supervisor.nome : '';
+    }
+
+    function normalizarNomeSupervisor(valor) {
+        const original = String(valor || '').trim().replace(/\s+/g, ' ');
+        if (!original) return 'Não informado';
+
+        const padrao = localizarSupervisorPadrao(original);
+        if (padrao) return padrao;
+
+        return original
+            .toLocaleLowerCase('pt-BR')
+            .replace(/(^|\s)(\p{L})/gu, (_, espaco, letra) => espaco + letra.toLocaleUpperCase('pt-BR'));
+    }
+
+    function preencherSelectSupervisor(select, valorSelecionado = '') {
+        if (!select) return;
+        select.innerHTML = '<option value="">Selecione o supervisor</option>';
+        SUPERVISORES_PADRAO.forEach(item => select.appendChild(criarOpcaoFiltro(item.nome)));
+        select.value = localizarSupervisorPadrao(valorSelecionado) || '';
+    }
+
+    function popularSelectSupervisores() {
+        preencherSelectSupervisor(document.getElementById('acessoResponsavel'));
+        preencherSelectSupervisor(document.getElementById('editVisitaSupervisor'));
+    }
+
+	   function iniciarSocket() {
+	    popularSelectSupervisores();
+	    socket = io({ 
     transports: ['websocket', 'polling'], reconnectionAttempts: 10, reconnectionDelay: 5000, timeout: 60000});
     socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
     socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
@@ -687,12 +752,25 @@ function abrirModalVisita(id) {
     document.getElementById('editVisitaDataFim').value = v.dataFim || '';
     document.getElementById('editVisitaTesteFibra').value = v.usoEPI || 'SIM';
     document.getElementById('editCampoResultadoFibra').style.display = (v.usoEPI === 'NÃO') ? 'none' : 'block';
-    document.getElementById('editVisitaResultadoFibra').value = v.resultadoFibra || 'APROVADO';
-    document.getElementById('editVisitaHoraEntrada').value = v.horarioEntrada || '';
-    document.getElementById('editVisitaHoraSaida').value = v.horarioSaida || '';
-    document.getElementById('editVisitaObs').value = v.observacoes || '';
-    document.getElementById('editVisitaModal').classList.remove('hidden');
-    document.getElementById('editVisitaModal').classList.add('flex');
+	    document.getElementById('editVisitaResultadoFibra').value = v.resultadoFibra || 'APROVADO';
+	    document.getElementById('editVisitaHoraEntrada').value = v.horarioEntrada || '';
+	    document.getElementById('editVisitaHoraSaida').value = v.horarioSaida || '';
+	    preencherSelectSupervisor(document.getElementById('editVisitaSupervisor'), v.responsavelUsina || '');
+	    const avisoSupervisor = document.getElementById('editVisitaSupervisorAnterior');
+	    const supervisorOriginal = String(v.responsavelUsina || '').trim();
+	    const supervisorPadrao = localizarSupervisorPadrao(supervisorOriginal);
+	    if (supervisorOriginal && supervisorOriginal !== supervisorPadrao) {
+	        avisoSupervisor.textContent = supervisorPadrao
+	            ? `Será padronizado: ${supervisorOriginal} → ${supervisorPadrao}`
+	            : `Nome não reconhecido: ${supervisorOriginal}. Selecione o supervisor correto.`;
+	        avisoSupervisor.classList.remove('hidden');
+	    } else {
+	        avisoSupervisor.textContent = '';
+	        avisoSupervisor.classList.add('hidden');
+	    }
+	    document.getElementById('editVisitaObs').value = v.observacoes || '';
+	    document.getElementById('editVisitaModal').classList.remove('hidden');
+	    document.getElementById('editVisitaModal').classList.add('flex');
 }
 
 function fecharModalVisita() {
@@ -700,17 +778,20 @@ function fecharModalVisita() {
     document.getElementById('editVisitaModal').classList.remove('flex');
 }
 
-function confirmarEdicaoVisita() {
-    const id = document.getElementById('editVisitaId').value;
-    const dados = {
-        _id: id,
-        status: document.getElementById('editVisitaStatus').value,
+	function confirmarEdicaoVisita() {
+	    const id = document.getElementById('editVisitaId').value;
+	    const supervisor = document.getElementById('editVisitaSupervisor').value;
+	    if (!supervisor) return toast('Selecione o supervisor correto.', 'error');
+	    const dados = {
+	        _id: id,
+	        status: document.getElementById('editVisitaStatus').value,
         dataVisita: document.getElementById('editVisitaDataInicio').value,
         dataFim: document.getElementById('editVisitaDataFim').value,
-        horarioEntrada: document.getElementById('editVisitaHoraEntrada').value,
-        horarioSaida: document.getElementById('editVisitaHoraSaida').value,
-        observacoes: document.getElementById('editVisitaObs').value,
-        usoEPI: document.getElementById('editVisitaTesteFibra').value,
+	        horarioEntrada: document.getElementById('editVisitaHoraEntrada').value,
+	        horarioSaida: document.getElementById('editVisitaHoraSaida').value,
+	        observacoes: document.getElementById('editVisitaObs').value,
+	        responsavelUsina: supervisor,
+	        usoEPI: document.getElementById('editVisitaTesteFibra').value,
         resultadoFibra: document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('editVisitaResultadoFibra').value : '',
     };
     socket.emit('editar_visita', dados);
@@ -1119,11 +1200,11 @@ function popularFiltrosDashboard() {
     const supervisorAtual = supervisorSelect.value;
     const usinaAtual = usinaSelect.value;
 
-    const supervisores = [...new Set([
-        ...(db.visitas || []).map(v => String(v.responsavelUsina || '').trim()),
-        ...(db.ocorrencias || []).map(o => String(obterSupervisorOcorrencia(o) || '').trim()),
-        ...(db.ufv_status || []).map(u => String(u.supervisor || u.responsavel || u.responsavelUsina || '').trim())
-    ].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+	    const supervisores = [...new Set([
+	        ...(db.visitas || []).map(v => normalizarNomeSupervisor(v.responsavelUsina)),
+	        ...(db.ocorrencias || []).map(o => normalizarNomeSupervisor(obterSupervisorOcorrencia(o))),
+	        ...(db.ufv_status || []).map(u => normalizarNomeSupervisor(u.supervisor || u.responsavel || u.responsavelUsina))
+	    ].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
     const usinas = [...new Set([
         ...(db.ufv_status || []).map(u => String(u.nome || '').trim()),
@@ -1165,27 +1246,27 @@ function dataAtendeFiltroDashboard(valor, filtros) {
     return (!inicio || data >= inicio) && (!fim || data <= fim);
 }
 
-function obterSupervisorUfv(ufv) {
-    const supervisorCadastrado = String(ufv.supervisor || ufv.responsavel || ufv.responsavelUsina || '').trim();
-    if (supervisorCadastrado) return supervisorCadastrado;
+	function obterSupervisorUfv(ufv) {
+	    const supervisorCadastrado = String(ufv.supervisor || ufv.responsavel || ufv.responsavelUsina || '').trim();
+	    if (supervisorCadastrado) return normalizarNomeSupervisor(supervisorCadastrado);
 
     const ultimaVisita = (db.visitas || [])
         .filter(v => v.usina === ufv.nome && v.responsavelUsina)
         .sort((a, b) => (normalizarDataDashboard(b.dataVisita)?.getTime() || 0) - (normalizarDataDashboard(a.dataVisita)?.getTime() || 0))[0];
 
-    return ultimaVisita ? ultimaVisita.responsavelUsina : 'Não informado';
-}
+	    return ultimaVisita ? normalizarNomeSupervisor(ultimaVisita.responsavelUsina) : 'Não informado';
+	}
 
-function obterSupervisorOcorrencia(ocorrencia) {
-    const supervisorCadastrado = String(ocorrencia.supervisor || ocorrencia.responsavelUsina || ocorrencia.responsavel || '').trim();
-    if (supervisorCadastrado) return supervisorCadastrado;
+	function obterSupervisorOcorrencia(ocorrencia) {
+	    const supervisorCadastrado = String(ocorrencia.supervisor || ocorrencia.responsavelUsina || ocorrencia.responsavel || '').trim();
+	    if (supervisorCadastrado) return normalizarNomeSupervisor(supervisorCadastrado);
 
     const ufv = (db.ufv_status || []).find(item => item.nome === ocorrencia.usina);
     const supervisorUfv = ufv ? obterSupervisorUfv(ufv) : '';
     if (supervisorUfv && supervisorUfv !== 'Não informado') return supervisorUfv;
 
-    return String(ocorrencia.operador || 'Não informado').trim() || 'Não informado';
-}
+	    return normalizarNomeSupervisor(ocorrencia.operador || 'Não informado');
+	}
 
 function agruparDashboard(itens, obterChave, obterResultado) {
     return itens.reduce((acc, item) => {
@@ -1278,11 +1359,11 @@ function renderDashboard() {
     popularFiltrosDashboard();
     const filtros = obterFiltrosDashboard();
 
-    const testes = (db.visitas || []).filter(v => {
-        const possuiTeste = String(v.usoEPI || '').toUpperCase() === 'SIM';
-        const supervisorOk = !filtros.supervisor || v.responsavelUsina === filtros.supervisor;
-        const usinaOk = !filtros.usina || v.usina === filtros.usina;
-        return possuiTeste && supervisorOk && usinaOk && dataAtendeFiltroDashboard(v.dataVisita, filtros);
+	    const testes = (db.visitas || []).filter(v => {
+	        const possuiTeste = String(v.usoEPI || '').toUpperCase() === 'SIM';
+	        const supervisorOk = !filtros.supervisor || normalizarNomeSupervisor(v.responsavelUsina) === filtros.supervisor;
+	        const usinaOk = !filtros.usina || v.usina === filtros.usina;
+	        return possuiTeste && supervisorOk && usinaOk && dataAtendeFiltroDashboard(v.dataVisita, filtros);
     });
 
     const prontaResposta = (db.ocorrencias || []).filter(o => {
@@ -1310,7 +1391,7 @@ function renderDashboard() {
 
     if (!dashboardEstaVisivel()) return;
 
-    const porSupervisor = agruparDashboard(testes, v => v.responsavelUsina, v => v.resultadoFibra || 'APROVADO');
+	    const porSupervisor = agruparDashboard(testes, v => normalizarNomeSupervisor(v.responsavelUsina), v => v.resultadoFibra || 'APROVADO');
     const labelsSupervisor = ordenarAgrupamentoDashboard(porSupervisor);
     desenharGraficoDashboard('fibraSupervisor', 'chartFibraSupervisor', 'emptyFibraSupervisor', labelsSupervisor, [
         { label: 'Aprovados', data: labelsSupervisor.map(label => porSupervisor[label].aprovado), backgroundColor: '#10b981', borderRadius: 7, maxBarThickness: 46 },
@@ -1583,8 +1664,42 @@ function renderDashboard() {
     });
 }
 
-function salvarControleAcesso() {
-    const dados = {
+	function corrigirSupervisoresHistoricos() {
+	    const correcoes = (db.visitas || []).map(visita => {
+	        const original = String(visita.responsavelUsina || '').trim();
+	        const padrao = localizarSupervisorPadrao(original);
+	        return { visita, original, padrao };
+	    }).filter(item => item.padrao && item.original !== item.padrao);
+
+	    const naoReconhecidos = (db.visitas || []).filter(visita => {
+	        const original = String(visita.responsavelUsina || '').trim();
+	        return original && !localizarSupervisorPadrao(original);
+	    });
+
+	    if (!correcoes.length) {
+	        const complemento = naoReconhecidos.length
+	            ? ` Existem ${naoReconhecidos.length} nomes não reconhecidos para correção manual.`
+	            : '';
+	        return toast(`Nenhum alias conhecido precisa ser corrigido.${complemento}`, naoReconhecidos.length ? 'error' : 'success');
+	    }
+
+	    const mensagem = `${correcoes.length} registro(s) serão atualizados para os nomes oficiais.` +
+	        (naoReconhecidos.length ? `\n\n${naoReconhecidos.length} nome(s) não reconhecido(s) permanecerão para correção manual.` : '') +
+	        '\n\nDeseja continuar?';
+	    if (!confirm(mensagem)) return;
+
+	    correcoes.forEach(({ visita, padrao }) => {
+	        visita.responsavelUsina = padrao;
+	        socket.emit('editar_visita', { ...visita, responsavelUsina: padrao });
+	    });
+
+	    renderControleAcesso();
+	    renderDashboard();
+	    toast(`${correcoes.length} registro(s) enviados para padronização.`, 'success');
+	}
+
+	function salvarControleAcesso() {
+	    const dados = {
         dataVisita: document.getElementById('acessoDataVisita').value ? new Date(document.getElementById('acessoDataVisita').value + 'T00:00:00').toISOString() : new Date().toISOString(),
         usina: document.getElementById('acessoUsina').value,
         horarioEntrada: document.getElementById('acessoHoraEntrada').value,
@@ -1594,14 +1709,14 @@ function salvarControleAcesso() {
         documento: document.getElementById('acessoDocumento').value,
         contato: document.getElementById('acessoContato').value,
         motivoVisita: document.getElementById('acessoMotivo').value,
-        responsavelUsina: document.getElementById('acessoResponsavel').value,
+	        responsavelUsina: document.getElementById('acessoResponsavel').value,
         placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
         usoEPI: document.getElementById('acessoTesteFibra').value,
         resultadoFibra: document.getElementById('acessoTesteFibra').value === 'SIM' ? document.getElementById('acessoResultadoFibra').value : '',
         observacoes: document.getElementById('acessoObservacoes').value,
         visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
     };
-   if (!dados.usina || !dados.nomeVisitante) return toast('Preencha os campos obrigatórios!', 'error');
+	   if (!dados.usina || !dados.nomeVisitante || !dados.responsavelUsina) return toast('Usina, visitante e supervisor são obrigatórios!', 'error');
     socket.emit('nova_visita', dados);
     toast('Acesso registrado!', 'success');
     limparFormAcesso(); 
@@ -1624,11 +1739,11 @@ function limparFormAcesso() {
     document.getElementById('acessoObservacoes').value = '';
     document.getElementById('acessoVisitanteRecorrente').checked = false;
 }
-function renderControleAcesso() {
-    const term = document.getElementById('searchAcesso').value.toLowerCase();
-    const container = document.getElementById('listaControleAcesso');
-    container.innerHTML = '';
-    const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + v.empresa).toLowerCase().includes(term));
+	function renderControleAcesso() {
+	    const term = document.getElementById('searchAcesso').value.toLowerCase();
+	    const container = document.getElementById('listaControleAcesso');
+	    container.innerHTML = '';
+	    const filtradas = db.visitas.filter(v => (v.nomeVisitante + v.usina + v.empresa + normalizarNomeSupervisor(v.responsavelUsina)).toLowerCase().includes(term));
     
     if (filtradas.length === 0) {
         container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma visita encontrada</td></tr>';
@@ -1651,7 +1766,7 @@ function renderControleAcesso() {
         </td>
         <td class="px-8 py-6">
     <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
-    <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
+	    <div class="text-[10px] text-slate-400 uppercase">Resp: ${normalizarNomeSupervisor(v.responsavelUsina)}</div>
     ${v.usoEPI === 'SIM' ? `<div class="text-[10px] font-black mt-1 ${v.resultadoFibra === 'REPROVADO' ? 'text-red-500' : 'text-emerald-500'}">Fibra: ${v.resultadoFibra || 'APROVADO'}</div>` : ''}
 </td>
         <td class="px-8 py-6 text-right no-print">
@@ -1744,8 +1859,8 @@ function salvarFotosUfv() {
     toast('Fotos salvas com sucesso!', 'success');
     fecharModalFotos();
 }
-function exportarExcelControleAcesso() {
-    const ws = XLSX.utils.json_to_sheet(db.visitas.map(v => ({ "Data": new Date(v.dataVisita).toLocaleDateString('pt-BR'), Usina: v.usina, Entrada: v.horarioEntrada, Saída: v.horarioSaida, Visitante: v.nomeVisitante, Empresa: v.empresa, Documento: v.documento, Contato: v.contato, Motivo: v.motivoVisita, Responsável: v.responsavelUsina, Placa: v.placaVeiculo, Teste_Fibra: v.usoEPI, Observações: v.observacoes, Recorrente: v.visitanteRecorrente ? 'Sim' : 'Não' })));
+	function exportarExcelControleAcesso() {
+	    const ws = XLSX.utils.json_to_sheet(db.visitas.map(v => ({ "Data": new Date(v.dataVisita).toLocaleDateString('pt-BR'), Usina: v.usina, Entrada: v.horarioEntrada, Saída: v.horarioSaida, Visitante: v.nomeVisitante, Empresa: v.empresa, Documento: v.documento, Contato: v.contato, Motivo: v.motivoVisita, Responsável: normalizarNomeSupervisor(v.responsavelUsina), Placa: v.placaVeiculo, Teste_Fibra: v.usoEPI, Observações: v.observacoes, Recorrente: v.visitanteRecorrente ? 'Sim' : 'Não' })));
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Acessos");
     XLSX.writeFile(wb, "Controle_Acesso_UFVs.xlsx");
 }
@@ -1753,3 +1868,4 @@ function exportarExcelControleAcesso() {
 </script>
 </body>
 </html>
+
