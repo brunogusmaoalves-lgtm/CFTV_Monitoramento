@@ -298,7 +298,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+	            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
                 <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-emerald-500">
                     <div class="flex justify-between items-start gap-3">
                         <div>
@@ -317,16 +317,25 @@
                         <span class="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></span>
                     </div>
                 </div>
-                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-amber-500">
-                    <div class="flex justify-between items-start gap-3">
-                        <div>
+	                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-amber-500">
+	                    <div class="flex justify-between items-start gap-3">
+	                        <div>
                             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pronta resposta</p>
                             <p id="dashboardProntaResposta" class="text-3xl font-black text-slate-800 mt-2">0</p>
                         </div>
-                        <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-truck-medical"></i></span>
-                    </div>
-                </div>
-                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-rose-500">
+	                        <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-truck-medical"></i></span>
+	                    </div>
+	                </div>
+	                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-violet-500">
+	                    <div class="flex justify-between items-start gap-3">
+	                        <div>
+	                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Cobertura com segurança</p>
+	                            <p id="dashboardCoberturaSeguranca" class="text-3xl font-black text-slate-800 mt-2">0</p>
+	                        </div>
+	                        <span class="w-10 h-10 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center"><i class="fa-solid fa-user-shield"></i></span>
+	                    </div>
+	                </div>
+	                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-rose-500">
                     <div class="flex justify-between items-start gap-3">
                         <div>
                             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Câmeras offline</p>
@@ -360,10 +369,10 @@
                     </div>
                 </section>
 
-                <section class="dashboard-card p-6">
-                    <div class="mb-5">
-                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Acionamentos de pronta resposta</h3>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ocorrências registradas por supervisor</p>
+	                <section class="dashboard-card p-6">
+	                    <div class="mb-5">
+	                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Acionamentos de pronta resposta</h3>
+	                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ocorrências registradas por usina</p>
                     </div>
                     <div class="dashboard-chart">
                         <canvas id="chartProntaResposta"></canvas>
@@ -378,10 +387,21 @@
                     </div>
                     <div class="dashboard-chart">
                         <canvas id="chartSistemasSeguranca"></canvas>
-                        <div id="emptySistemasSeguranca" class="dashboard-empty"><i class="fa-solid fa-shield-halved text-2xl mb-3"></i>Sem dados de segurança disponíveis</div>
-                    </div>
-                </section>
-            </div>
+	                        <div id="emptySistemasSeguranca" class="dashboard-empty"><i class="fa-solid fa-shield-halved text-2xl mb-3"></i>Sem dados de segurança disponíveis</div>
+	                    </div>
+	                </section>
+
+	                <section class="dashboard-card p-6 2xl:col-span-2">
+	                    <div class="mb-5">
+	                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Segurança mobilizada por usina</h3>
+	                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">UFVs com segurança mobilizada ou pernoite de 12 horas</p>
+	                    </div>
+	                    <div class="dashboard-chart">
+	                        <canvas id="chartSegurancaMobilizada"></canvas>
+	                        <div id="emptySegurancaMobilizada" class="dashboard-empty"><i class="fa-solid fa-user-shield text-2xl mb-3"></i>Nenhuma segurança mobilizada para os filtros selecionados</div>
+	                    </div>
+	                </section>
+	            </div>
         </div>
     <!-- MODAL FOTOS UFV -->
 <div id="fotoUfvModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
@@ -1366,13 +1386,21 @@ function renderDashboard() {
 	        return possuiTeste && supervisorOk && usinaOk && dataAtendeFiltroDashboard(v.dataVisita, filtros);
     });
 
-    const prontaResposta = (db.ocorrencias || []).filter(o => {
-        const tipo = String(o.tipo || '').toLowerCase();
-        const ehProntaResposta = tipo.includes('pronta resposta');
+	    const prontaResposta = (db.ocorrencias || []).filter(o => {
+	        const tipo = String(o.tipo || '').toLowerCase();
+	        const ehProntaResposta = tipo.includes('pronta resposta');
         const supervisorOk = !filtros.supervisor || obterSupervisorOcorrencia(o) === filtros.supervisor;
         const usinaOk = !filtros.usina || o.usina === filtros.usina;
-        return ehProntaResposta && supervisorOk && usinaOk && dataAtendeFiltroDashboard(o.dataInicio, filtros);
-    });
+	        return ehProntaResposta && supervisorOk && usinaOk && dataAtendeFiltroDashboard(o.dataInicio, filtros);
+	    });
+
+	    const coberturaSeguranca = (db.ocorrencias || []).filter(o => {
+	        const tipo = String(o.tipo || '').toLowerCase();
+	        const ehCoberturaSeguranca = tipo.includes('cobertura com segurança');
+	        const supervisorOk = !filtros.supervisor || obterSupervisorOcorrencia(o) === filtros.supervisor;
+	        const usinaOk = !filtros.usina || o.usina === filtros.usina;
+	        return ehCoberturaSeguranca && supervisorOk && usinaOk && dataAtendeFiltroDashboard(o.dataInicio, filtros);
+	    });
 
     const ufvs = (db.ufv_status || []).filter(u => {
         const supervisor = obterSupervisorUfv(u);
@@ -1384,10 +1412,11 @@ function renderDashboard() {
     const aprovados = testes.filter(v => String(v.resultadoFibra || 'APROVADO').toUpperCase() !== 'REPROVADO').length;
     const camerasOffline = ufvs.reduce((soma, u) => soma + Math.max((Number(u.totalCam) || 0) - (Number(u.camOn) || 0), 0), 0);
 
-    document.getElementById('dashboardTotalTestes').textContent = testes.length;
-    document.getElementById('dashboardTaxaAprovacao').textContent = testes.length ? `${Math.round((aprovados / testes.length) * 100)}%` : '0%';
-    document.getElementById('dashboardProntaResposta').textContent = prontaResposta.length;
-    document.getElementById('dashboardCamerasOffline').textContent = camerasOffline;
+	    document.getElementById('dashboardTotalTestes').textContent = testes.length;
+	    document.getElementById('dashboardTaxaAprovacao').textContent = testes.length ? `${Math.round((aprovados / testes.length) * 100)}%` : '0%';
+	    document.getElementById('dashboardProntaResposta').textContent = prontaResposta.length;
+	    document.getElementById('dashboardCoberturaSeguranca').textContent = coberturaSeguranca.length;
+	    document.getElementById('dashboardCamerasOffline').textContent = camerasOffline;
 
     if (!dashboardEstaVisivel()) return;
 
@@ -1405,15 +1434,15 @@ function renderDashboard() {
         { label: 'Reprovados', data: labelsUsina.map(label => porUsina[label].reprovado), backgroundColor: '#fda4af', borderRadius: 7, maxBarThickness: 42 }
     ]);
 
-    const prontaPorSupervisor = prontaResposta.reduce((acc, ocorrencia) => {
-        const supervisor = obterSupervisorOcorrencia(ocorrencia);
-        acc[supervisor] = (acc[supervisor] || 0) + 1;
-        return acc;
-    }, {});
-    const labelsPronta = Object.keys(prontaPorSupervisor).sort((a, b) => prontaPorSupervisor[b] - prontaPorSupervisor[a] || a.localeCompare(b, 'pt-BR'));
-    desenharGraficoDashboard('prontaResposta', 'chartProntaResposta', 'emptyProntaResposta', labelsPronta, [
-        { label: 'Acionamentos', data: labelsPronta.map(label => prontaPorSupervisor[label]), backgroundColor: '#f59e0b', borderRadius: 7, maxBarThickness: 52 }
-    ]);
+	    const prontaPorUsina = prontaResposta.reduce((acc, ocorrencia) => {
+	        const usina = String(ocorrencia.usina || 'Não informada').trim() || 'Não informada';
+	        acc[usina] = (acc[usina] || 0) + 1;
+	        return acc;
+	    }, {});
+	    const labelsPronta = Object.keys(prontaPorUsina).sort((a, b) => prontaPorUsina[b] - prontaPorUsina[a] || a.localeCompare(b, 'pt-BR'));
+	    desenharGraficoDashboard('prontaResposta', 'chartProntaResposta', 'emptyProntaResposta', labelsPronta, [
+	        { label: 'Acionamentos', data: labelsPronta.map(label => prontaPorUsina[label]), backgroundColor: '#f59e0b', borderRadius: 7, maxBarThickness: 52 }
+	    ]);
 
     const sistemas = ufvs.reduce((acc, ufv) => {
         const supervisor = obterSupervisorUfv(ufv);
@@ -1430,10 +1459,20 @@ function renderDashboard() {
     desenharGraficoDashboard('sistemasSeguranca', 'chartSistemasSeguranca', 'emptySistemasSeguranca', labelsSistemas, [
         { label: 'Câmeras online', data: labelsSistemas.map(label => sistemas[label].camerasOnline), backgroundColor: '#3b82f6', borderRadius: 6, maxBarThickness: 34 },
         { label: 'Câmeras offline', data: labelsSistemas.map(label => sistemas[label].camerasOffline), backgroundColor: '#fda4af', borderRadius: 6, maxBarThickness: 34 },
-        { label: 'Fibra online', data: labelsSistemas.map(label => sistemas[label].fibraOnline), backgroundColor: '#84cc16', borderRadius: 6, maxBarThickness: 34 },
-        { label: 'Fibra rompida/offline', data: labelsSistemas.map(label => sistemas[label].fibraRompida), backgroundColor: '#8b5cf6', borderRadius: 6, maxBarThickness: 34 }
-    ]);
-}
+	        { label: 'Fibra online', data: labelsSistemas.map(label => sistemas[label].fibraOnline), backgroundColor: '#84cc16', borderRadius: 6, maxBarThickness: 34 },
+	        { label: 'Fibra rompida/offline', data: labelsSistemas.map(label => sistemas[label].fibraRompida), backgroundColor: '#8b5cf6', borderRadius: 6, maxBarThickness: 34 }
+	    ]);
+
+	    const segurancaMobilizada = ufvs.filter(ufv => ['MOBILIZADA', 'PERNOITE 12H'].includes(String(ufv.seguranca || '').toUpperCase()));
+	    const labelsSegurancaMobilizada = segurancaMobilizada
+	        .map(ufv => ufv.nome || 'Usina não informada')
+	        .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+	    const segurancaPorUsina = Object.fromEntries(segurancaMobilizada.map(ufv => [ufv.nome || 'Usina não informada', String(ufv.seguranca || '').toUpperCase()]));
+	    desenharGraficoDashboard('segurancaMobilizada', 'chartSegurancaMobilizada', 'emptySegurancaMobilizada', labelsSegurancaMobilizada, [
+	        { label: 'Mobilizada', data: labelsSegurancaMobilizada.map(usina => segurancaPorUsina[usina] === 'MOBILIZADA' ? 1 : 0), backgroundColor: '#8b5cf6', borderRadius: 7, maxBarThickness: 52 },
+	        { label: 'Pernoite 12h', data: labelsSegurancaMobilizada.map(usina => segurancaPorUsina[usina] === 'PERNOITE 12H' ? 1 : 0), backgroundColor: '#0ea5e9', borderRadius: 7, maxBarThickness: 52 }
+	    ]);
+	}
 
 	    function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
 	    function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
@@ -1868,4 +1907,3 @@ function salvarFotosUfv() {
 </script>
 </body>
 </html>
-
