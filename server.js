@@ -71,6 +71,8 @@ io.on('connection', (socket) => {
     socket.on('autenticar', ({ usuario, senha }) => {
         const USUARIOS = [
             { usuario: 'admin', senha: 'ivienergia', nome: 'Gestor CFTV' },
+            { usuario: 'katia', senha: 'cftv2026', nome: 'Katia' },
+            { usuario: 'leane', senha: 'cftv2026', nome: 'Leane' },
             { usuario: 'bruno', senha: 'cftv2026', nome: 'Bruno' },
             { usuario: 'layla', senha: 'cftv2026', nome: 'Layla' },
             { usuario: 'geilson', senha: 'cftv2026', nome: 'Geilson' },
