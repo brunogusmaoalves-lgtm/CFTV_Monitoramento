@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' );
         body { font-family: 'Inter', sans-serif; }
@@ -60,7 +59,6 @@
                 <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
                 <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
 		<button id="tabBtnControleAcesso" onclick="switchTab('controleAcesso')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">CONTROLE DE ACESSO</button>
-			<button id="tabBtnDashboard" onclick="switchTab('dashboard')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">DASHBOARD</button>
             </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -95,7 +93,7 @@
                                 <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">OPERADOR</label>
                                 <select id="operador" class="w-full input-field text-xs">
                                     <option value="">Selecione</option>
-                                    <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option>><option>Edna</option>
+                                    <option>Everaldo</option><option>Layla</option><option>Geilson</option><option>Vanuzia</option><option>Edna</option>><option>Elaine</option>
                                 </select>
                             </div>
                             <div>
@@ -127,7 +125,7 @@
                             </select>
                         </div>
                         <div>
-                            <input type="text" id="local" placeholder="Local / ID Câmera" class="w-full input-field text-xs">
+                            <input type="text" id="local" placeholder="Motivo" class="w-full input-field text-xs">
                         </div>
                         <div>
                             <textarea id="desc" rows="3" placeholder="Descrição detalhada..." class="w-full input-field text-xs resize-none"></textarea>
@@ -142,20 +140,23 @@
 
             <!-- Lista de Ocorrências -->
             <div class="xl:col-span-8">
-                <div class="flex gap-4 mb-6 no-print">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl text-xs outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all">
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="exportarExcelOcorrencias()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
-                            <i class="fa-solid fa-file-excel"></i> EXCEL
-                        </button>
-                        <button onclick="exportarPDFOcorrencias()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
-                            <i class="fa-solid fa-file-pdf"></i> PDF
-                        </button>
-                    </div>
-                </div>
+               <div class="flex gap-4 mb-6 no-print">
+    <div class="relative flex-1">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input type="text" id="search" oninput="renderOcorrencias()" placeholder="Filtrar Usina, Operador, Status ou Data..." class="w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl text-xs outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all">
+    </div>
+    <input type="date" id="filtroDataInicio" onchange="renderOcorrencias()" class="px-4 py-3.5 bg-white border rounded-2xl text-xs outline-none">
+    <input type="date" id="filtroDataFim" onchange="renderOcorrencias()" class="px-4 py-3.5 bg-white border rounded-2xl text-xs outline-none">
+    <button onclick="limparFiltros()" class="px-4 py-3.5 bg-slate-100 hover:bg-slate-200 rounded-2xl text-xs font-black text-slate-500 uppercase tracking-widest transition-all">Limpar</button>
+    <div class="flex gap-2">
+        <button onclick="exportarExcelOcorrencias()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-file-excel"></i> EXCEL
+        </button>
+        <button onclick="exportarPDFOcorrencias()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-file-pdf"></i> PDF
+        </button>
+    </div>
+</div>
 
                 <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" id="tabelaOcorrenciasPDF">
                     <table class="w-full text-left border-collapse">
@@ -179,10 +180,9 @@
         <div id="tabStatus" class="hidden">
             <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
                 <div class="p-8 border-b flex justify-between items-center no-print">
-                    <div>
-                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Status de Infraestrutura</h2>
+					<div>
+                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Relatório Diário de Operação</h2>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Painel Operacional em Tempo Real</p>
-                    </div>
                     <div class="flex gap-2">
                         <button onclick="exportarExcelUFVs()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 transition-all">
                             <i class="fa-solid fa-file-excel"></i> EXCEL
@@ -191,7 +191,41 @@
                             <i class="fa-solid fa-file-pdf"></i> PDF
                         </button>
                     </div>
-                </div>
+					</div>
+					</div>
+					
+					<!-- TOTALIZADOR -->
+<div id="totalizadorUFVs" class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4 p-6 border-b bg-slate-50/50 no-print">
+    <div class="bg-white rounded-2xl p-4 border text-center">
+        <div class="text-2xl font-black text-slate-800" id="totalUFVs">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Total UFVs</div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border text-center">
+        <div class="text-2xl font-black text-emerald-600" id="totalFibra">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">UFVs com Fibra</div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border text-center">
+        <div class="text-2xl font-black text-emerald-600" id="totalFibraOk">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Fibra OK</div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border text-center">
+        <div class="text-2xl font-black text-slate-800" id="totalCameras">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Total Câmeras</div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border text-center">
+        <div class="text-2xl font-black text-red-500" id="totalCamerasOn">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Câmeras OFF</div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border text-center">
+        <div class="text-2xl font-black text-amber-500" id="totalSeguranca">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Segurança Mobilizada</div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border text-center">
+        <div class="text-2xl font-black text-amber-500" id="totalPernoite">0</div>
+        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Pernoites Mobilizados</div>
+    </div>
+	</div>
+            
                 <div class="overflow-x-auto" id="tabelaStatusPDF">
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky-header">
@@ -204,7 +238,7 @@
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('totalCam')">Total Câm <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('camOn')">Câm ON <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                                 <th class="px-4 py-5 text-center" onclick="ordenarStatus('fibra')">Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
-                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('seguranca')">Segurança <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
+                                <th class="px-4 py-5 text-center" onclick="ordenarStatus('resultadoFibra')">Último Teste de Fibra <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
 								<th class="px-4 py-5 text-center" onclick="ordenarStatus('motivodaMobilazacao')">Motivo da Mobilização <i class="fa-solid fa-sort ml-1 opacity-30"></i></th>
                             </tr>
                         </thead>
@@ -279,11 +313,18 @@
                 <input type="text" id="acessoPlacaVeiculo" placeholder="Placa do Veículo" class="w-full input-field text-xs">
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
-                    <select id="editVisitaTesteFibra" class="w-full input-field text-xs">
+                   <select id="acessoTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('acessoCampoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
                         <option value="SIM">SIM</option>
                         <option value="NÃO">NÃO</option>
                     </select>
                 </div>
+				<div id="acessoCampoResultadoFibra" style="display:block">
+    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESULTADO DO TESTE</label>
+    <select id="acessoResultadoFibra" class="w-full input-field text-xs">
+        <option value="APROVADO">✅ Aprovado</option>
+        <option value="REPROVADO">❌ Reprovado</option>
+    </select>
+</div>
                 <textarea id="acessoObservacoes" rows="2" placeholder="Observações" class="w-full input-field text-xs resize-none"></textarea>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="acessoVisitanteRecorrente" class="form-checkbox h-4 w-4 text-emerald-600 rounded">
@@ -312,43 +353,6 @@
         </div>
     </div>
 </div>
-
-        <!-- ABA DASHBOARD -->
-        <div id="tabDashboard" class="hidden">
-            <div class="mb-6">
-                <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Dashboard Operacional</h2>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Indicadores em Tempo Real</p>
-            </div>
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white rounded-3xl shadow-sm border p-6">
-                    <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Testes na Fibra Sensitiva por Supervisor</h3>
-                    <div class="overflow-x-auto mb-4">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
-                                    <th class="px-3 py-2">Supervisor</th>
-                                    <th class="px-3 py-2 text-center">Visitas</th>
-                                    <th class="px-3 py-2 text-center">%</th>
-                                    <th class="px-3 py-2 text-center">Testes</th>
-                                    <th class="px-3 py-2 text-center">%</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaFibraBody" class="divide-y"></tbody>
-                            <tfoot id="tabelaFibraTotal" class="border-t-2 font-black"></tfoot>
-                        </table>
-                    </div>
-                    <canvas id="graficoFibraSupervisor" height="200"></canvas>
-                </div>
-                <div class="bg-white rounded-3xl shadow-sm border p-6">
-                    <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Status do Sistema de Segurança das UFVs</h3>
-                    <canvas id="graficoStatusSeguranca" height="200"></canvas>
-                </div>
-            </div>
-            <div class="bg-white rounded-3xl shadow-sm border p-6">
-                <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Acionamentos de Pronta Resposta por Mês</h3>
-                <canvas id="graficoProntaResposta" height="100"></canvas>
-            </div>
-        </div>
 </main>
 	<!-- MODAL EDIÇÃO VISITA -->
 <div id="editVisitaModal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay">
@@ -380,10 +384,17 @@
                 </div>
 				<div>
         <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">TESTE DE FIBRA</label>
-        <select id="editVisitaTesteFibra" class="w-full input-field text-xs">
-            <option value="SIM">SIM</option>
-            <option value="NÃO">NÃO</option>
-        </select>
+        <select id="editVisitaTesteFibra" class="w-full input-field text-xs" onchange="document.getElementById('editCampoResultadoFibra').style.display = this.value === 'SIM' ? 'block' : 'none'">
+    <option value="SIM">SIM</option>
+    <option value="NÃO">NÃO</option>
+</select>
+</div>
+<div id="editCampoResultadoFibra" style="display:block">
+    <label class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">RESULTADO DO TESTE</label>
+    <select id="editVisitaResultadoFibra" class="w-full input-field text-xs">
+        <option value="APROVADO">✅ Aprovado</option>
+        <option value="REPROVADO">❌ Reprovado</option>
+    </select>
     </div>
             </div>
 			<div class="grid grid-cols-2 gap-4">
@@ -469,36 +480,64 @@
     let socket = null;
     let sortConfig = { field: 'nome', direction: 1 };
 
-    function iniciarSocket( ) {
-        socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
-        socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
-        socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
-		socket.on('dados_iniciais', (dados) => {
-    db = dados;
-    if (!db.visitas) db.visitas = [];
-    popularSelectUsinas();
-    renderOcorrencias();
-    renderStatusUFVs();
-    renderControleAcesso();
-});
-        
-        socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
-        socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
-        socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
-        socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
-        socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
-        socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
-socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
-		socket.on('visita_editada', (editada) => {
-    const idx = db.visitas.findIndex(v => v._id === editada._id);
-    if (idx !== -1) { db.visitas[idx] = editada; renderControleAcesso(); toast('Visita atualizada!', 'success'); }
-});
-socket.on('visita_excluida', (id) => {
-    db.visitas = db.visitas.filter(v => v._id !== id);
-    renderControleAcesso();
-    toast('Visita removida.', 'info');
-});
-    }
+   function iniciarSocket() {
+    socket = io({ 
+    transports: ['websocket', 'polling'], reconnectionAttempts: 10, reconnectionDelay: 5000, timeout: 60000});
+    socket.on('connect', () => { setStatus('online', 'Conectado'); socket.emit('carregar_dados'); });
+    socket.on('disconnect', () => setStatus('offline', 'Desconectado'));
+    socket.on('dados_iniciais', (dados) => {
+        db = dados;
+        if (!db.visitas) db.visitas = [];
+        popularSelectUsinas();
+        renderOcorrencias();
+        renderStatusUFVs();
+        renderControleAcesso();
+    });
+    socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
+    socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
+    socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
+    socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
+    socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
+    socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
+    socket.on('foto_ufv_carregada', (data) => {
+        const u = db.ufv_status.find(item => item._id === data._id);
+        if (u) { u.foto1 = data.foto1; u.foto2 = data.foto2; }
+        const preview = document.getElementById('previewFoto1');
+        const placeholder = document.getElementById('placeholderFoto1');
+        const foto = data.foto1 || data.foto2 || '';
+        if (foto) {
+            preview.src = foto;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        } else {
+            placeholder.innerHTML = '<i class="fa-solid fa-camera text-slate-300 text-3xl mb-2"></i><p class="text-[9px] text-slate-400 font-black uppercase">Clique para anexar</p>';
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
+    });
+    socket.on('foto_ocorrencia_carregada', (data) => {
+        const img = document.getElementById('editModalFoto');
+        const semFoto = document.getElementById('editModalSemFoto');
+        if (data.foto) {
+            img.src = data.foto;
+            img.classList.remove('hidden');
+            semFoto.classList.add('hidden');
+        } else {
+            img.classList.add('hidden');
+            semFoto.classList.remove('hidden');
+        }
+    });
+    socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
+    socket.on('visita_editada', (editada) => {
+        const idx = db.visitas.findIndex(v => v._id === editada._id);
+        if (idx !== -1) { db.visitas[idx] = editada; renderControleAcesso(); toast('Visita atualizada!', 'success'); }
+    });
+    socket.on('visita_excluida', (id) => {
+        db.visitas = db.visitas.filter(v => v._id !== id);
+        renderControleAcesso();
+        toast('Visita removida.', 'info');
+    });
+}
 function abrirModalVisita(id) {
     const v = db.visitas.find(item => item._id === id);
     if (!v) return;
@@ -506,7 +545,9 @@ function abrirModalVisita(id) {
     document.getElementById('editVisitaStatus').value = v.status || 'ABERTO';
     document.getElementById('editVisitaDataInicio').value = v.dataVisita ? v.dataVisita.split('T')[0] : '';
     document.getElementById('editVisitaDataFim').value = v.dataFim || '';
-	document.getElementById('editVisitaTesteFibra').value = v.usoEPI || 'SIM';
+    document.getElementById('editVisitaTesteFibra').value = v.usoEPI || 'SIM';
+    document.getElementById('editCampoResultadoFibra').style.display = (v.usoEPI === 'NÃO') ? 'none' : 'block';
+    document.getElementById('editVisitaResultadoFibra').value = v.resultadoFibra || 'APROVADO';
     document.getElementById('editVisitaHoraEntrada').value = v.horarioEntrada || '';
     document.getElementById('editVisitaHoraSaida').value = v.horarioSaida || '';
     document.getElementById('editVisitaObs').value = v.observacoes || '';
@@ -528,7 +569,9 @@ function confirmarEdicaoVisita() {
         dataFim: document.getElementById('editVisitaDataFim').value,
         horarioEntrada: document.getElementById('editVisitaHoraEntrada').value,
         horarioSaida: document.getElementById('editVisitaHoraSaida').value,
-        observacoes: document.getElementById('editVisitaObs').value
+        observacoes: document.getElementById('editVisitaObs').value,
+        usoEPI: document.getElementById('editVisitaTesteFibra').value,
+        resultadoFibra: document.getElementById('editVisitaTesteFibra').value === 'SIM' ? document.getElementById('editVisitaResultadoFibra').value : '',
     };
     socket.emit('editar_visita', dados);
     fecharModalVisita();
@@ -592,27 +635,45 @@ function excluirVisita(id) {
     });
 }
     async function salvarOcorrencia() {
-        const dataInput = document.getElementById('dataHoraOcorrencia').value;
-        const dados = {
-            dataInicio: dataInput ? new Date(dataInput).toISOString() : new Date().toISOString(),
-            operador: document.getElementById('operador').value,
-            impacto: document.getElementById('impacto').value,
-            usina: document.getElementById('usina').value,
-            tipo: document.getElementById('tipo').value,
-            local: document.getElementById('local').value,
-            desc: document.getElementById('desc').value,
-            foto: ''
+    const dataInput = document.getElementById('dataHoraOcorrencia').value;
+    const dados = {
+        dataInicio: dataInput ? new Date(dataInput).toISOString() : new Date().toISOString(),
+        operador: document.getElementById('operador').value,
+        impacto: document.getElementById('impacto').value,
+        usina: document.getElementById('usina').value,
+        tipo: document.getElementById('tipo').value,
+        local: document.getElementById('local').value,
+        desc: document.getElementById('desc').value,
+        foto: ''
+    };
+    if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
+    
+    const fileInput = document.getElementById('foto');
+    if (fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const maxWidth = 800;
+                const scale = Math.min(1, maxWidth / img.width);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                dados.foto = canvas.toDataURL('image/jpeg', 0.6);
+                socket.emit('nova_ocorrencia', dados);
+                limparForm();
+            };
+            img.src = e.target.result;
         };
-        if (!dados.operador || !dados.usina) return toast('Operador e Usina são obrigatórios!', 'error');
-        const fileInput = document.getElementById('foto');
-        if (fileInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => { dados.foto = e.target.result; socket.emit('nova_ocorrencia', dados); limparForm(); };
-            reader.readAsDataURL(fileInput.files[0]);
-        } else {
-            socket.emit('nova_ocorrencia', dados); limparForm();
-        }
+        reader.readAsDataURL(file);
+    } else {
+        socket.emit('nova_ocorrencia', dados);
+        limparForm();
     }
+}
 
    function abrirModalEdicao(id) {
     const o = db.ocorrencias.find(item => item._id === id);
@@ -623,12 +684,18 @@ function excluirVisita(id) {
     document.getElementById('editModalUsina').value = o.usina;
     document.getElementById('editModalDataFim').value = o.dataFim ? o.dataFim.slice(0, 16) : '';
     document.getElementById('editModalDesc').value = o.desc;
+    
+    // Mostra spinner enquanto carrega a foto
     const img = document.getElementById('editModalFoto');
     const semFoto = document.getElementById('editModalSemFoto');
-    if (o.foto) { img.src = o.foto; img.classList.remove('hidden'); semFoto.classList.add('hidden'); }
-    else { img.classList.add('hidden'); semFoto.classList.remove('hidden'); }
+    img.classList.add('hidden');
+    semFoto.classList.remove('hidden');
+    
     document.getElementById('editModal').classList.remove('hidden');
     document.getElementById('editModal').classList.add('flex');
+    
+    // Busca a foto do servidor
+    socket.emit('carregar_foto_ocorrencia', o._id);
 }
     function fecharModal() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('editModal').classList.remove('flex'); }
 
@@ -656,65 +723,78 @@ function excluirVisita(id) {
         document.getElementById('dataHoraOcorrencia').value = '';
     }
 
-    function renderOcorrencias() {
-        const term = document.getElementById('search').value.toLowerCase();
-        const container = document.getElementById('listaOcorrencias');
-        container.innerHTML = '';
-        
-        const filtradas = db.ocorrencias.filter(o => {
-            const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
-            const statusStr = (o.status || 'ABERTO').toLowerCase();
-            const usinaStr = o.usina.toLowerCase();
-            const operadorStr = o.operador.toLowerCase();
-            return usinaStr.includes(term) || 
-                   operadorStr.includes(term) || 
-                   statusStr.includes(term) || 
-                   dataStr.includes(term);
-        });
-        
-        if (filtradas.length === 0) {
-            container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>';
-            return;
-        }
+   function renderOcorrencias() {
+    const term = document.getElementById('search').value.toLowerCase();
+    const dataInicio = document.getElementById('filtroDataInicio').value;
+    const dataFim = document.getElementById('filtroDataFim').value;
+    const filtroStatus = document.getElementById('filtroStatus') ? document.getElementById('filtroStatus').value : '';
+    const container = document.getElementById('listaOcorrencias');
+    container.innerHTML = '';
 
-        filtradas.forEach(o => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50/50 transition-colors group";
-            const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
-            
-            const statusColorClass = o.status === 'FINALIZADO' 
-                ? 'bg-emerald-50 text-emerald-600' 
-                : 'bg-red-50 text-red-500';
+    const filtradas = db.ocorrencias.filter(o => {
+        const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
+        const statusStr = (o.status || 'ABERTO').toLowerCase();
+        const usinaStr = (o.usina || '').toLowerCase();
+        const operadorStr = (o.operador || '').toLowerCase();
+        const tipoStr = (o.tipo || '').toLowerCase();
+        const descStr = (o.desc || '').toLowerCase();
+        const localStr = (o.local || '').toLowerCase();
 
-            tr.innerHTML = `
-                <td class="px-8 py-6">
-                    <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="text-xs font-black text-emerald-600 uppercase tracking-tight">${o.usina}</div>
-                    <div class="text-[10px] font-black text-slate-800 uppercase mt-0.5">${o.operador}</div>
-                    <div class="text-[9px] text-slate-400 font-medium mt-0.5">${dataFormatada}</div>
-                </td>
-                <td class="px-8 py-6">
-                    <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
-                        <span>${o.tipo.split(' ')[0]}</span>
-                        <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
-                </td>
-                <td class="px-8 py-6 text-right no-print">
-                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
-                        <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
-                    </div>
-                </td>
-            `;
-            container.appendChild(tr);
-        });
+        const termOk = usinaStr.includes(term) || operadorStr.includes(term) || statusStr.includes(term) || dataStr.includes(term) || tipoStr.includes(term) || descStr.includes(term) || localStr.includes(term);
+        const dataOcorrencia = new Date(o.dataInicio);
+        const inicioOk = dataInicio ? dataOcorrencia >= new Date(dataInicio + 'T00:00:00') : true;
+        const fimOk = dataFim ? dataOcorrencia <= new Date(dataFim + 'T23:59:59') : true;
+        const statusOk = filtroStatus ? (o.status || 'ABERTO') === filtroStatus : true;
+
+        return termOk && inicioOk && fimOk && statusOk;
+    });
+
+    if (filtradas.length === 0) {
+        container.innerHTML = '<tr><td colspan="4" class="p-20 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">Nenhuma ocorrência encontrada</td></tr>';
+        return;
     }
 
-    function ordenarStatus(campo) {
+    filtradas.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/50 transition-colors group";
+        const dataFormatada = new Date(o.dataInicio).toLocaleString('pt-BR');
+        const statusColorClass = o.status === 'FINALIZADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500';
+        tr.innerHTML = `
+            <td class="px-8 py-6">
+                <div class="inline-block px-3 py-1 rounded-lg ${statusColorClass} text-[10px] font-black uppercase mb-1">${o.status || 'ABERTO'}</div>
+                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Impacto: ${o.impacto}</div>
+            </td>
+            <td class="px-8 py-6">
+                <div class="text-xs font-black text-emerald-600 uppercase tracking-tight">${o.usina}</div>
+                <div class="text-[10px] font-black text-slate-800 uppercase mt-0.5">${o.operador}</div>
+                <div class="text-[9px] text-slate-400 font-medium mt-0.5">${dataFormatada}</div>
+            </td>
+            <td class="px-8 py-6">
+                <div class="flex items-center gap-2 text-xs font-black text-slate-800 mb-1">
+                    <span>${o.tipo.split(' ')[0]}</span>
+                    <span>${o.tipo.split(' ').slice(1).join(' ')}</span>
+                </div>
+                <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">${o.local || 'Geral'}</div>
+            </td>
+            <td class="px-8 py-6 text-right no-print">
+                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="abrirModalEdicao('${o._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
+                    <button onclick="excluirOcorrencia('${o._id}')" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
+                </div>
+            </td>
+        `;
+        container.appendChild(tr);
+    });
+}
+
+function limparFiltros() {
+    document.getElementById('search').value = '';
+    document.getElementById('filtroDataInicio').value = '';
+    document.getElementById('filtroDataFim').value = '';
+    renderOcorrencias();
+}
+
+	function ordenarStatus(campo) {
         if (sortConfig.field === campo) {
             sortConfig.direction *= -1;
         } else {
@@ -724,50 +804,141 @@ function excluirVisita(id) {
         renderStatusUFVs();
     }
 
-    function renderStatusUFVs() {
-        const body = document.getElementById('tabelaStatusBody');
-        body.innerHTML = '';
-        const ordenadas = [...db.ufv_status].sort((a, b) => {
-            let valA = a[sortConfig.field];
-            let valB = b[sortConfig.field];
-            if (typeof valA === 'string') {
-                valA = valA.toLowerCase();
-                valB = valB.toLowerCase();
-            }
-            if (valA < valB) return -1 * sortConfig.direction;
-            if (valA > valB) return 1 * sortConfig.direction;
-            return 0; 
-        });
+   function renderStatusUFVs() {
+    const body = document.getElementById('tabelaStatusBody');
+    body.innerHTML = '';
+    const ordenadas = [...db.ufv_status].sort((a, b) => {
+    // Ordenação especial pelo resultado do último teste de fibra
+    if (sortConfig.field === 'resultadoFibra') {
+        function obterResultado(nomeUsina) {
+            const visita = (db.visitas || [])
+                .filter(v => v.usina === nomeUsina && v.usoEPI === 'SIM')
+                .sort((x, y) => {
+                    const valorX = String(x.dataVisita || '');
+                    const valorY = String(y.dataVisita || '');
 
-        ordenadas.forEach(u => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50/50 transition-colors";
-            tr.innerHTML = `
-                <td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
-				<td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'status', this.value)" class="bg-transparent outline-none cursor-pointer ${u.status==='CONSTRUÇÃO'?'text-red-500':'text-emerald-500'}"><option ${u.status==='O&M'?'selected':''}>O&M</option><option ${u.status==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option></select></td>
-				<td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
-                <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${['ROMPIDA', 'OFFLINE'].includes(u.fibra) ? 'text-red-500' : 'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option><option ${u.seguranca==='PERNOITE 12H'?'selected':''}>PERNOITE 12H</option></select></td>
-                <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'motivodaMobilazacao', this.value)" class="bg-transparent outline-none cursor-pointer ${u.motivodaMobilazacao==='-'?'text-slate-400':'text-amber-500'}"><option ${u.motivodaMobilazacao==='DESMOBILAZAÇÃO'?'selected':''}>DESMOBILAZAÇÃO</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV'?'selected':''}>FALHA NO CFTV</option><option ${u.motivodaMobilazacao==='FALHA NA FIBRA'?'selected':''}>FALHA NA FIBRA</option><option ${u.motivodaMobilazacao==='FURTO RECENTE'?'selected':''}>FURTO RECENTE</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV + FIBRA'?'selected':''}>FALHA NO CFTV + FIBRA</option><option ${u.motivodaMobilazacao==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option><option ${u.motivodaMobilazacao==='-'?'selected':''}>-</option></select></td>
-			<td class="px-4 py-5 text-center">
+                    const dataX = new Date(
+                        valorX.includes('T') ? valorX : `${valorX}T12:00:00`
+                    );
+
+                    const dataY = new Date(
+                        valorY.includes('T') ? valorY : `${valorY}T12:00:00`
+                    );
+
+                    return dataY - dataX;
+                })[0];
+
+            return visita
+                ? (visita.resultadoFibra || 'APROVADO')
+                : '';
+        }
+
+        const resultadoA = obterResultado(a.nome);
+        const resultadoB = obterResultado(b.nome);
+
+        // Usinas sem teste permanecem no final
+        if (!resultadoA && resultadoB) return 1;
+        if (resultadoA && !resultadoB) return -1;
+        if (!resultadoA && !resultadoB) return 0;
+
+        const ordemResultado = {
+            'APROVADO': 1,
+            'REPROVADO': 2
+        };
+
+        const valorA = ordemResultado[resultadoA] || 3;
+        const valorB = ordemResultado[resultadoB] || 3;
+
+        if (valorA < valorB) return -1 * sortConfig.direction;
+        if (valorA > valorB) return 1 * sortConfig.direction;
+        return 0;
+    }
+
+    // Ordenação original dos demais campos
+    let valA = a[sortConfig.field];
+    let valB = b[sortConfig.field];
+
+    if (typeof valA === 'string') {
+        valA = valA.toLowerCase();
+        valB = valB.toLowerCase();
+    }
+
+    if (valA < valB) return -1 * sortConfig.direction;
+    if (valA > valB) return 1 * sortConfig.direction;
+    return 0;
+});
+
+    ordenadas.forEach(u => {
+        const visitasUsina = db.visitas
+            .filter(v => v.usina === u.nome && v.usoEPI === 'SIM')
+            .sort((a, b) => new Date(b.dataVisita) - new Date(a.dataVisita));
+        const ultimoTeste = visitasUsina[0];
+        const ultimaDataTeste = ultimoTeste ? (() => {
+    const d = new Date(ultimoTeste.dataVisita + 'T12:00:00');
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('pt-BR');
+})() : '-';
+        const resultadoTeste = ultimoTeste ? (ultimoTeste.resultadoFibra || 'APROVADO') : '';
+        const corResultado = resultadoTeste === 'REPROVADO' ? 'text-red-500' : 'text-emerald-600';
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/50 transition-colors";
+        tr.innerHTML = `
+            <td class="px-8 py-5 font-black text-slate-800 uppercase tracking-tighter">${u.nome}</td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'status', this.value)" class="bg-transparent outline-none cursor-pointer ${u.status==='CONSTRUÇÃO'?'text-red-500':'text-emerald-500'}"><option ${u.status==='O&M'?'selected':''}>O&M</option><option ${u.status==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'prontaResposta', this.value)" class="bg-transparent outline-none cursor-pointer ${u.prontaResposta==='INATIVO'?'text-red-500':'text-emerald-500'}"><option ${u.prontaResposta==='ATIVO'?'selected':''}>ATIVO</option><option ${u.prontaResposta==='INATIVO'?'selected':''}>INATIVO</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'digifort', this.value)" class="bg-transparent outline-none cursor-pointer ${u.digifort==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.digifort==='OK'?'selected':''}>OK</option><option ${u.digifort==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'anydesk', this.value)" class="bg-transparent outline-none cursor-pointer ${u.anydesk==='OFFLINE'?'text-red-500':'text-emerald-500'}"><option ${u.anydesk==='OK'?'selected':''}>OK</option><option ${u.anydesk==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+            <td class="px-4 py-5 text-center"><input type="number" value="${u.totalCam}" onchange="updateUfv('${u._id}', 'totalCam', this.value)" class="w-12 bg-transparent text-center outline-none"></td>
+            <td class="px-4 py-5 text-center"><input type="number" value="${u.camOn}" onchange="updateUfv('${u._id}', 'camOn', this.value)" class="w-12 bg-transparent text-center outline-none ${u.camOn < u.totalCam ? 'text-red-500 font-black' : 'text-emerald-500'}"></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'fibra', this.value)" class="bg-transparent outline-none cursor-pointer ${['ROMPIDA', 'OFFLINE'].includes(u.fibra) ? 'text-red-500' : 'text-emerald-500'}"><option ${u.fibra==='OK'?'selected':''}>OK</option><option ${u.fibra==='ROMPIDA'?'selected':''}>ROMPIDA</option><option ${u.fibra==='NÃO TEM'?'selected':''}>NÃO TEM</option><option ${u.fibra==='OFFLINE'?'selected':''}>OFFLINE</option></select></td>
+            <td class="px-4 py-5 text-center">
+                <div class="text-[10px] font-black ${corResultado}">${ultimaDataTeste}</div>
+                ${resultadoTeste ? `<div class="text-[9px] font-black ${corResultado}">${resultadoTeste}</div>` : ''}
+            </td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'seguranca', this.value)" class="bg-transparent outline-none cursor-pointer ${u.seguranca==='MOBILIZADA'?'text-amber-500':'text-slate-400'}"><option ${u.seguranca==='MOBILIZADA'?'selected':''}>MOBILIZADA</option><option ${u.seguranca==='SEM NECESSIDADE'?'selected':''}>SEM NECESSIDADE</option><option ${u.seguranca==='PERNOITE 12H'?'selected':''}>PERNOITE 12H</option></select></td>
+            <td class="px-4 py-5 text-center"><select onchange="updateUfv('${u._id}', 'motivodaMobilazacao', this.value)" class="bg-transparent outline-none cursor-pointer ${u.motivodaMobilazacao==='-'?'text-slate-400':'text-amber-500'}"><option ${u.motivodaMobilazacao==='DESMOBILIZAÇÃO'?'selected':''}>DESMOBILIZAÇÃO</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV'?'selected':''}>FALHA NO CFTV</option><option ${u.motivodaMobilazacao==='FALHA NA FIBRA'?'selected':''}>FALHA NA FIBRA</option><option ${u.motivodaMobilazacao==='FURTO RECENTE'?'selected':''}>FURTO RECENTE</option><option ${u.motivodaMobilazacao==='FALHA NO CFTV + FIBRA'?'selected':''}>FALHA NO CFTV + FIBRA</option><option ${u.motivodaMobilazacao==='CONSTRUÇÃO'?'selected':''}>CONSTRUÇÃO</option><option ${u.motivodaMobilazacao==='-'?'selected':''}>-</option></select></td>
+            <td class="px-4 py-5 text-center">
                 <button onclick="abrirModalFotos('${u._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors">
                     <i class="fa-solid fa-camera text-lg"></i>
                 </button>
             </td>
-			`;
-            body.appendChild(tr);
-        });
+        `;
+        body.appendChild(tr);
+    });
+
+    atualizarTotalizador();
+}
+
+// Mantenha esta função, caso já exista no seu código.
+function ordenarStatus(campo) {
+    if (sortConfig.field === campo) {
+        sortConfig.direction *= -1;
+    } else {
+        sortConfig.field = campo;
+        sortConfig.direction = 1;
     }
+
+    renderStatusUFVs();
+}
+
+function atualizarTotalizador() {
+    const ufvs = db.ufv_status;
+    const el = (id) => document.getElementById(id);
+    if (!el('totalUFVs')) return;
+    el('totalUFVs').textContent = ufvs.length;
+    el('totalFibra').textContent = ufvs.filter(u => u.fibra !== 'NÃO TEM').length;
+    el('totalFibraOk').textContent = ufvs.filter(u => u.fibra === 'OK').length;
+    el('totalCameras').textContent = ufvs.reduce((s, u) => s + (Number(u.totalCam) || 0), 0);
+    el('totalCamerasOn').textContent = ufvs.reduce((s, u) => s + ((Number(u.totalCam) || 0) - (Number(u.camOn) || 0)), 0);
+    el('totalSeguranca').textContent = ufvs.filter(u => u.seguranca === 'MOBILIZADA').length;
+    el('totalPernoite').textContent = ufvs.filter(u => u.seguranca === 'PERNOITE 12H').length;
+}
 
     function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
     function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
     
     function switchTab(tab) {
-    ['ocorrencias', 'status', 'controleAcesso', 'dashboard'].forEach(t => {
+    ['ocorrencias', 'status', 'controleAcesso'].forEach(t => {
         const tabElement = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
         const btnElement = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
         if (tabElement) tabElement.style.display = 'none';
@@ -782,7 +953,6 @@ function excluirVisita(id) {
 
     if (targetTab) {
         targetTab.style.display = (tab === 'controleAcesso' || tab === 'ocorrencias') ? 'grid' : 'block';
-        if (tab === 'dashboard') renderDashboard();
     }
     if (targetBtn) {
         targetBtn.classList.add('tab-active');
@@ -793,22 +963,44 @@ function excluirVisita(id) {
     function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
     function logout() { location.reload(); }
     
-    function exportarExcelOcorrencias() {
-        const ws = XLSX.utils.json_to_sheet(db.ocorrencias.map(o => ({
-            "Data/Hora Início": new Date(o.dataInicio).toLocaleString('pt-BR'),
-            "Data/Hora Fim": o.dataFim ? new Date(o.dataFim).toLocaleString('pt-BR') : '',
-            Operador: o.operador,
-            Usina: o.usina,
-            Tipo: o.tipo,
-            Local: o.local,
-            Descrição: o.desc,
-            Status: o.status
-        })));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
-        XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
-    }
+   function exportarExcelOcorrencias() {
+    const term = document.getElementById('search').value.toLowerCase();
+    const dataInicio = document.getElementById('filtroDataInicio').value;
+    const dataFim = document.getElementById('filtroDataFim').value;
+    const filtroStatus = document.getElementById('filtroStatus') ? document.getElementById('filtroStatus').value : '';
 
+    const filtradas = db.ocorrencias.filter(o => {
+        const dataStr = new Date(o.dataInicio).toLocaleString('pt-BR').toLowerCase();
+        const statusStr = (o.status || 'ABERTO').toLowerCase();
+        const usinaStr = (o.usina || '').toLowerCase();
+        const operadorStr = (o.operador || '').toLowerCase();
+        const tipoStr = (o.tipo || '').toLowerCase();
+        const descStr = (o.desc || '').toLowerCase();
+        const localStr = (o.local || '').toLowerCase();
+
+        const termOk = !term || usinaStr.includes(term) || operadorStr.includes(term) || statusStr.includes(term) || dataStr.includes(term) || tipoStr.includes(term) || descStr.includes(term) || localStr.includes(term);
+        const dataOcorrencia = new Date(o.dataInicio);
+        const inicioOk = dataInicio ? dataOcorrencia >= new Date(dataInicio + 'T00:00:00') : true;
+        const fimOk = dataFim ? dataOcorrencia <= new Date(dataFim + 'T23:59:59') : true;
+        const statusOk = filtroStatus ? (o.status || 'ABERTO') === filtroStatus : true;
+
+        return termOk && inicioOk && fimOk && statusOk;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(filtradas.map(o => ({
+        "Data/Hora Início": new Date(o.dataInicio).toLocaleString('pt-BR'),
+        "Data/Hora Fim": o.dataFim ? new Date(o.dataFim).toLocaleString('pt-BR') : '',
+        Operador: o.operador,
+        Usina: o.usina,
+        Tipo: o.tipo,
+        Local: o.local,
+        Descrição: o.desc,
+        Status: o.status
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Ocorrências");
+    XLSX.writeFile(wb, "Relatorio_Ocorrencias_CFTV.xlsx");
+}
     function exportarPDFOcorrencias() {
         const element = document.getElementById('tabelaOcorrenciasPDF');
         const opt = {
@@ -839,71 +1031,117 @@ function excluirVisita(id) {
         XLSX.writeFile(wb, "Status_Infraestrutura_UFVs.xlsx");
     }
 
-    function exportarPDFStatus() {
+    async function exportarPDFStatus() {
+    toast('Carregando fotos, aguarde...', 'success');
+
+    // Busca todas as fotos antes de gerar o PDF
+    await Promise.all(db.ufv_status.map(u => new Promise((resolve) => {
+        if (u.foto1) { resolve(); return; }
+        const handler = (data) => {
+            if (data._id === u._id) {
+                u.foto1 = data.foto1;
+                u.foto2 = data.foto2;
+                socket.off('foto_ufv_carregada', handler);
+                resolve();
+            }
+        };
+        socket.on('foto_ufv_carregada', handler);
+        socket.emit('carregar_foto_ufv', u._id);
+        setTimeout(() => { socket.off('foto_ufv_carregada', handler); resolve(); }, 3000);
+    })));
+
     const linhas = [...db.ufv_status].sort((a, b) => a.nome.localeCompare(b.nome));
     
     let htmlConteudo = `
-        <style>
-            body { font-family: Arial, sans-serif; font-size: 10px; color: #1e293b; }
-            h1 { font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #10b981; margin-bottom: 4px; }
-            p.sub { font-size: 9px; color: #94a3b8; margin-bottom: 16px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
-            th { background: #f8fafc; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; padding: 8px; border-bottom: 2px solid #e2e8f0; text-align: center; }
-            td { padding: 8px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 700; }
-            td.nome { text-align: left; font-weight: 900; text-transform: uppercase; }
-            .ok { color: #10b981; }
-            .erro { color: #ef4444; }
-            .foto-row td { padding: 12px 8px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
-            .foto-container img { max-height: 180px; max-width: 40%; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; }
-        </style>
-        <h1>Status de Infraestrutura — IVI Energia</h1>
-        <p class="sub">Gerado em ${new Date().toLocaleString('pt-BR')}</p>
-        <table>
-            <thead>
-                <tr>
-                    <th style="text-align:left">UFV</th>
-                    <th>Status</th>
-                    <th>Pronta Resp.</th>
-                    <th>Digifort</th>
-                    <th>Anydesk</th>
-                    <th>Total Câm</th>
-                    <th>Câm ON</th>
-                    <th>Fibra</th>
-                    <th>Segurança</th>
-                    <th>Motivo Mob.</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 10px; color: #1e293b; }
+        h1 { font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #10b981; margin-bottom: 4px; }
+        p.sub { font-size: 9px; color: #94a3b8; margin-bottom: 12px; }
+        .totais { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .total-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 80px; background: #f8fafc; }
+        .total-card .valor { font-size: 18px; font-weight: 900; color: #1e293b; }
+        .total-card .valor.verde { color: #10b981; }
+        .total-card .valor.laranja { color: #f59e0b; }
+        .total-card .label { font-size: 7px; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-top: 2px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+        th { background: #f8fafc; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; padding: 8px; border-bottom: 2px solid #e2e8f0; text-align: center; }
+        td { padding: 8px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 700; }
+        td.nome { text-align: left; font-weight: 900; text-transform: uppercase; }
+        .ok { color: #10b981; }
+        .erro { color: #ef4444; }
+        .foto-row td { padding: 12px 8px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+        .foto-container img { max-height: 180px; max-width: 40%; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; }
+    </style>
+    <h1>Relatório Diário de Operação — IVI Energia</h1>
+    <p class="sub">Gerado em ${new Date().toLocaleString('pt-BR')}</p>
+    <div class="totais">
+        <div class="total-card"><div class="valor">${db.ufv_status.length}</div><div class="label">Total UFVs</div></div>
+        <div class="total-card"><div class="valor verde">${db.ufv_status.filter(u => u.fibra !== 'NÃO TEM').length}</div><div class="label">UFVs com Fibra</div></div>
+        <div class="total-card"><div class="valor verde">${db.ufv_status.filter(u => u.fibra === 'OK').length}</div><div class="label">Fibra OK</div></div>
+        <div class="total-card"><div class="valor">${db.ufv_status.reduce((s, u) => s + (Number(u.totalCam) || 0), 0)}</div><div class="label">Total Câmeras</div></div>
+        <div class="total-card"><div class="valor" style="color:#ef4444">${db.ufv_status.reduce((s, u) => s + ((Number(u.totalCam) || 0) - (Number(u.camOn) || 0)), 0)}</div><div class="label">Câmeras OFF</div></div>
+        <div class="total-card"><div class="valor laranja">${db.ufv_status.filter(u => u.seguranca === 'MOBILIZADA').length}</div><div class="label">Seg. Mobilizada</div></div>
+        <div class="total-card"><div class="valor laranja">${db.ufv_status.filter(u => u.seguranca === 'PERNOITE 12H').length}</div><div class="label">Pernoites</div></div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align:left">UFV</th>
+                <th>Status</th>
+                <th>Pronta Resp.</th>
+                <th>Digifort</th>
+                <th>Anydesk</th>
+                <th>Total Câm</th>
+                <th>Câm ON</th>
+                <th>Fibra</th>
+				<th>Último Teste de Fibra</th>
+                <th>Segurança</th>
+                <th>Motivo Mob.</th>
+            </tr>
+        </thead>
+        <tbody>
+`;
 
     linhas.forEach(u => {
-        const foto = u.foto1 || u.foto || '';
+    const foto = u.foto1 || u.foto || '';
+    const visitasUsina = db.visitas
+        .filter(v => v.usina === u.nome && v.usoEPI === 'SIM')
+        .sort((a, b) => new Date(b.dataVisita) - new Date(a.dataVisita));
+    const ultimoTeste = visitasUsina[0];
+    const ultimaDataTeste = ultimoTeste ? (() => {
+    const d = new Date(ultimoTeste.dataVisita + 'T12:00:00');
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('pt-BR');
+})() : '-';
+    const resultadoTeste = ultimoTeste ? (ultimoTeste.resultadoFibra || 'APROVADO') : '';
+    const corTeste = resultadoTeste === 'REPROVADO' ? '#ef4444' : '#10b981';
+
+    htmlConteudo += `
+        <tr>
+            <td class="nome">${u.nome}</td>
+            <td class="${u.status === 'CONSTRUÇÃO' ? 'erro' : 'ok'}">${u.status || 'O&M'}</td>
+            <td class="${u.prontaResposta === 'INATIVO' ? 'erro' : 'ok'}">${u.prontaResposta}</td>
+            <td class="${u.digifort === 'OFFLINE' ? 'erro' : 'ok'}">${u.digifort}</td>
+            <td class="${u.anydesk === 'OFFLINE' ? 'erro' : 'ok'}">${u.anydesk}</td>
+            <td>${u.totalCam}</td>
+            <td class="${u.camOn < u.totalCam ? 'erro' : 'ok'}">${u.camOn}</td>
+            <td class="${['ROMPIDA','OFFLINE'].includes(u.fibra) ? 'erro' : 'ok'}">${u.fibra}</td>
+            <td style="color:${corTeste}; font-weight:900;">${ultimaDataTeste}${resultadoTeste ? '<br><span style="font-size:7px">' + resultadoTeste + '</span>' : ''}</td>
+            <td class="${u.seguranca === 'MOBILIZADA' ? 'erro' : 'ok'}">${u.seguranca}</td>
+            <td>${u.motivodaMobilazacao}</td>
+        </tr>
+    `;
+    if (foto) {
         htmlConteudo += `
-            <tr>
-                <td class="nome">${u.nome}</td>
-                <td class="${u.status === 'CONSTRUÇÃO' ? 'erro' : 'ok'}">${u.status}</td>
-                <td class="${u.prontaResposta === 'INATIVO' ? 'erro' : 'ok'}">${u.prontaResposta}</td>
-                <td class="${u.digifort === 'OFFLINE' ? 'erro' : 'ok'}">${u.digifort}</td>
-                <td class="${u.anydesk === 'OFFLINE' ? 'erro' : 'ok'}">${u.anydesk}</td>
-                <td>${u.totalCam}</td>
-                <td class="${u.camOn < u.totalCam ? 'erro' : 'ok'}">${u.camOn}</td>
-                <td class="${['ROMPIDA','OFFLINE'].includes(u.fibra) ? 'erro' : 'ok'}">${u.fibra}</td>
-                <td class="${u.seguranca === 'MOBILIZADA' ? 'erro' : 'ok'}">${u.seguranca}</td>
-                <td>${u.motivodaMobilazacao}</td>
+            <tr class="foto-row">
+                <td colspan="11">
+                    <div class="foto-container">
+                        <img src="${foto}">
+                    </div>
+                </td>
             </tr>
         `;
-        if (foto) {
-            htmlConteudo += `
-                <tr class="foto-row">
-                    <td colspan="10">
-                        <div class="foto-container">
-                            <img src="${foto}">
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }
-    });
+    }
+});
 
     htmlConteudo += `</tbody></table>`;
 
@@ -937,15 +1175,34 @@ function salvarControleAcesso() {
         motivoVisita: document.getElementById('acessoMotivo').value,
         responsavelUsina: document.getElementById('acessoResponsavel').value,
         placaVeiculo: document.getElementById('acessoPlacaVeiculo').value,
-        usoEPI: document.getElementById('editVisitaTesteFibra').value,
+        usoEPI: document.getElementById('acessoTesteFibra').value,
+        resultadoFibra: document.getElementById('acessoTesteFibra').value === 'SIM' ? document.getElementById('acessoResultadoFibra').value : '',
         observacoes: document.getElementById('acessoObservacoes').value,
         visitanteRecorrente: document.getElementById('acessoVisitanteRecorrente').checked
     };
-    if (!dados.usina || !dados.nomeVisitante) return toast('Preencha os campos obrigatórios!', 'error');
+   if (!dados.usina || !dados.nomeVisitante) return toast('Preencha os campos obrigatórios!', 'error');
     socket.emit('nova_visita', dados);
     toast('Acesso registrado!', 'success');
+    limparFormAcesso(); 
 }
-
+function limparFormAcesso() {
+    document.getElementById('acessoDataVisita').value = '';
+    document.getElementById('acessoUsina').value = '';
+    document.getElementById('acessoHoraEntrada').value = '';
+    document.getElementById('acessoHoraSaida').value = '';
+    document.getElementById('acessoNomeVisitante').value = '';
+    document.getElementById('acessoEmpresa').value = '';
+    document.getElementById('acessoDocumento').value = '';
+    document.getElementById('acessoContato').value = '';
+    document.getElementById('acessoMotivo').value = '';
+    document.getElementById('acessoResponsavel').value = '';
+    document.getElementById('acessoPlacaVeiculo').value = '';
+    document.getElementById('acessoTesteFibra').value = 'SIM';
+    document.getElementById('acessoResultadoFibra').value = 'APROVADO';
+    document.getElementById('acessoCampoResultadoFibra').style.display = 'block';
+    document.getElementById('acessoObservacoes').value = '';
+    document.getElementById('acessoVisitanteRecorrente').checked = false;
+}
 function renderControleAcesso() {
     const term = document.getElementById('searchAcesso').value.toLowerCase();
     const container = document.getElementById('listaControleAcesso');
@@ -972,9 +1229,10 @@ function renderControleAcesso() {
             <div class="text-[10px] text-slate-400 uppercase">${v.empresa}</div>
         </td>
         <td class="px-8 py-6">
-            <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
-            <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
-        </td>
+    <div class="text-xs font-black text-slate-800">${v.motivoVisita}</div>
+    <div class="text-[10px] text-slate-400 uppercase">Resp: ${v.responsavelUsina}</div>
+    ${v.usoEPI === 'SIM' ? `<div class="text-[10px] font-black mt-1 ${v.resultadoFibra === 'REPROVADO' ? 'text-red-500' : 'text-emerald-500'}">Fibra: ${v.resultadoFibra || 'APROVADO'}</div>` : ''}
+</td>
         <td class="px-8 py-6 text-right no-print">
             <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onclick="abrirModalVisita('${v._id}')" class="p-2 text-slate-300 hover:text-emerald-500 transition-colors"><i class="fa-solid fa-pen-to-square text-lg"></i></button>
@@ -988,29 +1246,23 @@ function renderControleAcesso() {
 function abrirModalFotos(id) {
     const u = db.ufv_status.find(item => item._id === id);
     if (!u) return;
-    
+
     document.getElementById('fotoUfvId').value = u._id;
-    // Alterado o título para o singular "FOTO"
     document.getElementById('fotoUfvModalTitulo').textContent = 'FOTO — ' + u.nome;
-const inputArquivo = document.getElementById('inputFoto1');
-    if (inputArquivo) inputArquivo.value = '';
+
+    const input = document.getElementById('inputFoto1');
+    if (input) input.value = '';
+
     const preview = document.getElementById('previewFoto1');
     const placeholder = document.getElementById('placeholderFoto1');
-
-    // Verifica se existe a propriedade 'foto' ou a antiga 'foto1' no banco para reaproveitar
-    const fotoExistente = u.foto || u.foto1;
-
-    if (fotoExistente) {
-        preview.src = fotoExistente;
-        preview.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-    } else {
-        preview.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-    }
+    preview.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+    placeholder.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-slate-300 text-3xl mb-2"></i><p class="text-[9px] text-slate-400 font-black uppercase">Carregando...</p>';
 
     document.getElementById('fotoUfvModal').classList.remove('hidden');
     document.getElementById('fotoUfvModal').classList.add('flex');
+
+    socket.emit('carregar_foto_ufv', u._id);
 }
 
 function fecharModalFotos() {
@@ -1076,109 +1328,6 @@ function exportarExcelControleAcesso() {
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Acessos");
     XLSX.writeFile(wb, "Controle_Acesso_UFVs.xlsx");
 }
-
-// ========== DASHBOARD ==========
-let graficoFibraInstance = null;
-let graficoSegurancaInstance = null;
-let graficoProntaRespostaInstance = null;
-
-function renderDashboard() {
-    renderGraficoFibraSupervisor();
-    renderGraficoStatusSeguranca();
-    renderGraficoProntaResposta();
-}
-
-function renderGraficoFibraSupervisor() {
-    const supervisores = {};
-    db.visitas.forEach(v => {
-        const sup = v.responsavelUsina || 'Sem Supervisor';
-        if (!supervisores[sup]) supervisores[sup] = { visitas: 0, testes: 0 };
-        supervisores[sup].visitas++;
-        if (v.usoEPI === 'SIM') supervisores[sup].testes++;
-    });
-    const nomes = Object.keys(supervisores);
-    const visitas = nomes.map(n => supervisores[n].visitas);
-    const testes = nomes.map(n => supervisores[n].testes);
-    const total = { visitas: visitas.reduce((s, v) => s + v, 0), testes: testes.reduce((s, v) => s + v, 0) };
-    const tbody = document.getElementById('tabelaFibraBody');
-    const tfoot = document.getElementById('tabelaFibraTotal');
-    if (tbody) {
-        tbody.innerHTML = nomes.map((n, i) => `
-            <tr class="hover:bg-slate-50">
-                <td class="px-3 py-2 font-black text-slate-700">${n}</td>
-                <td class="px-3 py-2 text-center font-black text-emerald-600">${visitas[i]}</td>
-                <td class="px-3 py-2 text-center text-slate-500">${total.visitas ? Math.round(visitas[i]/total.visitas*100) : 0}%</td>
-                <td class="px-3 py-2 text-center font-black text-blue-600">${testes[i]}</td>
-                <td class="px-3 py-2 text-center text-slate-500">${visitas[i] ? Math.round(testes[i]/visitas[i]*100) : 0}%</td>
-            </tr>`).join('');
-        tfoot.innerHTML = `<tr class="bg-slate-50"><td class="px-3 py-2 font-black text-slate-800 uppercase text-[9px]">TOTAL</td><td class="px-3 py-2 text-center font-black text-emerald-600">${total.visitas}</td><td class="px-3 py-2 text-center">100%</td><td class="px-3 py-2 text-center font-black text-blue-600">${total.testes}</td><td class="px-3 py-2 text-center">${total.visitas ? Math.round(total.testes/total.visitas*100) : 0}%</td></tr>`;
-    }
-    const canvas = document.getElementById('graficoFibraSupervisor');
-    if (!canvas) return;
-    if (graficoFibraInstance) graficoFibraInstance.destroy();
-    graficoFibraInstance = new Chart(canvas, {
-        type: 'bar',
-        data: { labels: nomes.map(n => n.split(' ')[0].toUpperCase()), datasets: [{ label: 'Testes', data: testes, backgroundColor: '#6b8ec7', borderRadius: 6 }, { label: 'Visitas', data: visitas, backgroundColor: '#e8a4a4', borderRadius: 6 }] },
-        options: { responsive: true, plugins: { legend: { labels: { font: { size: 10, weight: 'bold' } } } }, scales: { y: { beginAtZero: true, ticks: { font: { size: 9 } } }, x: { ticks: { font: { size: 9 } } } } }
-    });
-}
-
-function renderGraficoStatusSeguranca() {
-    const supervisores = {};
-    db.visitas.forEach(v => {
-        const sup = v.responsavelUsina || 'Sem Supervisor';
-        if (!supervisores[sup]) supervisores[sup] = { camOn: 0, camOff: 0, fibraOk: 0, fibraRompida: 0, ufvs: new Set() };
-        supervisores[sup].ufvs.add(v.usina);
-    });
-    Object.keys(supervisores).forEach(sup => {
-        supervisores[sup].ufvs.forEach(nomeUsina => {
-            const ufv = db.ufv_status.find(u => u.nome === nomeUsina);
-            if (ufv) {
-                supervisores[sup].camOn += Number(ufv.camOn) || 0;
-                supervisores[sup].camOff += Math.max(0, (Number(ufv.totalCam) || 0) - (Number(ufv.camOn) || 0));
-                if (ufv.fibra === 'OK') supervisores[sup].fibraOk++;
-                if (ufv.fibra === 'ROMPIDA') supervisores[sup].fibraRompida++;
-            }
-        });
-    });
-    const nomes = Object.keys(supervisores);
-    const canvas = document.getElementById('graficoStatusSeguranca');
-    if (!canvas) return;
-    if (graficoSegurancaInstance) graficoSegurancaInstance.destroy();
-    graficoSegurancaInstance = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: nomes.map(n => n.split(' ')[0].toUpperCase()),
-            datasets: [
-                { label: 'Câmeras Online', data: nomes.map(n => supervisores[n].camOn), backgroundColor: '#3b5fa0', borderRadius: 4 },
-                { label: 'Câmera Offline', data: nomes.map(n => supervisores[n].camOff), backgroundColor: '#e8a4a4', borderRadius: 4 },
-                { label: 'Fibra Online', data: nomes.map(n => supervisores[n].fibraOk), backgroundColor: '#6ab187', borderRadius: 4 },
-                { label: 'Fibra Rompida', data: nomes.map(n => supervisores[n].fibraRompida), backgroundColor: '#8b6bb1', borderRadius: 4 }
-            ]
-        },
-        options: { responsive: true, plugins: { legend: { labels: { font: { size: 10, weight: 'bold' } } } }, scales: { y: { beginAtZero: true, ticks: { font: { size: 9 } } }, x: { ticks: { font: { size: 9 } } } } }
-    });
-}
-
-function renderGraficoProntaResposta() {
-    const meses = {};
-    db.ocorrencias.filter(o => o.tipo && o.tipo.includes('Pronta Resposta')).forEach(o => {
-        const d = new Date(o.dataInicio);
-        const chave = `${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-        meses[chave] = (meses[chave] || 0) + 1;
-    });
-    const labels = Object.keys(meses).sort();
-    const valores = labels.map(l => meses[l]);
-    const canvas = document.getElementById('graficoProntaResposta');
-    if (!canvas) return;
-    if (graficoProntaRespostaInstance) graficoProntaRespostaInstance.destroy();
-    graficoProntaRespostaInstance = new Chart(canvas, {
-        type: 'bar',
-        data: { labels, datasets: [{ label: 'Acionamentos', data: valores, backgroundColor: '#10b981', borderRadius: 6 }] },
-        options: { responsive: true, plugins: { legend: { labels: { font: { size: 10, weight: 'bold' } } } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } } }, x: { ticks: { font: { size: 9 } } } } }
-    });
-}
-
     window.onload = iniciarSocket;
 </script>
 </body>
