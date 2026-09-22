@@ -28,6 +28,13 @@
         .btn-primary { background: #10b981; color: white; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 0.75rem; transition: all 0.2s; }
         .btn-primary:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
         .btn-primary:active { transform: translateY(0); }
+        .dashboard-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04); }
+        .dashboard-chart { position: relative; height: 340px; }
+        .dashboard-kpi { transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 180ms cubic-bezier(0.23, 1, 0.32, 1); }
+        .dashboard-kpi:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07); }
+        .dashboard-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; color: #94a3b8; font-size: 0.625rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; text-align: center; }
+        @media (max-width: 768px) { .dashboard-chart { height: 300px; } }
+        @media (prefers-reduced-motion: reduce) { .dashboard-kpi { transition: none; } }
     </style>
 </head>
 <body class="bg-[#f1f5f9] text-slate-900">
@@ -58,7 +65,8 @@
             <nav class="flex gap-6">
                 <button id="tabBtnOcorrencias" onclick="switchTab('ocorrencias' )" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all tab-active">OCORRÊNCIAS</button>
                 <button id="tabBtnStatus" onclick="switchTab('status')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">STATUS DAS UFVS</button>
-		<button id="tabBtnControleAcesso" onclick="switchTab('controleAcesso')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">CONTROLE DE ACESSO</button>
+				<button id="tabBtnControleAcesso" onclick="switchTab('controleAcesso')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">CONTROLE DE ACESSO</button>
+                <button id="tabBtnDashboard" onclick="switchTab('dashboard')" class="pb-4 text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">DASHBOARD</button>
             </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -245,6 +253,134 @@
                         <tbody id="tabelaStatusBody" class="divide-y text-xs font-bold text-slate-600"></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- ABA DASHBOARD -->
+        <div id="tabDashboard" class="hidden space-y-6">
+            <div class="dashboard-card p-6 no-print">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
+                    <div>
+                        <div class="flex items-center gap-2 text-emerald-500 mb-2">
+                            <i class="fa-solid fa-chart-column"></i>
+                            <span class="text-[9px] font-black uppercase tracking-[0.18em]">Visão gerencial</span>
+                        </div>
+                        <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">Dashboard Operacional</h2>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Fibra, pronta resposta e sistemas de segurança</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full xl:w-auto">
+                        <div>
+                            <label for="dashboardDataInicio" class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Data inicial</label>
+                            <input type="date" id="dashboardDataInicio" onchange="renderDashboard()" class="w-full input-field text-xs">
+                        </div>
+                        <div>
+                            <label for="dashboardDataFim" class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Data final</label>
+                            <input type="date" id="dashboardDataFim" onchange="renderDashboard()" class="w-full input-field text-xs">
+                        </div>
+                        <div>
+                            <label for="dashboardSupervisor" class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Supervisor</label>
+                            <select id="dashboardSupervisor" onchange="renderDashboard()" class="w-full input-field text-xs min-w-[180px]">
+                                <option value="">Todos os supervisores</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="dashboardUsina" class="block text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Usina</label>
+                            <select id="dashboardUsina" onchange="renderDashboard()" class="w-full input-field text-xs min-w-[180px]">
+                                <option value="">Todas as usinas</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="button" onclick="limparFiltrosDashboard()" class="w-full px-4 py-3 bg-slate-100 hover:bg-slate-200 active:scale-[0.97] rounded-xl text-[9px] font-black text-slate-500 uppercase tracking-widest transition-all">
+                                <i class="fa-solid fa-filter-circle-xmark mr-2"></i>Limpar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-emerald-500">
+                    <div class="flex justify-between items-start gap-3">
+                        <div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Testes de fibra</p>
+                            <p id="dashboardTotalTestes" class="text-3xl font-black text-slate-800 mt-2">0</p>
+                        </div>
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-wave-square"></i></span>
+                    </div>
+                </div>
+                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-sky-500">
+                    <div class="flex justify-between items-start gap-3">
+                        <div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Taxa de aprovação</p>
+                            <p id="dashboardTaxaAprovacao" class="text-3xl font-black text-slate-800 mt-2">0%</p>
+                        </div>
+                        <span class="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></span>
+                    </div>
+                </div>
+                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-amber-500">
+                    <div class="flex justify-between items-start gap-3">
+                        <div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pronta resposta</p>
+                            <p id="dashboardProntaResposta" class="text-3xl font-black text-slate-800 mt-2">0</p>
+                        </div>
+                        <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-truck-medical"></i></span>
+                    </div>
+                </div>
+                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-rose-500">
+                    <div class="flex justify-between items-start gap-3">
+                        <div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Câmeras offline</p>
+                            <p id="dashboardCamerasOffline" class="text-3xl font-black text-slate-800 mt-2">0</p>
+                        </div>
+                        <span class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-video-slash"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 2xl:grid-cols-2 gap-6">
+                <section class="dashboard-card p-6">
+                    <div class="mb-5">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Testes de fibra por supervisor</h3>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Quantidade de testes aprovados e reprovados</p>
+                    </div>
+                    <div class="dashboard-chart">
+                        <canvas id="chartFibraSupervisor"></canvas>
+                        <div id="emptyFibraSupervisor" class="dashboard-empty"><i class="fa-solid fa-chart-column text-2xl mb-3"></i>Sem testes no período selecionado</div>
+                    </div>
+                </section>
+
+                <section class="dashboard-card p-6">
+                    <div class="mb-5">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Testes de fibra por usina</h3>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Comparativo de resultado por UFV</p>
+                    </div>
+                    <div class="dashboard-chart">
+                        <canvas id="chartFibraUsina"></canvas>
+                        <div id="emptyFibraUsina" class="dashboard-empty"><i class="fa-solid fa-chart-column text-2xl mb-3"></i>Sem testes no período selecionado</div>
+                    </div>
+                </section>
+
+                <section class="dashboard-card p-6">
+                    <div class="mb-5">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Acionamentos de pronta resposta</h3>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ocorrências registradas por supervisor</p>
+                    </div>
+                    <div class="dashboard-chart">
+                        <canvas id="chartProntaResposta"></canvas>
+                        <div id="emptyProntaResposta" class="dashboard-empty"><i class="fa-solid fa-truck-medical text-2xl mb-3"></i>Sem acionamentos no período selecionado</div>
+                    </div>
+                </section>
+
+                <section class="dashboard-card p-6">
+                    <div class="mb-5">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Status dos sistemas de segurança</h3>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Câmeras e fibra por supervisor</p>
+                    </div>
+                    <div class="dashboard-chart">
+                        <canvas id="chartSistemasSeguranca"></canvas>
+                        <div id="emptySistemasSeguranca" class="dashboard-empty"><i class="fa-solid fa-shield-halved text-2xl mb-3"></i>Sem dados de segurança disponíveis</div>
+                    </div>
+                </section>
             </div>
         </div>
     <!-- MODAL FOTOS UFV -->
@@ -472,13 +608,15 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-    let db = { ocorrencias: [], ufv_status: [], controleAcesso: [], visitas: [] };
-    let usuarioLogado = null;
-    let socket = null;
-    let sortConfig = { field: 'nome', direction: 1 };
+	    let db = { ocorrencias: [], ufv_status: [], controleAcesso: [], visitas: [] };
+	    let usuarioLogado = null;
+	    let socket = null;
+	    let sortConfig = { field: 'nome', direction: 1 };
+	    let dashboardCharts = {};
 
    function iniciarSocket() {
     socket = io({ 
@@ -488,17 +626,18 @@
     socket.on('dados_iniciais', (dados) => {
         db = dados;
         if (!db.visitas) db.visitas = [];
-        popularSelectUsinas();
-        renderOcorrencias();
-        renderStatusUFVs();
-        renderControleAcesso();
-    });
-    socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
-    socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
-    socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); toast('Nova ocorrência registrada!', 'success'); });
-    socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); toast('Registro atualizado!', 'success'); } });
-    socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); toast('Ocorrência removida.', 'info'); });
-    socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); } });
+	        popularSelectUsinas();
+	        renderOcorrencias();
+	        renderStatusUFVs();
+	        renderControleAcesso();
+	        renderDashboard();
+	    });
+	    socket.on('autenticado', (user) => { usuarioLogado = user.nome; document.getElementById('userNameDisplay').textContent = usuarioLogado; mostrarApp(); socket.emit('carregar_dados'); });
+	    socket.on('auth_erro', (err) => { document.getElementById('loginStatus').textContent = err.msg; toast(err.msg, 'error'); });
+	    socket.on('ocorrencia_criada', (nova) => { db.ocorrencias.unshift(nova); renderOcorrencias(); renderDashboard(); toast('Nova ocorrência registrada!', 'success'); });
+	    socket.on('ocorrencia_editada', (editada) => { const idx = db.ocorrencias.findIndex(o => o._id === editada._id); if (idx !== -1) { db.ocorrencias[idx] = editada; renderOcorrencias(); renderDashboard(); toast('Registro atualizado!', 'success'); } });
+	    socket.on('ocorrencia_excluida', (id) => { db.ocorrencias = db.ocorrencias.filter(o => o._id !== id); renderOcorrencias(); renderDashboard(); toast('Ocorrência removida.', 'info'); });
+	    socket.on('ufv_atualizada', (atualizada) => { const idx = db.ufv_status.findIndex(u => u._id === atualizada._id); if (idx !== -1) { db.ufv_status[idx] = atualizada; renderStatusUFVs(); renderDashboard(); } });
     socket.on('foto_ufv_carregada', (data) => {
         const u = db.ufv_status.find(item => item._id === data._id);
         if (u) { u.foto1 = data.foto1; u.foto2 = data.foto2; }
@@ -527,16 +666,17 @@
             semFoto.classList.remove('hidden');
         }
     });
-    socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); toast('Novo acesso registrado!', 'success'); });
-    socket.on('visita_editada', (editada) => {
-        const idx = db.visitas.findIndex(v => v._id === editada._id);
-        if (idx !== -1) { db.visitas[idx] = editada; renderControleAcesso(); toast('Visita atualizada!', 'success'); }
-    });
-    socket.on('visita_excluida', (id) => {
-        db.visitas = db.visitas.filter(v => v._id !== id);
-        renderControleAcesso();
-        toast('Visita removida.', 'info');
-    });
+	    socket.on('visita_registrada', (nova) => { if(!db.visitas) db.visitas = []; db.visitas.unshift(nova); renderControleAcesso(); renderDashboard(); toast('Novo acesso registrado!', 'success'); });
+	    socket.on('visita_editada', (editada) => {
+	        const idx = db.visitas.findIndex(v => v._id === editada._id);
+	        if (idx !== -1) { db.visitas[idx] = editada; renderControleAcesso(); renderDashboard(); toast('Visita atualizada!', 'success'); }
+	    });
+	    socket.on('visita_excluida', (id) => {
+	        db.visitas = db.visitas.filter(v => v._id !== id);
+	        renderControleAcesso();
+	        renderDashboard();
+	        toast('Visita removida.', 'info');
+	    });
 }
 function abrirModalVisita(id) {
     const v = db.visitas.find(item => item._id === id);
@@ -934,13 +1074,293 @@ function atualizarTotalizador() {
     el('totalPernoite').textContent = ufvs.filter(u => u.seguranca === 'PERNOITE 12H').length;
 }
 
-    function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
-    function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
-    
-    function switchTab(tab) {
-    ['ocorrencias', 'status', 'controleAcesso'].forEach(t => {
-        const tabElement = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
-        const btnElement = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+const dashboardValueLabels = {
+    id: 'dashboardValueLabels',
+    afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        ctx.save();
+        ctx.fillStyle = '#475569';
+        ctx.font = '700 10px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            if (meta.hidden) return;
+
+            meta.data.forEach((bar, index) => {
+                const value = Number(dataset.data[index]) || 0;
+                if (!value) return;
+                const position = bar.tooltipPosition();
+                ctx.fillText(value, position.x, Math.max(position.y - 6, chart.chartArea.top + 10));
+            });
+        });
+        ctx.restore();
+    }
+};
+
+function dashboardEstaVisivel() {
+    const aba = document.getElementById('tabDashboard');
+    return aba && window.getComputedStyle(aba).display !== 'none';
+}
+
+function criarOpcaoFiltro(valor) {
+    const option = document.createElement('option');
+    option.value = valor;
+    option.textContent = valor;
+    return option;
+}
+
+function popularFiltrosDashboard() {
+    const supervisorSelect = document.getElementById('dashboardSupervisor');
+    const usinaSelect = document.getElementById('dashboardUsina');
+    if (!supervisorSelect || !usinaSelect) return;
+
+    const supervisorAtual = supervisorSelect.value;
+    const usinaAtual = usinaSelect.value;
+
+    const supervisores = [...new Set([
+        ...(db.visitas || []).map(v => String(v.responsavelUsina || '').trim()),
+        ...(db.ocorrencias || []).map(o => String(obterSupervisorOcorrencia(o) || '').trim()),
+        ...(db.ufv_status || []).map(u => String(u.supervisor || u.responsavel || u.responsavelUsina || '').trim())
+    ].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+    const usinas = [...new Set([
+        ...(db.ufv_status || []).map(u => String(u.nome || '').trim()),
+        ...(db.visitas || []).map(v => String(v.usina || '').trim()),
+        ...(db.ocorrencias || []).map(o => String(o.usina || '').trim())
+    ].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+    supervisorSelect.innerHTML = '<option value="">Todos os supervisores</option>';
+    supervisores.forEach(nome => supervisorSelect.appendChild(criarOpcaoFiltro(nome)));
+    supervisorSelect.value = supervisores.includes(supervisorAtual) ? supervisorAtual : '';
+
+    usinaSelect.innerHTML = '<option value="">Todas as usinas</option>';
+    usinas.forEach(nome => usinaSelect.appendChild(criarOpcaoFiltro(nome)));
+    usinaSelect.value = usinas.includes(usinaAtual) ? usinaAtual : '';
+}
+
+function normalizarDataDashboard(valor) {
+    if (!valor) return null;
+    const texto = String(valor);
+    const data = new Date(texto.includes('T') ? texto : `${texto}T12:00:00`);
+    return Number.isNaN(data.getTime()) ? null : data;
+}
+
+function obterFiltrosDashboard() {
+    return {
+        inicio: document.getElementById('dashboardDataInicio').value,
+        fim: document.getElementById('dashboardDataFim').value,
+        supervisor: document.getElementById('dashboardSupervisor').value,
+        usina: document.getElementById('dashboardUsina').value
+    };
+}
+
+function dataAtendeFiltroDashboard(valor, filtros) {
+    if (!filtros.inicio && !filtros.fim) return true;
+    const data = normalizarDataDashboard(valor);
+    if (!data) return false;
+    const inicio = filtros.inicio ? new Date(`${filtros.inicio}T00:00:00`) : null;
+    const fim = filtros.fim ? new Date(`${filtros.fim}T23:59:59`) : null;
+    return (!inicio || data >= inicio) && (!fim || data <= fim);
+}
+
+function obterSupervisorUfv(ufv) {
+    const supervisorCadastrado = String(ufv.supervisor || ufv.responsavel || ufv.responsavelUsina || '').trim();
+    if (supervisorCadastrado) return supervisorCadastrado;
+
+    const ultimaVisita = (db.visitas || [])
+        .filter(v => v.usina === ufv.nome && v.responsavelUsina)
+        .sort((a, b) => (normalizarDataDashboard(b.dataVisita)?.getTime() || 0) - (normalizarDataDashboard(a.dataVisita)?.getTime() || 0))[0];
+
+    return ultimaVisita ? ultimaVisita.responsavelUsina : 'Não informado';
+}
+
+function obterSupervisorOcorrencia(ocorrencia) {
+    const supervisorCadastrado = String(ocorrencia.supervisor || ocorrencia.responsavelUsina || ocorrencia.responsavel || '').trim();
+    if (supervisorCadastrado) return supervisorCadastrado;
+
+    const ufv = (db.ufv_status || []).find(item => item.nome === ocorrencia.usina);
+    const supervisorUfv = ufv ? obterSupervisorUfv(ufv) : '';
+    if (supervisorUfv && supervisorUfv !== 'Não informado') return supervisorUfv;
+
+    return String(ocorrencia.operador || 'Não informado').trim() || 'Não informado';
+}
+
+function agruparDashboard(itens, obterChave, obterResultado) {
+    return itens.reduce((acc, item) => {
+        const chave = String(obterChave(item) || 'Não informado').trim() || 'Não informado';
+        if (!acc[chave]) acc[chave] = { aprovado: 0, reprovado: 0, total: 0 };
+        const resultado = String(obterResultado(item) || '').toUpperCase();
+        if (resultado === 'REPROVADO') acc[chave].reprovado += 1;
+        else acc[chave].aprovado += 1;
+        acc[chave].total += 1;
+        return acc;
+    }, {});
+}
+
+function ordenarAgrupamentoDashboard(agrupamento) {
+    return Object.keys(agrupamento).sort((a, b) => {
+        const diferenca = agrupamento[b].total - agrupamento[a].total;
+        return diferenca || a.localeCompare(b, 'pt-BR');
+    });
+}
+
+function configuracaoGraficoDashboard(labels, datasets, opcoes = {}) {
+    return {
+        type: 'bar',
+        data: { labels, datasets },
+        plugins: [dashboardValueLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 260 },
+            interaction: { mode: 'index', intersect: false },
+            layout: { padding: { top: 20 } },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#64748b', usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 10, boxHeight: 10, padding: 18, font: { family: 'Inter', size: 10, weight: '700' } }
+                },
+                tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleFont: { family: 'Inter', weight: '800' },
+                    bodyFont: { family: 'Inter', weight: '600' },
+                    padding: 12,
+                    cornerRadius: 10
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#64748b', maxRotation: 35, minRotation: 0, font: { family: 'Inter', size: 10, weight: '700' } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grace: '12%',
+                    grid: { color: '#f1f5f9' },
+                    ticks: { color: '#94a3b8', precision: 0, font: { family: 'Inter', size: 10, weight: '600' } }
+                }
+            },
+            ...opcoes
+        }
+    };
+}
+
+function desenharGraficoDashboard(chave, canvasId, emptyId, labels, datasets, opcoes = {}) {
+    const canvas = document.getElementById(canvasId);
+    const empty = document.getElementById(emptyId);
+    if (!canvas || !empty) return;
+
+    if (dashboardCharts[chave]) {
+        dashboardCharts[chave].destroy();
+        delete dashboardCharts[chave];
+    }
+
+    const total = datasets.reduce((soma, dataset) => soma + dataset.data.reduce((subtotal, valor) => subtotal + (Number(valor) || 0), 0), 0);
+    const possuiDados = labels.length > 0 && total > 0;
+    canvas.style.display = possuiDados ? 'block' : 'none';
+    empty.style.display = possuiDados ? 'none' : 'flex';
+
+    if (!possuiDados || typeof Chart === 'undefined') return;
+    dashboardCharts[chave] = new Chart(canvas.getContext('2d'), configuracaoGraficoDashboard(labels, datasets, opcoes));
+}
+
+function limparFiltrosDashboard() {
+    document.getElementById('dashboardDataInicio').value = '';
+    document.getElementById('dashboardDataFim').value = '';
+    document.getElementById('dashboardSupervisor').value = '';
+    document.getElementById('dashboardUsina').value = '';
+    renderDashboard();
+}
+
+function renderDashboard() {
+    popularFiltrosDashboard();
+    const filtros = obterFiltrosDashboard();
+
+    const testes = (db.visitas || []).filter(v => {
+        const possuiTeste = String(v.usoEPI || '').toUpperCase() === 'SIM';
+        const supervisorOk = !filtros.supervisor || v.responsavelUsina === filtros.supervisor;
+        const usinaOk = !filtros.usina || v.usina === filtros.usina;
+        return possuiTeste && supervisorOk && usinaOk && dataAtendeFiltroDashboard(v.dataVisita, filtros);
+    });
+
+    const prontaResposta = (db.ocorrencias || []).filter(o => {
+        const tipo = String(o.tipo || '').toLowerCase();
+        const ehProntaResposta = tipo.includes('pronta resposta');
+        const supervisorOk = !filtros.supervisor || obterSupervisorOcorrencia(o) === filtros.supervisor;
+        const usinaOk = !filtros.usina || o.usina === filtros.usina;
+        return ehProntaResposta && supervisorOk && usinaOk && dataAtendeFiltroDashboard(o.dataInicio, filtros);
+    });
+
+    const ufvs = (db.ufv_status || []).filter(u => {
+        const supervisor = obterSupervisorUfv(u);
+        const supervisorOk = !filtros.supervisor || supervisor === filtros.supervisor;
+        const usinaOk = !filtros.usina || u.nome === filtros.usina;
+        return supervisorOk && usinaOk;
+    });
+
+    const aprovados = testes.filter(v => String(v.resultadoFibra || 'APROVADO').toUpperCase() !== 'REPROVADO').length;
+    const camerasOffline = ufvs.reduce((soma, u) => soma + Math.max((Number(u.totalCam) || 0) - (Number(u.camOn) || 0), 0), 0);
+
+    document.getElementById('dashboardTotalTestes').textContent = testes.length;
+    document.getElementById('dashboardTaxaAprovacao').textContent = testes.length ? `${Math.round((aprovados / testes.length) * 100)}%` : '0%';
+    document.getElementById('dashboardProntaResposta').textContent = prontaResposta.length;
+    document.getElementById('dashboardCamerasOffline').textContent = camerasOffline;
+
+    if (!dashboardEstaVisivel()) return;
+
+    const porSupervisor = agruparDashboard(testes, v => v.responsavelUsina, v => v.resultadoFibra || 'APROVADO');
+    const labelsSupervisor = ordenarAgrupamentoDashboard(porSupervisor);
+    desenharGraficoDashboard('fibraSupervisor', 'chartFibraSupervisor', 'emptyFibraSupervisor', labelsSupervisor, [
+        { label: 'Aprovados', data: labelsSupervisor.map(label => porSupervisor[label].aprovado), backgroundColor: '#10b981', borderRadius: 7, maxBarThickness: 46 },
+        { label: 'Reprovados', data: labelsSupervisor.map(label => porSupervisor[label].reprovado), backgroundColor: '#fb7185', borderRadius: 7, maxBarThickness: 46 }
+    ]);
+
+    const porUsina = agruparDashboard(testes, v => v.usina, v => v.resultadoFibra || 'APROVADO');
+    const labelsUsina = ordenarAgrupamentoDashboard(porUsina);
+    desenharGraficoDashboard('fibraUsina', 'chartFibraUsina', 'emptyFibraUsina', labelsUsina, [
+        { label: 'Aprovados', data: labelsUsina.map(label => porUsina[label].aprovado), backgroundColor: '#38bdf8', borderRadius: 7, maxBarThickness: 42 },
+        { label: 'Reprovados', data: labelsUsina.map(label => porUsina[label].reprovado), backgroundColor: '#fda4af', borderRadius: 7, maxBarThickness: 42 }
+    ]);
+
+    const prontaPorSupervisor = prontaResposta.reduce((acc, ocorrencia) => {
+        const supervisor = obterSupervisorOcorrencia(ocorrencia);
+        acc[supervisor] = (acc[supervisor] || 0) + 1;
+        return acc;
+    }, {});
+    const labelsPronta = Object.keys(prontaPorSupervisor).sort((a, b) => prontaPorSupervisor[b] - prontaPorSupervisor[a] || a.localeCompare(b, 'pt-BR'));
+    desenharGraficoDashboard('prontaResposta', 'chartProntaResposta', 'emptyProntaResposta', labelsPronta, [
+        { label: 'Acionamentos', data: labelsPronta.map(label => prontaPorSupervisor[label]), backgroundColor: '#f59e0b', borderRadius: 7, maxBarThickness: 52 }
+    ]);
+
+    const sistemas = ufvs.reduce((acc, ufv) => {
+        const supervisor = obterSupervisorUfv(ufv);
+        if (!acc[supervisor]) acc[supervisor] = { camerasOnline: 0, camerasOffline: 0, fibraOnline: 0, fibraRompida: 0 };
+        const totalCam = Number(ufv.totalCam) || 0;
+        const camOn = Number(ufv.camOn) || 0;
+        acc[supervisor].camerasOnline += camOn;
+        acc[supervisor].camerasOffline += Math.max(totalCam - camOn, 0);
+        if (ufv.fibra === 'OK') acc[supervisor].fibraOnline += 1;
+        if (['ROMPIDA', 'OFFLINE'].includes(ufv.fibra)) acc[supervisor].fibraRompida += 1;
+        return acc;
+    }, {});
+    const labelsSistemas = Object.keys(sistemas).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    desenharGraficoDashboard('sistemasSeguranca', 'chartSistemasSeguranca', 'emptySistemasSeguranca', labelsSistemas, [
+        { label: 'Câmeras online', data: labelsSistemas.map(label => sistemas[label].camerasOnline), backgroundColor: '#3b82f6', borderRadius: 6, maxBarThickness: 34 },
+        { label: 'Câmeras offline', data: labelsSistemas.map(label => sistemas[label].camerasOffline), backgroundColor: '#fda4af', borderRadius: 6, maxBarThickness: 34 },
+        { label: 'Fibra online', data: labelsSistemas.map(label => sistemas[label].fibraOnline), backgroundColor: '#84cc16', borderRadius: 6, maxBarThickness: 34 },
+        { label: 'Fibra rompida/offline', data: labelsSistemas.map(label => sistemas[label].fibraRompida), backgroundColor: '#8b5cf6', borderRadius: 6, maxBarThickness: 34 }
+    ]);
+}
+
+	    function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
+	    function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
+	    
+	    function switchTab(tab) {
+	    ['ocorrencias', 'status', 'controleAcesso', 'dashboard'].forEach(t => {
+	        const tabElement = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+	        const btnElement = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
         if (tabElement) tabElement.style.display = 'none';
         if (btnElement) {
             btnElement.classList.remove('tab-active');
@@ -954,11 +1374,12 @@ function atualizarTotalizador() {
     if (targetTab) {
         targetTab.style.display = (tab === 'controleAcesso' || tab === 'ocorrencias') ? 'grid' : 'block';
     }
-    if (targetBtn) {
-        targetBtn.classList.add('tab-active');
-        targetBtn.classList.remove('text-slate-400');
-    }
-}
+	    if (targetBtn) {
+	        targetBtn.classList.add('tab-active');
+	        targetBtn.classList.remove('text-slate-400');
+	    }
+	    if (tab === 'dashboard') requestAnimationFrame(() => renderDashboard());
+	}
 
     function mostrarApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').classList.remove('hidden'); }
     function logout() { location.reload(); }
