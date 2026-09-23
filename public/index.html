@@ -299,7 +299,7 @@
                 </div>
             </div>
 
-	            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+	            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-4">
                 <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-emerald-500">
                     <div class="flex justify-between items-start gap-3">
                         <div>
@@ -334,6 +334,24 @@
 	                            <p id="dashboardCoberturaSeguranca" class="text-3xl font-black text-slate-800 mt-2">0</p>
 	                        </div>
 	                        <span class="w-10 h-10 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center"><i class="fa-solid fa-user-shield"></i></span>
+	                    </div>
+	                </div>
+	                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-indigo-500">
+	                    <div class="flex justify-between items-start gap-3">
+	                        <div>
+	                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Cobertura segurança (30 dias)</p>
+	                            <p id="dashboardCoberturaSeguranca30Dias" class="text-3xl font-black text-slate-800 mt-2">0</p>
+	                        </div>
+	                        <span class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-calendar-days"></i></span>
+	                    </div>
+	                </div>
+	                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-teal-500">
+	                    <div class="flex justify-between items-start gap-3">
+	                        <div>
+	                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Custo total mobilizações</p>
+	                            <p id="dashboardCustoMobilizacoes" class="text-2xl font-black text-slate-800 mt-2 tracking-tight whitespace-nowrap">R$ 0,00</p>
+	                        </div>
+	                        <span class="w-10 h-10 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center"><i class="fa-solid fa-sack-dollar"></i></span>
 	                    </div>
 	                </div>
 	                <div class="dashboard-card dashboard-kpi p-5 border-l-4 !border-l-rose-500">
@@ -395,7 +413,7 @@
 	                <section class="dashboard-card p-6">
 	                    <div class="mb-5">
 	                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Cobertura e pronta resposta por usina</h3>
-	                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Quantidade histórica de coberturas e acionamentos por UFV</p>
+	                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Cobertura avulsa, cobertura de 30 dias e acionamentos por UFV</p>
 	                    </div>
 	                    <div class="dashboard-chart">
 	                        <canvas id="chartCoberturaProntaUsina"></canvas>
@@ -663,14 +681,22 @@
 	    let sortConfig = { field: 'nome', direction: 1 };
 	    let dashboardCharts = {};
 
-    // Altere somente esta lista quando houver entrada, saída ou mudança de nome de supervisor.
-    const SUPERVISORES_PADRAO = [
-        { nome: 'Eduardo Barbosa', aliases: ['Eduardo', 'Eduardo Barboza', 'Ed. Barbosa'] },
-        { nome: 'Marcel Araujo', aliases: ['Marcel', 'Marcel Araújo', 'Marcel Aroujo'] },
-        { nome: 'Wdyson Rocha', aliases: ['Wdyson', 'Wydson Rocha', 'Wdysson Rocha', 'Wdyson R.'] },
-        { nome: 'Rafael Santos', aliases: ['Rafael', 'Rafael Santo', 'Rafael S.'] },
-        { nome: 'Heloísa', aliases: ['Heloisa', 'Heloiza'] }
-    ];
+	    // Valores unitários usados no card de custo total das mobilizações.
+	    const VALORES_MOBILIZACAO = Object.freeze({
+	        prontaResposta: 0,
+	        coberturaSeguranca: 1000,
+	        coberturaSeguranca30Dias: 30000
+	    });
+	    const FORMATADOR_MOEDA_BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+	    // Altere somente esta lista quando houver entrada, saída ou mudança de nome de supervisor.
+	    const SUPERVISORES_PADRAO = [
+	        { nome: 'Eduardo Barbosa', aliases: ['Eduardo', 'Eduardo Barboza', 'Ed. Barbosa'] },
+	        { nome: 'Marcel Araujo', aliases: ['Marcel', 'Marcel Araújo', 'Marcel Aroujo'] },
+	        { nome: 'Heloísa', aliases: ['Heloisa', 'Heloiza'] },
+	        { nome: 'Rafael Santos', aliases: ['Rafael', 'Rafael Santo', 'Rafael S.'] },
+	        { nome: 'Wdyson Rocha', aliases: ['Wdyson', 'Wydson Rocha', 'Wdysson Rocha', 'Wdyson R.'] }
+	    ];
 
     function chaveNomeSupervisor(valor) {
         return String(valor || '')
@@ -1232,11 +1258,7 @@ function popularFiltrosDashboard() {
     const supervisorAtual = supervisorSelect.value;
     const usinaAtual = usinaSelect.value;
 
-	    const supervisores = [...new Set([
-	        ...(db.visitas || []).map(v => normalizarNomeSupervisor(v.responsavelUsina)),
-	        ...(db.ocorrencias || []).map(o => normalizarNomeSupervisor(obterSupervisorOcorrencia(o))),
-	        ...(db.ufv_status || []).map(u => normalizarNomeSupervisor(u.supervisor || u.responsavel || u.responsavelUsina))
-	    ].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+	    const supervisores = SUPERVISORES_PADRAO.map(item => item.nome);
 
     const usinas = [...new Set([
         ...(db.ufv_status || []).map(u => String(u.nome || '').trim()),
@@ -1408,7 +1430,13 @@ function renderDashboard() {
 	        .replace(/[\u0300-\u036f]/g, '')
 	        .toLowerCase();
 	    const prontaResposta = ocorrenciasFiltradas.filter(o => normalizarTipo(o.tipo).includes('pronta resposta'));
-	    const coberturaSeguranca = ocorrenciasFiltradas.filter(o => normalizarTipo(o.tipo).includes('cobertura com seguranca'));
+	    const ehCoberturaSeguranca = o => normalizarTipo(o.tipo).includes('cobertura com seguranca');
+	    const ehCoberturaSeguranca30Dias = o => {
+	        const tipo = normalizarTipo(o.tipo);
+	        return tipo.includes('cobertura com seguranca') && /30\s*dias?/.test(tipo);
+	    };
+	    const coberturaSeguranca30Dias = ocorrenciasFiltradas.filter(ehCoberturaSeguranca30Dias);
+	    const coberturaSeguranca = ocorrenciasFiltradas.filter(o => ehCoberturaSeguranca(o) && !ehCoberturaSeguranca30Dias(o));
 	    const invasaoIntrusao = ocorrenciasFiltradas.filter(o => {
 	        const tipo = normalizarTipo(o.tipo);
 	        return tipo.includes('invasao') || tipo.includes('intrusao');
@@ -1425,13 +1453,19 @@ function renderDashboard() {
         return supervisorOk && usinaOk;
     });
 
-    const aprovados = testes.filter(v => String(v.resultadoFibra || 'APROVADO').toUpperCase() !== 'REPROVADO').length;
-    const camerasOffline = ufvs.reduce((soma, u) => soma + Math.max((Number(u.totalCam) || 0) - (Number(u.camOn) || 0), 0), 0);
+	    const aprovados = testes.filter(v => String(v.resultadoFibra || 'APROVADO').toUpperCase() !== 'REPROVADO').length;
+	    const camerasOffline = ufvs.reduce((soma, u) => soma + Math.max((Number(u.totalCam) || 0) - (Number(u.camOn) || 0), 0), 0);
+	    const custoMobilizacoes =
+	        (prontaResposta.length * VALORES_MOBILIZACAO.prontaResposta) +
+	        (coberturaSeguranca.length * VALORES_MOBILIZACAO.coberturaSeguranca) +
+	        (coberturaSeguranca30Dias.length * VALORES_MOBILIZACAO.coberturaSeguranca30Dias);
 
 	    document.getElementById('dashboardTotalTestes').textContent = testes.length;
 	    document.getElementById('dashboardTaxaAprovacao').textContent = testes.length ? `${Math.round((aprovados / testes.length) * 100)}%` : '0%';
 	    document.getElementById('dashboardProntaResposta').textContent = prontaResposta.length;
 	    document.getElementById('dashboardCoberturaSeguranca').textContent = coberturaSeguranca.length;
+	    document.getElementById('dashboardCoberturaSeguranca30Dias').textContent = coberturaSeguranca30Dias.length;
+	    document.getElementById('dashboardCustoMobilizacoes').textContent = FORMATADOR_MOEDA_BRL.format(custoMobilizacoes);
 	    document.getElementById('dashboardCamerasOffline').textContent = camerasOffline;
 
     if (!dashboardEstaVisivel()) return;
@@ -1486,10 +1520,12 @@ function renderDashboard() {
 	    }, {});
 
 	    const coberturaPorUsina = contarOcorrenciasPorUsina(coberturaSeguranca);
-	    const labelsCoberturaPronta = [...new Set([...Object.keys(coberturaPorUsina), ...Object.keys(prontaPorUsina)])]
-	        .sort((a, b) => ((coberturaPorUsina[b] || 0) + (prontaPorUsina[b] || 0)) - ((coberturaPorUsina[a] || 0) + (prontaPorUsina[a] || 0)) || a.localeCompare(b, 'pt-BR'));
+	    const cobertura30DiasPorUsina = contarOcorrenciasPorUsina(coberturaSeguranca30Dias);
+	    const labelsCoberturaPronta = [...new Set([...Object.keys(coberturaPorUsina), ...Object.keys(cobertura30DiasPorUsina), ...Object.keys(prontaPorUsina)])]
+	        .sort((a, b) => ((coberturaPorUsina[b] || 0) + (cobertura30DiasPorUsina[b] || 0) + (prontaPorUsina[b] || 0)) - ((coberturaPorUsina[a] || 0) + (cobertura30DiasPorUsina[a] || 0) + (prontaPorUsina[a] || 0)) || a.localeCompare(b, 'pt-BR'));
 	    desenharGraficoDashboard('coberturaProntaUsina', 'chartCoberturaProntaUsina', 'emptyCoberturaProntaUsina', labelsCoberturaPronta, [
 	        { label: 'Cobertura com segurança', data: labelsCoberturaPronta.map(usina => coberturaPorUsina[usina] || 0), backgroundColor: '#8b5cf6', borderRadius: 7, maxBarThickness: 46 },
+	        { label: 'Cobertura com segurança (30 dias)', data: labelsCoberturaPronta.map(usina => cobertura30DiasPorUsina[usina] || 0), backgroundColor: '#4f46e5', borderRadius: 7, maxBarThickness: 46 },
 	        { label: 'Pronta resposta', data: labelsCoberturaPronta.map(usina => prontaPorUsina[usina] || 0), backgroundColor: '#f59e0b', borderRadius: 7, maxBarThickness: 46 }
 	    ]);
 
