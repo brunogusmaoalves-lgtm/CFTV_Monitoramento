@@ -74,7 +74,6 @@ io.on('connection', (socket) => {
             { usuario: 'katia', senha: 'cftv2026', nome: 'Katia' },
             { usuario: 'leane', senha: 'cftv2026', nome: 'Leane' },
             { usuario: 'bruno', senha: 'cftv2026', nome: 'Bruno' },
-            { usuario: 'layla', senha: 'cftv2026', nome: 'Layla' },
             { usuario: 'geilson', senha: 'cftv2026', nome: 'Geilson' },
             { usuario: 'elaine', senha: 'cftv2026', nome: 'Geilson' },
             { usuario: 'vanuzia', senha: 'cftv2026', nome: 'Vanuzia' }
