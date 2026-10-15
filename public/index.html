@@ -36,52 +36,41 @@
         @media (max-width: 768px) { .dashboard-chart { height: 300px; } }
         @media (prefers-reduced-motion: reduce) { .dashboard-kpi { transition: none; } }
     </style>
-	<script>
-  	(function () {
-    	function acharDashboard() {
-      	var el = document.getElementById('dashboard');
-      	if (el) return el;
-      	var titulos = document.querySelectorAll('h1, h2, h3, h4, span, p, b, strong');
-      	for (var i = 0; i < titulos.length; i++) {
-        	if (titulos[i].textContent.trim().toUpperCase().indexOf('DASHBOARD OPERACIONAL') !== -1) {
-          	return titulos[i].closest('div') || titulos[i].parentElement;
-        	}
-      	}
-      	return null;
-    	}
-    	function pintarFundo() {
-      	var main = document.querySelector('main');
-      	var dash = acharDashboard();
-      	if (!main || !dash) return;
-      	var cards = dash.querySelectorAll('.bg-white');
-      	var visivel = dash.offsetParent !== null;
-      	var i, j, internos;
-      	if (visivel) {
-        	main.style.backgroundColor = '#000000';
-        	for (i = 0; i < cards.length; i++) {
-          	cards[i].style.backgroundColor = '#374151';
-          	cards[i].style.color = '#ffffff';
-          	internos = cards[i].querySelectorAll('*');
-          	for (j = 0; j < internos.length; j++) {
-            	internos[j].style.color = '#ffffff';
-          	}
-        	}
-      	} else {
-        	main.style.backgroundColor = '';
-        	for (i = 0; i < cards.length; i++) {
-          	cards[i].style.backgroundColor = '';
-          	cards[i].style.color = '';
-          	internos = cards[i].querySelectorAll('*');
-          	for (j = 0; j < internos.length; j++) {
-            	internos[j].style.color = '';
-          	}
-        	}
-      	}
-    	}
-    	pintarFundo();
-    	setInterval(pintarFundo, 300);
-  	})();
-	</script>
+	<style>
+  main.fundo-preto { background-color: #000 !important; }
+  main.fundo-preto .dashboard-card {
+    background-color: #374151 !important;
+    color: #fff !important;
+  }
+  main.fundo-preto .dashboard-card * { color: #fff !important; }
+</style>
+<script>
+  (function () {
+    function acharDashboard() {
+      var el = document.getElementById('dashboard');
+      if (el) return el;
+      var titulos = document.querySelectorAll('h1, h2, h3, h4, span, p, b, strong');
+      for (var i = 0; i < titulos.length; i++) {
+        if (titulos[i].textContent.trim().toUpperCase().indexOf('DASHBOARD OPERACIONAL') !== -1) {
+          return titulos[i].closest('div') || titulos[i].parentElement;
+        }
+      }
+      return null;
+    }
+    function pintarFundo() {
+      var main = document.querySelector('main');
+      var dash = acharDashboard();
+      if (!main || !dash) return;
+      if (dash.offsetParent !== null) {
+        main.classList.add('fundo-preto');
+      } else {
+        main.classList.remove('fundo-preto');
+      }
+    }
+    pintarFundo();
+    setInterval(pintarFundo, 300);
+  })();
+</script>
 </head>
 <body class="bg-[#f1f5f9] text-slate-900">
 
