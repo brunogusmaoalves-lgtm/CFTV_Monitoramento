@@ -36,13 +36,26 @@
         @media (max-width: 768px) { .dashboard-chart { height: 300px; } }
         @media (prefers-reduced-motion: reduce) { .dashboard-kpi { transition: none; } }
     </style>
-	<style>
+<style>
   main.fundo-preto { background-color: #000 !important; }
   main.fundo-preto .dashboard-card {
-    background-color: #374151 !important;
+    background-color: #161616 !important;
     color: #fff !important;
+    border: 1px solid #2e2e2e !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
   }
   main.fundo-preto .dashboard-card * { color: #fff !important; }
+  main.fundo-preto .dashboard-card p,
+  main.fundo-preto .dashboard-card small,
+  main.fundo-preto .dashboard-card .text-gray-500,
+  main.fundo-preto .dashboard-card .text-gray-600 {
+    color: #9ca3af !important;
+  }
+  main.fundo-preto .dashboard-card .bg-gray-100,
+  main.fundo-preto .dashboard-card .bg-gray-50 {
+    background-color: #2a2a2a !important;
+  }
 </style>
 <script>
   (function () {
