@@ -53,10 +53,29 @@
       	var main = document.querySelector('main');
       	var dash = acharDashboard();
       	if (!main || !dash) return;
-      	if (dash.offsetParent !== null) {
+      	var cards = dash.querySelectorAll('.bg-white');
+      	var visivel = dash.offsetParent !== null;
+      	var i, j, internos;
+      	if (visivel) {
         	main.style.backgroundColor = '#000000';
+        	for (i = 0; i < cards.length; i++) {
+          	cards[i].style.backgroundColor = '#374151';
+          	cards[i].style.color = '#ffffff';
+          	internos = cards[i].querySelectorAll('*');
+          	for (j = 0; j < internos.length; j++) {
+            	internos[j].style.color = '#ffffff';
+          	}
+        	}
       	} else {
         	main.style.backgroundColor = '';
+        	for (i = 0; i < cards.length; i++) {
+          	cards[i].style.backgroundColor = '';
+          	cards[i].style.color = '';
+          	internos = cards[i].querySelectorAll('*');
+          	for (j = 0; j < internos.length; j++) {
+            	internos[j].style.color = '';
+          	}
+        	}
       	}
     	}
     	pintarFundo();
