@@ -53,17 +53,28 @@
     color: #9ca3af !important;
   }
   main.fundo-preto .dashboard-card .bg-gray-100,
-  main.fundo-preto .dashboard-card .bg-gray-50 {
+  main.fundo-preto .dashboard-card .bg-gray-50,
+  main.fundo-preto .dashboard-card .bg-white {
     background-color: #2a2a2a !important;
+  }
+  main.fundo-preto input,
+  main.fundo-preto select,
+  main.fundo-preto select option {
+    background-color: #2a2a2a !important;
+    color: #fff !important;
+    border-color: #3f3f3f !important;
+  }
+  main.fundo-preto input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
   }
 </style>
 <script>
   (function () {
     if (window.Chart) {
-  Chart.defaults.color = '#9ca3af';
-  Chart.defaults.borderColor = '#3f3f3f';
-	}
-	function acharDashboard() {
+      Chart.defaults.color = '#9ca3af';
+      Chart.defaults.borderColor = '#3f3f3f';
+    }
+    function acharDashboard() {
       var el = document.getElementById('dashboard');
       if (el) return el;
       var titulos = document.querySelectorAll('h1, h2, h3, h4, span, p, b, strong');
@@ -74,12 +85,38 @@
       }
       return null;
     }
+    function ajustarGraficos() {
+      if (!window.Chart || !Chart.instances) return;
+      var chaves = Object.keys(Chart.instances);
+      for (var i = 0; i < chaves.length; i++) {
+        var c = Chart.instances[chaves[i]];
+        if (!c || c.__ajustado) continue;
+        c.options.color = '#9ca3af';
+        if (c.options.scales) {
+          var eixos = Object.keys(c.options.scales);
+          for (var j = 0; j < eixos.length; j++) {
+            var eixo = c.options.scales[eixos[j]];
+            if (eixo.ticks) eixo.ticks.color = '#9ca3af';
+            if (eixo.grid) eixo.grid.color = '#3f3f3f';
+          }
+        }
+        if (c.options.plugins && c.options.plugins.legend && c.options.plugins.legend.labels) {
+          c.options.plugins.legend.labels.color = '#9ca3af';
+        }
+        if (c.options.legend && c.options.legend.labels) {
+          c.options.legend.labels.color = '#9ca3af';
+        }
+        c.update();
+        c.__ajustado = true;
+      }
+    }
     function pintarFundo() {
       var main = document.querySelector('main');
       var dash = acharDashboard();
       if (!main || !dash) return;
       if (dash.offsetParent !== null) {
         main.classList.add('fundo-preto');
+        ajustarGraficos();
       } else {
         main.classList.remove('fundo-preto');
       }
