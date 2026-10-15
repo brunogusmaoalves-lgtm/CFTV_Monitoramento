@@ -39,9 +39,9 @@
 <style>
   main.fundo-preto { background-color: #000 !important; }
   main.fundo-preto .dashboard-card {
-    background-color: #161616 !important;
+    background-color: #1f1f1f !important;
     color: #fff !important;
-    border: 1px solid #2e2e2e !important;
+    border: 1px solid #3f3f3f !important;
     border-radius: 12px !important;
     box-shadow: none !important;
   }
@@ -59,7 +59,11 @@
 </style>
 <script>
   (function () {
-    function acharDashboard() {
+    if (window.Chart) {
+  Chart.defaults.color = '#9ca3af';
+  Chart.defaults.borderColor = '#3f3f3f';
+	}
+	function acharDashboard() {
       var el = document.getElementById('dashboard');
       if (el) return el;
       var titulos = document.querySelectorAll('h1, h2, h3, h4, span, p, b, strong');
