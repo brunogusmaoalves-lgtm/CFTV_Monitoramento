@@ -36,11 +36,33 @@
         @media (max-width: 768px) { .dashboard-chart { height: 300px; } }
         @media (prefers-reduced-motion: reduce) { .dashboard-kpi { transition: none; } }
     </style>
-	<style>
-  	main:has(#tabDashboard:not(.hidden)) {
-    	background-color: #000;
-  	}
-	</style>
+	<script>
+  	(function () {
+    	function acharDashboard() {
+      	var el = document.getElementById('dashboard');
+      	if (el) return el;
+      	var titulos = document.querySelectorAll('h1, h2, h3, h4, span, p, b, strong');
+      	for (var i = 0; i < titulos.length; i++) {
+        	if (titulos[i].textContent.trim().toUpperCase().indexOf('DASHBOARD OPERACIONAL') !== -1) {
+          	return titulos[i].closest('div') || titulos[i].parentElement;
+        	}
+      	}
+      	return null;
+    	}
+    	function pintarFundo() {
+      	var main = document.querySelector('main');
+      	var dash = acharDashboard();
+      	if (!main || !dash) return;
+      	if (dash.offsetParent !== null) {
+        	main.style.backgroundColor = '#000000';
+      	} else {
+        	main.style.backgroundColor = '';
+      	}
+    	}
+    	pintarFundo();
+    	setInterval(pintarFundo, 300);
+  	})();
+	</script>
 </head>
 <body class="bg-[#f1f5f9] text-slate-900">
 
