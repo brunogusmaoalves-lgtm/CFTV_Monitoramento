@@ -54,12 +54,39 @@
   }
   main.fundo-preto .dashboard-card .bg-gray-100,
   main.fundo-preto .dashboard-card .bg-gray-50,
-  main.fundo-preto .dashboard-card .bg-white {
+  main.fundo-preto .dashboard-card .bg-white,
+  main.fundo-preto .dashboard-card .bg-blue-100,
+  main.fundo-preto .dashboard-card .bg-blue-50,
+  main.fundo-preto .dashboard-card .bg-sky-100,
+  main.fundo-preto .dashboard-card .bg-sky-50,
+  main.fundo-preto .dashboard-card .bg-green-100,
+  main.fundo-preto .dashboard-card .bg-green-50,
+  main.fundo-preto .dashboard-card .bg-emerald-100,
+  main.fundo-preto .dashboard-card .bg-emerald-50,
+  main.fundo-preto .dashboard-card .bg-teal-100,
+  main.fundo-preto .dashboard-card .bg-teal-50,
+  main.fundo-preto .dashboard-card .bg-orange-100,
+  main.fundo-preto .dashboard-card .bg-orange-50,
+  main.fundo-preto .dashboard-card .bg-amber-100,
+  main.fundo-preto .dashboard-card .bg-amber-50,
+  main.fundo-preto .dashboard-card .bg-yellow-100,
+  main.fundo-preto .dashboard-card .bg-yellow-50,
+  main.fundo-preto .dashboard-card .bg-red-100,
+  main.fundo-preto .dashboard-card .bg-red-50,
+  main.fundo-preto .dashboard-card .bg-rose-100,
+  main.fundo-preto .dashboard-card .bg-rose-50,
+  main.fundo-preto .dashboard-card .bg-purple-100,
+  main.fundo-preto .dashboard-card .bg-purple-50,
+  main.fundo-preto .dashboard-card .bg-violet-100,
+  main.fundo-preto .dashboard-card .bg-violet-50,
+  main.fundo-preto .dashboard-card .bg-indigo-100,
+  main.fundo-preto .dashboard-card .bg-indigo-50 {
     background-color: #2a2a2a !important;
   }
   main.fundo-preto input,
   main.fundo-preto select,
-  main.fundo-preto select option {
+  main.fundo-preto select option,
+  main.fundo-preto button {
     background-color: #2a2a2a !important;
     color: #fff !important;
     border-color: #3f3f3f !important;
@@ -105,6 +132,20 @@
         }
         if (c.options.legend && c.options.legend.labels) {
           c.options.legend.labels.color = '#9ca3af';
+        }
+        if (c.options.plugins && c.options.plugins.datalabels) {
+          c.options.plugins.datalabels.color = '#ffffff';
+          c.options.plugins.datalabels.textStrokeColor = '#000000';
+          c.options.plugins.datalabels.textStrokeWidth = 3;
+        }
+        if (c.data && c.data.datasets) {
+          for (var k = 0; k < c.data.datasets.length; k++) {
+            if (c.data.datasets[k].datalabels) {
+              c.data.datasets[k].datalabels.color = '#ffffff';
+              c.data.datasets[k].datalabels.textStrokeColor = '#000000';
+              c.data.datasets[k].datalabels.textStrokeWidth = 3;
+            }
+          }
         }
         c.update();
         c.__ajustado = true;
