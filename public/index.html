@@ -36,6 +36,11 @@
         @media (max-width: 768px) { .dashboard-chart { height: 300px; } }
         @media (prefers-reduced-motion: reduce) { .dashboard-kpi { transition: none; } }
     </style>
+	<style>
+  	main:has(#tabDashboard:not(.hidden)) {
+    	background-color: #000;
+  	}
+	</style>
 </head>
 <body class="bg-[#f1f5f9] text-slate-900">
 
@@ -81,7 +86,7 @@
         </div>
     </header>
 
-    <main class="flex-1 p-8 overflow-auto bg-black">
+    <main class="flex-1 p-8 overflow-auto">
         <!-- ABA OCORRÊNCIAS -->
         <div id="tabOcorrencias" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
             <!-- Formulário Lateral -->
