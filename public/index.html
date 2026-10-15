@@ -37,6 +37,10 @@
         @media (prefers-reduced-motion: reduce) { .dashboard-kpi { transition: none; } }
     </style>
 <style>
+  main.fundo-preto .dashboard-card svg { color: #fff !important; }
+  main.fundo-preto .dashboard-card svg [fill]:not([fill="none"]) { fill: #fff !important; }
+  main.fundo-preto .dashboard-card svg [stroke]:not([stroke="none"]) { stroke: #fff !important; }
+  main.fundo-preto .dashboard-card img { filter: invert(1) brightness(1.5); }
   main.fundo-preto { background-color: #000 !important; }
   main.fundo-preto .dashboard-card {
     background-color: #1f1f1f !important;
@@ -100,6 +104,10 @@
     if (window.Chart) {
       Chart.defaults.color = '#9ca3af';
       Chart.defaults.borderColor = '#3f3f3f';
+      if (Chart.defaults.plugins) {
+        if (Chart.defaults.plugins.datalabels) Chart.defaults.plugins.datalabels.color = '#ffffff';
+        if (Chart.defaults.plugins.labels) Chart.defaults.plugins.labels.fontColor = '#ffffff';
+      }
     }
     function acharDashboard() {
       var el = document.getElementById('dashboard');
@@ -132,6 +140,9 @@
         }
         if (c.options.legend && c.options.legend.labels) {
           c.options.legend.labels.color = '#9ca3af';
+        }
+        if (c.options.plugins && c.options.plugins.labels) {
+          c.options.plugins.labels.fontColor = '#ffffff';
         }
         if (c.options.plugins && c.options.plugins.datalabels) {
           c.options.plugins.datalabels.color = '#ffffff';
