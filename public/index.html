@@ -192,6 +192,57 @@
   })();
 </script>
 </head>
+<script>
+  (function () {
+    function montarBotao() {
+      if (document.getElementById('btn-recolher-topo')) return;
+      var aba = null;
+      var candidatos = document.querySelectorAll('button, a');
+      for (var i = 0; i < candidatos.length; i++) {
+        var acao = candidatos[i].getAttribute('onclick') || '';
+        if (acao.indexOf('switchTab') !== -1) { aba = candidatos[i]; break; }
+      }
+      if (!aba) {
+        for (var j = 0; j < candidatos.length; j++) {
+          if (candidatos[j].textContent.trim().toUpperCase() === 'DASHBOARD') { aba = candidatos[j]; break; }
+        }
+      }
+      if (!aba) return;
+      var barra = aba.closest('header') || aba.closest('nav') || aba.parentElement;
+      if (!barra) return;
+      barra.style.position = 'relative';
+      var btn = document.createElement('button');
+      btn.id = 'btn-recolher-topo';
+      btn.textContent = '▲';
+      btn.title = 'Recolher menu';
+      btn.style.cssText = 'position:absolute;right:12px;top:50%;transform:translateY(-50%);padding:4px 10px;background:#2a2a2a;color:#fff;border:1px solid #3f3f3f;border-radius:8px;cursor:pointer;font-size:12px;z-index:50;';
+      btn.onclick = function () {
+        var recolhido = barra.style.display === 'none';
+        if (recolhido) {
+          barra.style.display = '';
+          btn.textContent = '▲';
+          btn.title = 'Recolher menu';
+          barra.appendChild(btn);
+          btn.style.position = 'absolute';
+          btn.style.top = '50%';
+          btn.style.right = '12px';
+          btn.style.transform = 'translateY(-50%)';
+        } else {
+          barra.style.display = 'none';
+          btn.textContent = '▼';
+          btn.title = 'Mostrar menu';
+          document.body.appendChild(btn);
+          btn.style.position = 'fixed';
+          btn.style.top = '10px';
+          btn.style.right = '12px';
+          btn.style.transform = 'none';
+        }
+      };
+      barra.appendChild(btn);
+    }
+    setInterval(montarBotao, 500);
+  })();
+</script>
 <body class="bg-[#f1f5f9] text-slate-900">
 
 <div id="toastContainer"></div>
