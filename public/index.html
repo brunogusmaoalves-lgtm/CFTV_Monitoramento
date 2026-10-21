@@ -215,7 +215,7 @@
       btn.id = 'btn-recolher-topo';
       btn.textContent = '▲';
       btn.title = 'Recolher menu';
-      btn.style.cssText = 'position:absolute;right:2px;top:95%;transform:translateY(-50%);padding:1px 6px;background:#2a2a2a;color:#fff;border:1px solid #3f3f3f;border-radius:6px;cursor:pointer;font-size:9px;z-index:50;';
+      btn.style.cssText = 'position:absolute;right:2px;top:90%;transform:translateY(-50%);padding:1px 6px;background:#2a2a2a;color:#fff;border:1px solid #3f3f3f;border-radius:6px;cursor:pointer;font-size:9px;z-index:50;';
       btn.onclick = function () {
         var recolhido = barra.style.display === 'none';
         if (recolhido) {
@@ -224,7 +224,7 @@
           btn.title = 'Recolher menu';
           barra.appendChild(btn);
           btn.style.position = 'absolute';
-          btn.style.top = '95%';
+          btn.style.top = '90%';
           btn.style.right = '2px';
           btn.style.transform = 'translateY(-50%)';
         } else {
