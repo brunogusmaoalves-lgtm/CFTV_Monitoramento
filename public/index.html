@@ -1406,6 +1406,10 @@ function ordenarStatus(campo) {
     renderStatusUFVs();
 }
 
+	function calcularCamerasOffline(lista) {
+    return (lista || []).reduce((soma, u) =>
+        soma + Math.max((Number(u.totalCam) || 0) - (Number(u.camOn) || 0), 0), 0);
+}
 function atualizarTotalizador() {
     const ufvs = db.ufv_status;
     const el = (id) => document.getElementById(id);
@@ -1414,7 +1418,7 @@ function atualizarTotalizador() {
     el('totalFibra').textContent = ufvs.filter(u => u.fibra !== 'NÃO TEM').length;
     el('totalFibraOk').textContent = ufvs.filter(u => u.fibra === 'OK').length;
     el('totalCameras').textContent = ufvs.reduce((s, u) => s + (Number(u.totalCam) || 0), 0);
-    el('totalCamerasOn').textContent = ufvs.reduce((s, u) => s + ((Number(u.totalCam) || 0) - (Number(u.camOn) || 0)), 0);
+    el('totalCamerasOn').textContent = calcularCamerasOffline(ufvs);
     el('totalSeguranca').textContent = ufvs.filter(u => u.seguranca === 'MOBILIZADA').length;
     el('totalPernoite').textContent = ufvs.filter(u => u.seguranca === 'PERNOITE 12H').length;
 }
@@ -1660,7 +1664,7 @@ function renderDashboard() {
     });
 
 	    const aprovados = testes.filter(v => String(v.resultadoFibra || 'APROVADO').toUpperCase() !== 'REPROVADO').length;
-	    const camerasOffline = ufvs.reduce((soma, u) => soma + Math.max((Number(u.totalCam) || 0) - (Number(u.camOn) || 0), 0), 0);
+	    const camerasOffline = calcularCamerasOffline(ufvs);
 	    const custoMobilizacoes =
 	        (prontaResposta.length * VALORES_MOBILIZACAO.prontaResposta) +
 	        (coberturaSeguranca.length * VALORES_MOBILIZACAO.coberturaSeguranca) +
@@ -1893,7 +1897,7 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
         <div class="total-card"><div class="valor verde">${db.ufv_status.filter(u => u.fibra !== 'NÃO TEM').length}</div><div class="label">UFVs com Fibra</div></div>
         <div class="total-card"><div class="valor verde">${db.ufv_status.filter(u => u.fibra === 'OK').length}</div><div class="label">Fibra OK</div></div>
         <div class="total-card"><div class="valor">${db.ufv_status.reduce((s, u) => s + (Number(u.totalCam) || 0), 0)}</div><div class="label">Total Câmeras</div></div>
-        <div class="total-card"><div class="valor" style="color:#ef4444">${db.ufv_status.reduce((s, u) => s + ((Number(u.totalCam) || 0) - (Number(u.camOn) || 0)), 0)}</div><div class="label">Câmeras OFF</div></div>
+        <div class="total-card"><div class="valor" style="color:#ef4444">${calcularCamerasOffline(db.ufv_status)}</div><div class="label">Câmeras OFF</div></div>
         <div class="total-card"><div class="valor laranja">${db.ufv_status.filter(u => u.seguranca === 'MOBILIZADA').length}</div><div class="label">Seg. Mobilizada</div></div>
         <div class="total-card"><div class="valor laranja">${db.ufv_status.filter(u => u.seguranca === 'PERNOITE 12H').length}</div><div class="label">Pernoites</div></div>
     </div>
