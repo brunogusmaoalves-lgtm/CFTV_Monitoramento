@@ -1672,7 +1672,9 @@ function renderDashboard() {
 	    document.getElementById('dashboardCoberturaSeguranca').textContent = coberturaSeguranca.length;
 	    document.getElementById('dashboardCoberturaSeguranca30Dias').textContent = coberturaSeguranca30Dias.length;
 	    document.getElementById('dashboardCustoMobilizacoes').textContent = FORMATADOR_MOEDA_BRL.format(custoMobilizacoes);
-	    document.getElementById('dashboardCamerasOffline').textContent = camerasOffline;
+	   const totalCameras = ufvs.reduce((soma, u) => soma + (Number(u.totalCam) || 0), 0);
+document.getElementById('dashboardCamerasOffline').innerHTML =
+    `${camerasOffline}<span class="text-lg text-slate-400">/${totalCameras}</span>`;
 
     if (!dashboardEstaVisivel()) return;
 
