@@ -1789,10 +1789,17 @@ function limparFiltrosDashboard() {
         ]);
 
         desenharGraficoDashboard('coberturaMes', 'chartCoberturaMes', 'emptyCoberturaMes', labels, [
-            { label: 'Cobertura com segurança', data: serie(mapas.cobertura), backgroundColor: '#8b5cf6', borderRadius: 5, maxBarThickness: 24 },
-            { label: 'Cobertura 30 dias', data: serie(mapas.cobertura30), backgroundColor: '#4f46e5', borderRadius: 5, maxBarThickness: 24 },
-            { label: 'Pronta resposta', data: serie(mapas.prontaResposta), backgroundColor: '#f59e0b', borderRadius: 5, maxBarThickness: 24 }
-        ]);
+            { label: 'Cobertura com segurança', data: serie(mapas.cobertura), backgroundColor: '#8b5cf6', borderRadius: 4 },
+            { label: 'Cobertura 30 dias', data: serie(mapas.cobertura30), backgroundColor: '#4f46e5', borderRadius: 4 },
+            { label: 'Pronta resposta', data: serie(mapas.prontaResposta), backgroundColor: '#f59e0b', borderRadius: 4 }
+        ], {
+            scales: {
+                x: {
+                    barPercentage: 0.98,
+                    categoryPercentage: 0.92
+                }
+            }
+        });
 
         desenharGraficoDashboard('eventosMes', 'chartEventosMes', 'emptyEventosMes', labels, [
             { label: 'Invasão / Intrusão', data: serie(mapas.invasao), backgroundColor: '#ef4444', borderRadius: 6, maxBarThickness: 28 },
