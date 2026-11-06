@@ -1885,8 +1885,6 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
                 tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}` } }
             }
         });
-}
-    }, {});
     const labelsMes = mesesEntreDashboard(Object.keys(porMes));
     desenharGraficoDashboard('fibraMes', 'chartFibraMes', 'emptyFibraMes', labelsMes.map(rotuloMesDashboard), [
         { label: 'Aprovados', data: labelsMes.map(m => porMes[m] ? porMes[m].aprovado : 0), backgroundColor: '#10b981', borderRadius: 7, maxBarThickness: 46 },
