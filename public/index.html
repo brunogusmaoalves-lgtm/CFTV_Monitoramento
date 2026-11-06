@@ -653,7 +653,7 @@
 			            <section class="dashboard-card p-6">
                 <div class="mb-5">
                     <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Acionamentos de pronta resposta por mês</h3>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ocorrências por mês · cada cor é um supervisor</p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Total de acionamentos por mês</p>
                 </div>
                 <div class="dashboard-chart">
                     <canvas id="chartProntaRespostaMes"></canvas>
@@ -662,12 +662,9 @@
             </section>
 
             <section class="dashboard-card p-6">
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
-                    <div>
-                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Cobertura e pronta resposta por mês</h3>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ocorrências por mês · cada cor é um supervisor</p>
-                    </div>
-                    <div id="botoesCoberturaMes" class="flex flex-wrap gap-2 no-print"></div>
+                <div class="mb-5">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Cobertura e pronta resposta por mês</h3>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Total de ocorrências por mês</p>
                 </div>
                 <div class="dashboard-chart">
                     <canvas id="chartCoberturaMes"></canvas>
@@ -676,12 +673,9 @@
             </section>
 
             <section class="dashboard-card p-6">
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
-                    <div>
-                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Eventos de segurança por mês</h3>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ocorrências por mês · cada cor é um supervisor</p>
-                    </div>
-                    <div id="botoesEventosMes" class="flex flex-wrap gap-2 no-print"></div>
+                <div class="mb-5">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Eventos de segurança por mês</h3>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Total de ocorrências por mês</p>
                 </div>
                 <div class="dashboard-chart">
                     <canvas id="chartEventosMes"></canvas>
@@ -1748,109 +1742,53 @@ function limparFiltrosDashboard() {
     }
 
     // Preenche os meses sem teste com zero para a linha do tempo não ficar com buracos
-    function mesesEntreDashboard(chaves) {
+       function mesesEntreDashboard(chaves) {
         if (!chaves.length) return [];
         const ordenadas = [...chaves].sort();
         const [anoIni, mesIni] = ordenadas[0].split('-').map(Number);
         const [anoFim, mesFim] = ordenadas[ordenadas.length - 1].split('-').map(Number);
         const lista = [];
         let ano = anoIni, mes = mesIni;
-        while (ano < anoFim || (ano === anoFim && mes <= mesFim)) {
+        let guarda = 0;
+        while ((ano < anoFim || (ano === anoFim && mes <= mesFim)) && guarda < 36) {
             lista.push(`${ano}-${String(mes).padStart(2, '0')}`);
             mes += 1;
             if (mes > 12) { mes = 1; ano += 1; }
+            guarda += 1;
         }
         return lista;
     }
-    // ===== Visão mensal das ocorrências, por supervisor =====
-    const CORES_SUPERVISOR_MES = {
-        'Eduardo Barbosa': '#10b981',
-        'Marcel Araujo': '#38bdf8',
-        'Heloísa': '#a78bfa',
-        'Rafael Santos': '#f59e0b',
-        'Wdyson Rocha': '#fb7185'
-    };
-    const PALETA_SUPERVISOR_MES = ['#10b981', '#38bdf8', '#a78bfa', '#f59e0b', '#fb7185', '#22d3ee', '#facc15', '#94a3b8'];
-
-    const METRICAS_COBERTURA_MES = [
-        { chave: 'cobertura', rotulo: 'Cobertura com segurança' },
-        { chave: 'cobertura30', rotulo: 'Cobertura 30 dias' },
-        { chave: 'prontaResposta', rotulo: 'Pronta resposta' }
-    ];
-    const METRICAS_EVENTOS_MES = [
-        { chave: 'invasao', rotulo: 'Invasão / Intrusão' },
-        { chave: 'furto', rotulo: 'Furto / Vandalismo' }
-    ];
-
-    let estadoOcorrenciasMes = {
-        metricaCobertura: 'cobertura',
-        metricaEventos: 'invasao',
-        meses: [],
-        supervisores: [],
-        mapas: {}
-    };
-
-    function agruparPorMesSupervisor(lista) {
+    // ===== Visão mensal das ocorrências — total por mês =====
+    function agruparPorMes(lista) {
         return (lista || []).reduce((acc, item) => {
             const mes = chaveMesDashboard(item.dataInicio);
             if (!mes) return acc;
-            const supervisor = obterSupervisorOcorrencia(item);
-            if (!acc[mes]) acc[mes] = {};
-            acc[mes][supervisor] = (acc[mes][supervisor] || 0) + 1;
+            acc[mes] = (acc[mes] || 0) + 1;
             return acc;
         }, {});
     }
 
-    function corSupervisorMes(nome, indice) {
-        return CORES_SUPERVISOR_MES[nome] || PALETA_SUPERVISOR_MES[indice % PALETA_SUPERVISOR_MES.length];
-    }
+    function renderOcorrenciasMes(mapas) {
+        const meses = mesesEntreDashboard([...new Set(
+            Object.values(mapas).flatMap(mapa => Object.keys(mapa))
+        )]);
+        const labels = meses.map(rotuloMesDashboard);
+        const serie = mapa => meses.map(mes => mapa[mes] || 0);
 
-    function montarBotoesMetrica(containerId, metricas, chaveAtiva, aoSelecionar) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        metricas.forEach(item => {
-            const ativo = item.chave === chaveAtiva;
-            const botao = document.createElement('div');
-            botao.textContent = item.rotulo;
-            botao.style.cssText =
-                'padding:6px 12px;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;' +
-                'letter-spacing:0.08em;cursor:pointer;transition:all .2s;user-select:none;' +
-                (ativo ? 'background:#10b981;' : 'background:rgba(148,163,184,0.20);');
-            botao.onclick = () => aoSelecionar(item.chave);
-            container.appendChild(botao);
-        });
-    }
+        desenharGraficoDashboard('prontaRespostaMes', 'chartProntaRespostaMes', 'emptyProntaRespostaMes', labels, [
+            { label: 'Acionamentos', data: serie(mapas.prontaResposta), backgroundColor: '#f59e0b', borderRadius: 6, maxBarThickness: 44 }
+        ]);
 
-    function desenharOcorrenciasMes(chave, canvasId, emptyId, mapa) {
-        const meses = estadoOcorrenciasMes.meses;
-        const datasets = estadoOcorrenciasMes.supervisores.map((supervisor, indice) => ({
-            label: supervisor,
-            data: meses.map(mes => (mapa[mes] && mapa[mes][supervisor]) || 0),
-            backgroundColor: corSupervisorMes(supervisor, indice),
-            borderRadius: 5,
-            maxBarThickness: 14
-        }));
-        desenharGraficoDashboard(chave, canvasId, emptyId, meses.map(rotuloMesDashboard), datasets, { semRotulos: true });
-    }
+        desenharGraficoDashboard('coberturaMes', 'chartCoberturaMes', 'emptyCoberturaMes', labels, [
+            { label: 'Cobertura com segurança', data: serie(mapas.cobertura), backgroundColor: '#8b5cf6', borderRadius: 5, maxBarThickness: 24 },
+            { label: 'Cobertura 30 dias', data: serie(mapas.cobertura30), backgroundColor: '#4f46e5', borderRadius: 5, maxBarThickness: 24 },
+            { label: 'Pronta resposta', data: serie(mapas.prontaResposta), backgroundColor: '#f59e0b', borderRadius: 5, maxBarThickness: 24 }
+        ]);
 
-    function renderOcorrenciasMes() {
-        const mapas = estadoOcorrenciasMes.mapas;
-        desenharOcorrenciasMes('prontaRespostaMes', 'chartProntaRespostaMes', 'emptyProntaRespostaMes', mapas.prontaResposta || {});
-        desenharOcorrenciasMes('coberturaMes', 'chartCoberturaMes', 'emptyCoberturaMes', mapas[estadoOcorrenciasMes.metricaCobertura] || {});
-        desenharOcorrenciasMes('eventosMes', 'chartEventosMes', 'emptyEventosMes', mapas[estadoOcorrenciasMes.metricaEventos] || {});
-    }
-
-    function selecionarMetricaCobertura(chave) {
-        estadoOcorrenciasMes.metricaCobertura = chave;
-        montarBotoesMetrica('botoesCoberturaMes', METRICAS_COBERTURA_MES, chave, selecionarMetricaCobertura);
-        renderOcorrenciasMes();
-    }
-
-    function selecionarMetricaEventos(chave) {
-        estadoOcorrenciasMes.metricaEventos = chave;
-        montarBotoesMetrica('botoesEventosMes', METRICAS_EVENTOS_MES, chave, selecionarMetricaEventos);
-        renderOcorrenciasMes();
+        desenharGraficoDashboard('eventosMes', 'chartEventosMes', 'emptyEventosMes', labels, [
+            { label: 'Invasão / Intrusão', data: serie(mapas.invasao), backgroundColor: '#ef4444', borderRadius: 6, maxBarThickness: 28 },
+            { label: 'Furto / Vandalismo', data: serie(mapas.furto), backgroundColor: '#334155', borderRadius: 6, maxBarThickness: 28 }
+        ]);
     }
 function renderDashboard() {
     popularFiltrosDashboard();
@@ -2009,8 +1947,6 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
     Object.keys(dashboardCharts)
         .filter(chave => chave.indexOf('fibraMesSup-') === 0)
         .forEach(chave => { dashboardCharts[chave].destroy(); delete dashboardCharts[chave]; });
-
-    if (!gridMesSup || !vazioMesSup) return;
     gridMesSup.innerHTML = '';
 
     const totalGeral = supervisoresSup.reduce((soma, supervisor) =>
@@ -2081,29 +2017,13 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
         ));
     });
 	    // ===== Visão mensal das ocorrências, por supervisor =====
-    const mapasOcorrencias = {
-        prontaResposta: agruparPorMesSupervisor(prontaResposta),
-        cobertura: agruparPorMesSupervisor(coberturaSeguranca),
-        cobertura30: agruparPorMesSupervisor(coberturaSeguranca30Dias),
-        invasao: agruparPorMesSupervisor(invasaoIntrusao),
-        furto: agruparPorMesSupervisor(furtoVandalismo)
-    };
-
-    const mesesUniao = [...new Set(
-        Object.values(mapasOcorrencias).flatMap(mapa => Object.keys(mapa))
-    )];
-
-    estadoOcorrenciasMes.meses = mesesEntreDashboard(mesesUniao);
-    estadoOcorrenciasMes.supervisores = [...new Set(
-        estadoOcorrenciasMes.meses.flatMap(mes =>
-            Object.values(mapasOcorrencias).flatMap(mapa => Object.keys(mapa[mes] || {}))
-        )
-    )].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-    estadoOcorrenciasMes.mapas = mapasOcorrencias;
-
-    montarBotoesMetrica('botoesCoberturaMes', METRICAS_COBERTURA_MES, estadoOcorrenciasMes.metricaCobertura, selecionarMetricaCobertura);
-    montarBotoesMetrica('botoesEventosMes', METRICAS_EVENTOS_MES, estadoOcorrenciasMes.metricaEventos, selecionarMetricaEventos);
-    renderOcorrenciasMes();
+        renderOcorrenciasMes({
+        prontaResposta: agruparPorMes(prontaResposta),
+        cobertura: agruparPorMes(coberturaSeguranca),
+        cobertura30: agruparPorMes(coberturaSeguranca30Dias),
+        invasao: agruparPorMes(invasaoIntrusao),
+        furto: agruparPorMes(furtoVandalismo)
+    });
 }
 
 	    function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
