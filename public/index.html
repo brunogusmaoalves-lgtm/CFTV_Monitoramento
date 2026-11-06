@@ -495,16 +495,6 @@
                             <select id="dashboardUsina" onchange="renderDashboard()" class="w-full input-field text-xs min-w-[180px]">
                                 <option value="">Todas as usinas</option>
                             </select>
-						<section class="dashboard-card p-6">
-                    		<div class="mb-5">
-                        		<h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Testes de fibra por mês</h3>
-                        			<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Soma de aprovados e reprovados por mês</p>
-                    		</div>
-                    		<div class="dashboard-chart">
-                        	<canvas id="chartFibraMes"></canvas>
-                        	<div id="emptyFibraMes" class="dashboard-empty"><i class="fa-solid fa-chart-column text-2xl mb-3"></i>Sem testes no período selecionado</div>
-                    	</div>
-                </section>
                         </div>
                         <div class="flex items-end">
                             <button type="button" onclick="limparFiltrosDashboard()" class="w-full px-4 py-3 bg-slate-100 hover:bg-slate-200 active:scale-[0.97] rounded-xl text-[9px] font-black text-slate-500 uppercase tracking-widest transition-all">
@@ -647,6 +637,16 @@
 	                        <div id="emptyEventosCriminaisUsina" class="dashboard-empty"><i class="fa-solid fa-shield-halved text-2xl mb-3"></i>Sem invasões, intrusões, furtos ou vandalismos no período</div>
 	                    </div>
 	                </section>
+				                <section class="dashboard-card p-6">
+                    <div class="mb-5">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Testes de fibra por mês</h3>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Soma de aprovados e reprovados por mês</p>
+                    </div>
+                    <div class="dashboard-chart">
+                        <canvas id="chartFibraMes"></canvas>
+                        <div id="emptyFibraMes" class="dashboard-empty"><i class="fa-solid fa-chart-column text-2xl mb-3"></i>Sem testes no período selecionado</div>
+                    </div>
+                </section>
 	            </div>
         </div>
     <!-- MODAL FOTOS UFV -->
