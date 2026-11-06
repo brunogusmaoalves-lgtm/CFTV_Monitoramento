@@ -1742,21 +1742,30 @@ function limparFiltrosDashboard() {
     }
 
     // Preenche os meses sem teste com zero para a linha do tempo não ficar com buracos
-       function mesesEntreDashboard(chaves) {
-        if (!chaves.length) return [];
-        const ordenadas = [...chaves].sort();
-        const [anoIni, mesIni] = ordenadas[0].split('-').map(Number);
-        const [anoFim, mesFim] = ordenadas[ordenadas.length - 1].split('-').map(Number);
-        const lista = [];
-        let ano = anoIni, mes = mesIni;
-        let guarda = 0;
-        while ((ano < anoFim || (ano === anoFim && mes <= mesFim)) && guarda < 36) {
-            lista.push(`${ano}-${String(mes).padStart(2, '0')}`);
-            mes += 1;
-            if (mes > 12) { mes = 1; ano += 1; }
-            guarda += 1;
+    // Monta o eixo de meses. Preenche os buracos só quando o intervalo é curto;
+    // com datas muito dispersas, usa apenas os meses que possuem registro.
+    function mesesEntreDashboard(chaves, limiteInterpolacao = 18) {
+        if (!chaves || !chaves.length) return [];
+        const unicas = [...new Set(chaves)].filter(Boolean).sort();
+        if (!unicas.length) return [];
+
+        const paraIndice = chave => {
+            const [ano, mes] = chave.split('-').map(Number);
+            return ano * 12 + (mes - 1);
+        };
+        const paraChave = indice =>
+            `${Math.floor(indice / 12)}-${String((indice % 12) + 1).padStart(2, '0')}`;
+
+        const inicio = paraIndice(unicas[0]);
+        const fim = paraIndice(unicas[unicas.length - 1]);
+
+        if (fim - inicio <= limiteInterpolacao) {
+            const lista = [];
+            for (let i = inicio; i <= fim; i += 1) lista.push(paraChave(i));
+            return lista;
         }
-        return lista;
+
+        return unicas.slice(-24);
     }
     // ===== Visão mensal das ocorrências — total por mês =====
     function agruparPorMes(lista) {
