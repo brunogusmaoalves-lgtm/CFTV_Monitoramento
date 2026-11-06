@@ -34,8 +34,6 @@
         .dashboard-kpi:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07); }
         .dashboard-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; color: #94a3b8; font-size: 0.625rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; text-align: center; }
         @media (max-width: 768px) { .dashboard-chart { height: 300px; } }
-		.dashboard-chart--tall { height: 460px; }
-        @media (max-width: 768px) { .dashboard-chart--tall { height: 340px; } }
         @media (prefers-reduced-motion: reduce) { .dashboard-kpi { transition: none; } }
     </style>
 <style>
@@ -639,16 +637,16 @@
 	                        <div id="emptyEventosCriminaisUsina" class="dashboard-empty"><i class="fa-solid fa-shield-halved text-2xl mb-3"></i>Sem invasões, intrusões, furtos ou vandalismos no período</div>
 	                    </div>
 	                </section>
-            <section class="dashboard-card p-6">
-                <div class="mb-5">
-                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Testes de fibra por mês e supervisor</h3>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Barras agrupadas por supervisor · sólido = aprovados · claro = reprovados</p>
-                </div>
-                <div class="dashboard-chart dashboard-chart--tall">
-                    <canvas id="chartFibraMesSupervisor"></canvas>
-                    <div id="emptyFibraMesSupervisor" class="dashboard-empty"><i class="fa-solid fa-chart-column text-2xl mb-3"></i>Sem testes no período selecionado</div>
-                </div>
-            </section>
+				                <section class="dashboard-card p-6">
+                    <div class="mb-5">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Testes de fibra por mês</h3>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Soma de aprovados e reprovados por mês</p>
+                    </div>
+                    <div class="dashboard-chart">
+                        <canvas id="chartFibraMes"></canvas>
+                        <div id="emptyFibraMes" class="dashboard-empty"><i class="fa-solid fa-chart-column text-2xl mb-3"></i>Sem testes no período selecionado</div>
+                    </div>
+                </section>
 	            </div>
         </div>
     <!-- MODAL FOTOS UFV -->
@@ -1563,21 +1561,12 @@ function ordenarAgrupamentoDashboard(agrupamento) {
     });
 }
 
-    function mesclarOpcoesDashboard(base, extra) {
-        const resultado = { ...base };
-        Object.keys(extra || {}).forEach(chave => {
-            const valorExtra = extra[chave];
-            const valorBase = base[chave];
-            const ambosObjetos = valorExtra && valorBase &&
-                typeof valorExtra === 'object' && typeof valorBase === 'object' &&
-                !Array.isArray(valorExtra) && !Array.isArray(valorBase);
-            resultado[chave] = ambosObjetos ? mesclarOpcoesDashboard(valorBase, valorExtra) : valorExtra;
-        });
-        return resultado;
-    }
-
-    function configuracaoGraficoDashboard(labels, datasets, opcoes = {}) {
-        const base = {
+function configuracaoGraficoDashboard(labels, datasets, opcoes = {}) {
+    return {
+        type: 'bar',
+        data: { labels, datasets },
+        plugins: [dashboardValueLabels],
+        options: {
             responsive: true,
             maintainAspectRatio: false,
             animation: { duration: 260 },
@@ -1607,15 +1596,11 @@ function ordenarAgrupamentoDashboard(agrupamento) {
                     grid: { color: '#f1f5f9' },
                     ticks: { color: '#94a3b8', precision: 0, font: { family: 'Inter', size: 10, weight: '600' } }
                 }
-            }
-        };
-        return {
-            type: 'bar',
-            data: { labels, datasets },
-            plugins: [dashboardValueLabels],
-            options: mesclarOpcoesDashboard(base, opcoes)
-        };
-    }
+            },
+            ...opcoes
+        }
+    };
+}
 
 function desenharGraficoDashboard(chave, canvasId, emptyId, labels, datasets, opcoes = {}) {
     const canvas = document.getElementById(canvasId);
@@ -1801,88 +1786,14 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
 	        { label: 'Invasão / Intrusão', data: labelsEventosCriminais.map(usina => invasaoPorUsina[usina] || 0), backgroundColor: '#ef4444', borderRadius: 7, maxBarThickness: 46 },
 	        { label: 'Furto / Vandalismo', data: labelsEventosCriminais.map(usina => furtoPorUsina[usina] || 0), backgroundColor: '#334155', borderRadius: 7, maxBarThickness: 46 }
 	    ]);
-    // ===== Testes de fibra por mês e supervisor =====
-    const CORES_SUPERVISOR_DASHBOARD = {
-        'Eduardo Barbosa': '#10b981',
-        'Marcel Araujo': '#38bdf8',
-        'Heloísa': '#a78bfa',
-        'Rafael Santos': '#f59e0b',
-        'Wdyson Rocha': '#fb7185'
-    };
-    const PALETA_RESERVA_DASHBOARD = ['#22d3ee', '#facc15', '#f472b6', '#4ade80', '#94a3b8'];
-
-    const porMesSupervisor = testes.reduce((acc, v) => {
-        const mes = chaveMesDashboard(v.dataVisita);
-        if (!mes) return acc;
-        const supervisor = normalizarNomeSupervisor(v.responsavelUsina);
-        if (!acc[mes]) acc[mes] = {};
-        if (!acc[mes][supervisor]) acc[mes][supervisor] = { aprovado: 0, reprovado: 0 };
-        if (String(v.resultadoFibra || 'APROVADO').toUpperCase() === 'REPROVADO') acc[mes][supervisor].reprovado += 1;
-        else acc[mes][supervisor].aprovado += 1;
+	    const porMes = testes.reduce((acc, v) => {
+        const chave = chaveMesDashboard(v.dataVisita);
+        if (!chave) return acc;
+        if (!acc[chave]) acc[chave] = { aprovado: 0, reprovado: 0, total: 0 };
+        if (String(v.resultadoFibra || 'APROVADO').toUpperCase() === 'REPROVADO') acc[chave].reprovado += 1;
+        else acc[chave].aprovado += 1;
+        acc[chave].total += 1;
         return acc;
-    }, {});
-
-    const mesesSup = mesesEntreDashboard(Object.keys(porMesSupervisor));
-    const supervisoresSup = [...new Set(
-        mesesSup.flatMap(mes => Object.keys(porMesSupervisor[mes] || {}))
-    )].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-
-    const datasetsMesSup = [];
-    supervisoresSup.forEach((supervisor, indice) => {
-        const cor = CORES_SUPERVISOR_DASHBOARD[supervisor] || PALETA_RESERVA_DASHBOARD[indice % PALETA_RESERVA_DASHBOARD.length];
-        datasetsMesSup.push({
-            label: supervisor,
-            stack: supervisor,
-            data: mesesSup.map(mes => (porMesSupervisor[mes]?.[supervisor]?.aprovado) || 0),
-            backgroundColor: cor,
-            borderColor: cor,
-            borderWidth: 0,
-            borderRadius: 0,
-            maxBarThickness: 22
-        });
-        datasetsMesSup.push({
-            label: supervisor + ' · reprovados',
-            stack: supervisor,
-            data: mesesSup.map(mes => (porMesSupervisor[mes]?.[supervisor]?.reprovado) || 0),
-            backgroundColor: cor + '66',
-            borderColor: cor,
-            borderWidth: 1,
-            borderSkipped: false,
-            borderRadius: { topLeft: 5, topRight: 5 },
-            maxBarThickness: 22
-        });
-    });
-
-    const gerarLegendaSupervisores = (chart) => chart.data.datasets
-        .map((ds, i) => ({ ds, i }))
-        .filter(({ ds }) => !String(ds.label).includes('· reprovados'))
-        .map(({ ds, i }) => ({
-            text: ds.label,
-            fillStyle: ds.backgroundColor,
-            strokeStyle: ds.backgroundColor,
-            lineWidth: 0,
-            hidden: !chart.isDatasetVisible(i),
-            datasetIndex: i
-        }));
-
-    const alternarSupervisor = (evento, item, legenda) => {
-        const chart = legenda.chart;
-        const alvo = chart.data.datasets[item.datasetIndex].stack;
-        const esconder = chart.isDatasetVisible(item.datasetIndex);
-        chart.data.datasets.forEach((ds, i) => {
-            if (ds.stack === alvo) chart.setDatasetVisibility(i, !esconder);
-        });
-        chart.update();
-    };
-
-    desenharGraficoDashboard('fibraMesSupervisor', 'chartFibraMesSupervisor', 'emptyFibraMesSupervisor',
-        mesesSup.map(rotuloMesDashboard), datasetsMesSup, {
-            scales: { x: { stacked: true }, y: { stacked: true } },
-            plugins: {
-                legend: { onClick: alternarSupervisor, labels: { generateLabels: gerarLegendaSupervisores } },
-                tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}` } }
-            }
-        });
     }, {});
     const labelsMes = mesesEntreDashboard(Object.keys(porMes));
     desenharGraficoDashboard('fibraMes', 'chartFibraMes', 'emptyFibraMes', labelsMes.map(rotuloMesDashboard), [
@@ -2324,4 +2235,3 @@ function salvarFotosUfv() {
 </script>
 </body>
 </html>
-
