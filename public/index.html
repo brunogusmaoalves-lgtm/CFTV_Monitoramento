@@ -643,11 +643,11 @@
             <section class="dashboard-card p-6">
                 <div class="mb-5">
                     <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Testes de fibra por mês e supervisor</h3>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Cor = resultado · verde aprovado · vermelho reprovado · hachura = supervisor</p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Cada painel é um supervisor · verde = aprovados · vermelho = reprovados</p>
                 </div>
-                <div class="dashboard-chart dashboard-chart--tall">
-                    <canvas id="chartFibraMesSupervisor"></canvas>
-                    <div id="emptyFibraMesSupervisor" class="dashboard-empty"><i class="fa-solid fa-chart-column text-2xl mb-3"></i>Sem testes no período selecionado</div>
+                <div id="gridFibraMesSupervisor" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
+                <div id="emptyFibraMesSupervisor" class="py-16 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest" style="display:none">
+                    <i class="fa-solid fa-chart-column text-2xl mb-3 block"></i>Sem testes no período selecionado
                 </div>
             </section>
         </div>                      <!-- fecha #tabDashboard -->
@@ -1579,6 +1579,7 @@ function mesclarOpcoesDashboard(base, extra) {
 }
 
 function configuracaoGraficoDashboard(labels, datasets, opcoes = {}) {
+    const { semRotulos = false, ...extras } = opcoes;
     const base = {
         responsive: true,
         maintainAspectRatio: false,
@@ -1614,8 +1615,8 @@ function configuracaoGraficoDashboard(labels, datasets, opcoes = {}) {
     return {
         type: 'bar',
         data: { labels, datasets },
-        plugins: [dashboardValueLabels],
-        options: mesclarOpcoesDashboard(base, opcoes)
+        plugins: semRotulos ? [] : [dashboardValueLabels],
+        options: mesclarOpcoesDashboard(base, extras)
     };
 }
 
@@ -1803,132 +1804,102 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
 	        { label: 'Invasão / Intrusão', data: labelsEventosCriminais.map(usina => invasaoPorUsina[usina] || 0), backgroundColor: '#ef4444', borderRadius: 7, maxBarThickness: 46 },
 	        { label: 'Furto / Vandalismo', data: labelsEventosCriminais.map(usina => furtoPorUsina[usina] || 0), backgroundColor: '#334155', borderRadius: 7, maxBarThickness: 46 }
 	    ]);
-    // ===== Testes de fibra por mês e supervisor =====
-    // Cor = resultado (verde aprovado / vermelho reprovado); hachura = supervisor.
+        // ===== Testes de fibra por mês e supervisor — um painel por supervisor =====
     const COR_APROVADO = '#10b981';
-    const BORDA_APROVADO = '#047857';
     const COR_REPROVADO = '#ef4444';
-    const BORDA_REPROVADO = '#991b1b';
-
-    const HACHURAS_SUPERVISOR = {
-        'Eduardo Barbosa': 'diagonal',
-        'Marcel Araujo': 'diagonal-inversa',
-        'Heloísa': 'vertical',
-        'Rafael Santos': 'horizontal',
-        'Wdyson Rocha': 'pontos'
-    };
-    const HACHURAS_RESERVA = ['diagonal', 'vertical', 'diagonal-inversa', 'horizontal', 'pontos'];
-
-    function criarHachuraDashboard(estilo, corBase, corTraco) {
-        const lado = 9;
-        const tela = document.createElement('canvas');
-        tela.width = lado;
-        tela.height = lado;
-        const ctx = tela.getContext('2d');
-        ctx.fillStyle = corBase;
-        ctx.fillRect(0, 0, lado, lado);
-        ctx.strokeStyle = corTraco;
-        ctx.fillStyle = corTraco;
-        ctx.lineWidth = 1.6;
-        const meio = lado / 2;
-        ctx.beginPath();
-        switch (estilo) {
-            case 'vertical':
-                ctx.moveTo(meio, 0); ctx.lineTo(meio, lado); break;
-            case 'horizontal':
-                ctx.moveTo(0, meio); ctx.lineTo(lado, meio); break;
-            case 'diagonal':
-                ctx.moveTo(0, lado); ctx.lineTo(lado, 0); break;
-            case 'diagonal-inversa':
-                ctx.moveTo(0, 0); ctx.lineTo(lado, lado); break;
-            case 'pontos':
-                ctx.arc(meio, meio, 1.5, 0, Math.PI * 2);
-                ctx.fill();
-                return ctx.createPattern(tela, 'repeat');
-            default:
-                ctx.moveTo(0, lado); ctx.lineTo(lado, 0);
-        }
-        ctx.stroke();
-        return ctx.createPattern(tela, 'repeat');
-    }
 
     const porMesSupervisor = testes.reduce((acc, v) => {
         const mes = chaveMesDashboard(v.dataVisita);
         if (!mes) return acc;
         const supervisor = normalizarNomeSupervisor(v.responsavelUsina);
-        if (!acc[mes]) acc[mes] = {};
-        if (!acc[mes][supervisor]) acc[mes][supervisor] = { aprovado: 0, reprovado: 0 };
-        if (String(v.resultadoFibra || 'APROVADO').toUpperCase() === 'REPROVADO') acc[mes][supervisor].reprovado += 1;
-        else acc[mes][supervisor].aprovado += 1;
+        if (!acc[supervisor]) acc[supervisor] = {};
+        if (!acc[supervisor][mes]) acc[supervisor][mes] = { aprovado: 0, reprovado: 0 };
+        if (String(v.resultadoFibra || 'APROVADO').toUpperCase() === 'REPROVADO') acc[supervisor][mes].reprovado += 1;
+        else acc[supervisor][mes].aprovado += 1;
         return acc;
     }, {});
 
-    const mesesSup = mesesEntreDashboard(Object.keys(porMesSupervisor));
-    const supervisoresSup = [...new Set(
-        mesesSup.flatMap(mes => Object.keys(porMesSupervisor[mes] || {}))
-    )].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    const mesesSup = mesesEntreDashboard(
+        Object.values(porMesSupervisor).flatMap(meses => Object.keys(meses))
+    );
+    const supervisoresSup = Object.keys(porMesSupervisor)
+        .sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
-    const datasetsMesSup = [];
+    const gridMesSup = document.getElementById('gridFibraMesSupervisor');
+    const vazioMesSup = document.getElementById('emptyFibraMesSupervisor');
+
+    Object.keys(dashboardCharts)
+        .filter(chave => chave.indexOf('fibraMesSup-') === 0)
+        .forEach(chave => { dashboardCharts[chave].destroy(); delete dashboardCharts[chave]; });
+
+    if (!gridMesSup || !vazioMesSup) return;
+    gridMesSup.innerHTML = '';
+
+    const totalGeral = supervisoresSup.reduce((soma, supervisor) =>
+        soma + mesesSup.reduce((sub, mes) => {
+            const item = porMesSupervisor[supervisor][mes];
+            return sub + (item ? item.aprovado + item.reprovado : 0);
+        }, 0), 0);
+
+    const mostrarGrid = mesesSup.length > 0 && totalGeral > 0;
+    gridMesSup.style.display = mostrarGrid ? 'grid' : 'none';
+    vazioMesSup.style.display = mostrarGrid ? 'none' : 'block';
+    if (!mostrarGrid) return;
+
     supervisoresSup.forEach((supervisor, indice) => {
-        const estilo = HACHURAS_SUPERVISOR[supervisor] || HACHURAS_RESERVA[indice % HACHURAS_RESERVA.length];
-        const hachuraAprovado = criarHachuraDashboard(estilo, COR_APROVADO, 'rgba(255, 255, 255, 0.55)');
-        const hachuraReprovado = criarHachuraDashboard(estilo, COR_REPROVADO, 'rgba(255, 255, 255, 0.7)');
+        const dadosSup = porMesSupervisor[supervisor];
+        const aprovadosSup = mesesSup.reduce((s, mes) => s + (dadosSup[mes]?.aprovado || 0), 0);
+        const totalSup = mesesSup.reduce((s, mes) => s + (dadosSup[mes]?.aprovado || 0) + (dadosSup[mes]?.reprovado || 0), 0);
+        const taxa = totalSup ? Math.round((aprovadosSup / totalSup) * 100) : 0;
+        const corTaxa = taxa >= 90 ? 'text-emerald-600' : taxa >= 75 ? 'text-amber-500' : 'text-red-500';
 
-        datasetsMesSup.push({
-            label: supervisor + ' · aprovados',
-            stack: supervisor,
-            data: mesesSup.map(mes => (porMesSupervisor[mes]?.[supervisor]?.aprovado) || 0),
-            backgroundColor: hachuraAprovado,
-            borderColor: BORDA_APROVADO,
-            borderWidth: 1,
-            borderRadius: 0,
-            maxBarThickness: 22,
-            _hachura: hachuraAprovado
-        });
-        datasetsMesSup.push({
-            label: supervisor + ' · reprovados',
-            stack: supervisor,
-            data: mesesSup.map(mes => (porMesSupervisor[mes]?.[supervisor]?.reprovado) || 0),
-            backgroundColor: hachuraReprovado,
-            borderColor: BORDA_REPROVADO,
-            borderWidth: 1,
-            borderSkipped: false,
-            borderRadius: { topLeft: 5, topRight: 5 },
-            maxBarThickness: 22,
-            _hachura: hachuraReprovado
-        });
-    });
+        const painel = document.createElement('div');
+        painel.className = 'rounded-2xl border border-slate-100 p-4';
+        painel.innerHTML = `
+            <div class="flex items-baseline justify-between gap-2 mb-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-700">${supervisor}</span>
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${totalSup} testes</span>
+            </div>
+            <div class="mb-3">
+                <span class="text-[9px] font-black uppercase tracking-widest ${corTaxa}">${taxa}% aprovação</span>
+            </div>
+            <div style="position:relative;height:180px"><canvas></canvas></div>
+        `;
+        gridMesSup.appendChild(painel);
 
-    const gerarLegendaSupervisores = (chart) => chart.data.datasets
-        .map((ds, i) => ({ ds, i }))
-        .filter(({ ds }) => !String(ds.label).includes('· reprovados'))
-        .map(({ ds, i }) => ({
-            text: String(ds.label).replace(' · aprovados', ''),
-            fillStyle: ds._hachura,
-            strokeStyle: BORDA_APROVADO,
-            lineWidth: 1,
-            hidden: !chart.isDatasetVisible(i),
-            datasetIndex: i
-        }));
+        const canvas = painel.querySelector('canvas');
+        const chave = 'fibraMesSup-' + indice;
 
-    const alternarSupervisor = (evento, item, legenda) => {
-        const chart = legenda.chart;
-        const alvo = chart.data.datasets[item.datasetIndex].stack;
-        const esconder = chart.isDatasetVisible(item.datasetIndex);
-        chart.data.datasets.forEach((ds, i) => {
-            if (ds.stack === alvo) chart.setDatasetVisibility(i, !esconder);
-        });
-        chart.update();
-    };
-
-    desenharGraficoDashboard('fibraMesSupervisor', 'chartFibraMesSupervisor', 'emptyFibraMesSupervisor',
-        mesesSup.map(rotuloMesDashboard), datasetsMesSup, {
-            scales: { x: { stacked: true }, y: { stacked: true } },
-            plugins: {
-                legend: { onClick: alternarSupervisor, labels: { generateLabels: gerarLegendaSupervisores } },
-                tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}` } }
+        dashboardCharts[chave] = new Chart(canvas.getContext('2d'), configuracaoGraficoDashboard(
+            mesesSup.map(rotuloMesDashboard),
+            [
+                {
+                    label: 'Aprovados',
+                    data: mesesSup.map(mes => dadosSup[mes]?.aprovado || 0),
+                    backgroundColor: COR_APROVADO,
+                    borderRadius: 0,
+                    maxBarThickness: 18
+                },
+                {
+                    label: 'Reprovados',
+                    data: mesesSup.map(mes => dadosSup[mes]?.reprovado || 0),
+                    backgroundColor: COR_REPROVADO,
+                    borderRadius: { topLeft: 4, topRight: 4 },
+                    borderSkipped: false,
+                    maxBarThickness: 18
+                }
+            ],
+            {
+                semRotulos: true,
+                layout: { padding: { top: 6 } },
+                scales: {
+                    x: { stacked: true, ticks: { font: { size: 8 }, maxRotation: 0 } },
+                    y: { stacked: true, ticks: { font: { size: 8 } } }
+                },
+                plugins: { legend: { display: false } }
             }
-        });
+        ));
+    });
     const labelsMes = mesesEntreDashboard(Object.keys(porMes));
     desenharGraficoDashboard('fibraMes', 'chartFibraMes', 'emptyFibraMes', labelsMes.map(rotuloMesDashboard), [
         { label: 'Aprovados', data: labelsMes.map(m => porMes[m] ? porMes[m].aprovado : 0), backgroundColor: '#10b981', borderRadius: 7, maxBarThickness: 46 },
