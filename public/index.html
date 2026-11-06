@@ -643,7 +643,7 @@
             <section class="dashboard-card p-6">
                 <div class="mb-5">
                     <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Testes de fibra por mês e supervisor</h3>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Barras agrupadas por supervisor · sólido = aprovados · claro = reprovados</p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Cor = resultado · verde aprovado · vermelho reprovado · hachura = supervisor</p>
                 </div>
                 <div class="dashboard-chart dashboard-chart--tall">
                     <canvas id="chartFibraMesSupervisor"></canvas>
@@ -1804,14 +1804,53 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
 	        { label: 'Furto / Vandalismo', data: labelsEventosCriminais.map(usina => furtoPorUsina[usina] || 0), backgroundColor: '#334155', borderRadius: 7, maxBarThickness: 46 }
 	    ]);
     // ===== Testes de fibra por mês e supervisor =====
-    const CORES_SUPERVISOR_DASHBOARD = {
-        'Eduardo Barbosa': '#10b981',
-        'Marcel Araujo': '#38bdf8',
-        'Heloísa': '#a78bfa',
-        'Rafael Santos': '#f59e0b',
-        'Wdyson Rocha': '#fb7185'
+    // Cor = resultado (verde aprovado / vermelho reprovado); hachura = supervisor.
+    const COR_APROVADO = '#10b981';
+    const BORDA_APROVADO = '#047857';
+    const COR_REPROVADO = '#ef4444';
+    const BORDA_REPROVADO = '#991b1b';
+
+    const HACHURAS_SUPERVISOR = {
+        'Eduardo Barbosa': 'diagonal',
+        'Marcel Araujo': 'diagonal-inversa',
+        'Heloísa': 'vertical',
+        'Rafael Santos': 'horizontal',
+        'Wdyson Rocha': 'pontos'
     };
-    const PALETA_RESERVA_DASHBOARD = ['#22d3ee', '#facc15', '#f472b6', '#4ade80', '#94a3b8'];
+    const HACHURAS_RESERVA = ['diagonal', 'vertical', 'diagonal-inversa', 'horizontal', 'pontos'];
+
+    function criarHachuraDashboard(estilo, corBase, corTraco) {
+        const lado = 9;
+        const tela = document.createElement('canvas');
+        tela.width = lado;
+        tela.height = lado;
+        const ctx = tela.getContext('2d');
+        ctx.fillStyle = corBase;
+        ctx.fillRect(0, 0, lado, lado);
+        ctx.strokeStyle = corTraco;
+        ctx.fillStyle = corTraco;
+        ctx.lineWidth = 1.6;
+        const meio = lado / 2;
+        ctx.beginPath();
+        switch (estilo) {
+            case 'vertical':
+                ctx.moveTo(meio, 0); ctx.lineTo(meio, lado); break;
+            case 'horizontal':
+                ctx.moveTo(0, meio); ctx.lineTo(lado, meio); break;
+            case 'diagonal':
+                ctx.moveTo(0, lado); ctx.lineTo(lado, 0); break;
+            case 'diagonal-inversa':
+                ctx.moveTo(0, 0); ctx.lineTo(lado, lado); break;
+            case 'pontos':
+                ctx.arc(meio, meio, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                return ctx.createPattern(tela, 'repeat');
+            default:
+                ctx.moveTo(0, lado); ctx.lineTo(lado, 0);
+        }
+        ctx.stroke();
+        return ctx.createPattern(tela, 'repeat');
+    }
 
     const porMesSupervisor = testes.reduce((acc, v) => {
         const mes = chaveMesDashboard(v.dataVisita);
@@ -1831,27 +1870,32 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
 
     const datasetsMesSup = [];
     supervisoresSup.forEach((supervisor, indice) => {
-        const cor = CORES_SUPERVISOR_DASHBOARD[supervisor] || PALETA_RESERVA_DASHBOARD[indice % PALETA_RESERVA_DASHBOARD.length];
+        const estilo = HACHURAS_SUPERVISOR[supervisor] || HACHURAS_RESERVA[indice % HACHURAS_RESERVA.length];
+        const hachuraAprovado = criarHachuraDashboard(estilo, COR_APROVADO, 'rgba(255, 255, 255, 0.55)');
+        const hachuraReprovado = criarHachuraDashboard(estilo, COR_REPROVADO, 'rgba(255, 255, 255, 0.7)');
+
         datasetsMesSup.push({
-            label: supervisor,
+            label: supervisor + ' · aprovados',
             stack: supervisor,
             data: mesesSup.map(mes => (porMesSupervisor[mes]?.[supervisor]?.aprovado) || 0),
-            backgroundColor: cor,
-            borderColor: cor,
-            borderWidth: 0,
+            backgroundColor: hachuraAprovado,
+            borderColor: BORDA_APROVADO,
+            borderWidth: 1,
             borderRadius: 0,
-            maxBarThickness: 22
+            maxBarThickness: 22,
+            _hachura: hachuraAprovado
         });
         datasetsMesSup.push({
             label: supervisor + ' · reprovados',
             stack: supervisor,
             data: mesesSup.map(mes => (porMesSupervisor[mes]?.[supervisor]?.reprovado) || 0),
-            backgroundColor: cor + '66',
-            borderColor: cor,
+            backgroundColor: hachuraReprovado,
+            borderColor: BORDA_REPROVADO,
             borderWidth: 1,
             borderSkipped: false,
             borderRadius: { topLeft: 5, topRight: 5 },
-            maxBarThickness: 22
+            maxBarThickness: 22,
+            _hachura: hachuraReprovado
         });
     });
 
@@ -1859,10 +1903,10 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
         .map((ds, i) => ({ ds, i }))
         .filter(({ ds }) => !String(ds.label).includes('· reprovados'))
         .map(({ ds, i }) => ({
-            text: ds.label,
-            fillStyle: ds.backgroundColor,
-            strokeStyle: ds.backgroundColor,
-            lineWidth: 0,
+            text: String(ds.label).replace(' · aprovados', ''),
+            fillStyle: ds._hachura,
+            strokeStyle: BORDA_APROVADO,
+            lineWidth: 1,
             hidden: !chart.isDatasetVisible(i),
             datasetIndex: i
         }));
