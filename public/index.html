@@ -2022,7 +2022,6 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
     const mostrarGrid = mesesSup.length > 0 && totalGeral > 0;
     gridMesSup.style.display = mostrarGrid ? 'grid' : 'none';
     vazioMesSup.style.display = mostrarGrid ? 'none' : 'block';
-    if (!mostrarGrid) return;
 
     supervisoresSup.forEach((supervisor, indice) => {
         const dadosSup = porMesSupervisor[supervisor];
@@ -2105,12 +2104,7 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
     montarBotoesMetrica('botoesCoberturaMes', METRICAS_COBERTURA_MES, estadoOcorrenciasMes.metricaCobertura, selecionarMetricaCobertura);
     montarBotoesMetrica('botoesEventosMes', METRICAS_EVENTOS_MES, estadoOcorrenciasMes.metricaEventos, selecionarMetricaEventos);
     renderOcorrenciasMes();
-    const labelsMes = mesesEntreDashboard(Object.keys(porMes));
-    desenharGraficoDashboard('fibraMes', 'chartFibraMes', 'emptyFibraMes', labelsMes.map(rotuloMesDashboard), [
-        { label: 'Aprovados', data: labelsMes.map(m => porMes[m] ? porMes[m].aprovado : 0), backgroundColor: '#10b981', borderRadius: 7, maxBarThickness: 46 },
-        { label: 'Reprovados', data: labelsMes.map(m => porMes[m] ? porMes[m].reprovado : 0), backgroundColor: '#fb7185', borderRadius: 7, maxBarThickness: 46 }
-    ]);
-	}
+}
 
 	    function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
 	    function excluirOcorrencia(id) { if (confirm('Deseja realmente excluir este registro?')) { socket.emit('excluir_ocorrencia', id); } }
