@@ -1628,7 +1628,34 @@ function limparFiltrosDashboard() {
     document.getElementById('dashboardUsina').value = '';
     renderDashboard();
 }
+    const MESES_CURTOS_DASHBOARD = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
+    function chaveMesDashboard(valor) {
+        const data = normalizarDataDashboard(valor);
+        if (!data) return null;
+        return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    function rotuloMesDashboard(chave) {
+        const [ano, mes] = chave.split('-');
+        return `${MESES_CURTOS_DASHBOARD[Number(mes) - 1]}/${ano.slice(2)}`;
+    }
+
+    // Preenche os meses sem teste com zero para a linha do tempo não ficar com buracos
+    function mesesEntreDashboard(chaves) {
+        if (!chaves.length) return [];
+        const ordenadas = [...chaves].sort();
+        const [anoIni, mesIni] = ordenadas[0].split('-').map(Number);
+        const [anoFim, mesFim] = ordenadas[ordenadas.length - 1].split('-').map(Number);
+        const lista = [];
+        let ano = anoIni, mes = mesIni;
+        while (ano < anoFim || (ano === anoFim && mes <= mesFim)) {
+            lista.push(`${ano}-${String(mes).padStart(2, '0')}`);
+            mes += 1;
+            if (mes > 12) { mes = 1; ano += 1; }
+        }
+        return lista;
+    }
 function renderDashboard() {
     popularFiltrosDashboard();
     const filtros = obterFiltrosDashboard();
@@ -1759,6 +1786,20 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
 	        { label: 'Invasão / Intrusão', data: labelsEventosCriminais.map(usina => invasaoPorUsina[usina] || 0), backgroundColor: '#ef4444', borderRadius: 7, maxBarThickness: 46 },
 	        { label: 'Furto / Vandalismo', data: labelsEventosCriminais.map(usina => furtoPorUsina[usina] || 0), backgroundColor: '#334155', borderRadius: 7, maxBarThickness: 46 }
 	    ]);
+	    const porMes = testes.reduce((acc, v) => {
+        const chave = chaveMesDashboard(v.dataVisita);
+        if (!chave) return acc;
+        if (!acc[chave]) acc[chave] = { aprovado: 0, reprovado: 0, total: 0 };
+        if (String(v.resultadoFibra || 'APROVADO').toUpperCase() === 'REPROVADO') acc[chave].reprovado += 1;
+        else acc[chave].aprovado += 1;
+        acc[chave].total += 1;
+        return acc;
+    }, {});
+    const labelsMes = mesesEntreDashboard(Object.keys(porMes));
+    desenharGraficoDashboard('fibraMes', 'chartFibraMes', 'emptyFibraMes', labelsMes.map(rotuloMesDashboard), [
+        { label: 'Aprovados', data: labelsMes.map(m => porMes[m] ? porMes[m].aprovado : 0), backgroundColor: '#10b981', borderRadius: 7, maxBarThickness: 46 },
+        { label: 'Reprovados', data: labelsMes.map(m => porMes[m] ? porMes[m].reprovado : 0), backgroundColor: '#fb7185', borderRadius: 7, maxBarThickness: 46 }
+    ]);
 	}
 
 	    function updateUfv(id, field, value) { socket.emit('atualizar_ufv', { _id: id, [field]: value }); }
