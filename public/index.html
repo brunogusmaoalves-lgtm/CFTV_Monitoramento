@@ -1461,6 +1461,54 @@ const dashboardValueLabels = {
         ctx.restore();
     }
 };
+const rotulosEmpilhadosDashboard = {
+    id: 'rotulosEmpilhadosDashboard',
+    afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        const config = chart.options.rotulosEmpilhados || {};
+        const mostrarAprovado = config.mostrarAprovado !== false;
+        const mostrarReprovado = config.mostrarReprovado !== false;
+        const indiceReprovado = chart.data.datasets.findIndex(ds => String(ds.label) === 'Reprovados');
+
+        ctx.save();
+        ctx.font = '700 8px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.lineWidth = 3;
+
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            if (meta.hidden) return;
+            const ehAprovado = String(dataset.label) === 'Aprovados';
+            if (ehAprovado && !mostrarAprovado) return;
+            if (!ehAprovado && !mostrarReprovado) return;
+
+            meta.data.forEach((bar, index) => {
+                const valor = Number(dataset.data[index]) || 0;
+                if (!valor) return;
+                const altura = Math.abs(bar.base - bar.y);
+
+                if (ehAprovado && altura >= 12) {
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+                    ctx.strokeText(valor, bar.x, bar.y + altura / 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(valor, bar.x, bar.y + altura / 2);
+                    return;
+                }
+
+                const temReprovado = indiceReprovado > -1 &&
+                    (Number(chart.data.datasets[indiceReprovado].data[index]) || 0) > 0;
+                if (ehAprovado && temReprovado) return;
+
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
+                ctx.strokeText(valor, bar.x, bar.y - 5);
+                ctx.fillStyle = ehAprovado ? '#6ee7b7' : '#fca5a5';
+                ctx.fillText(valor, bar.x, bar.y - 5);
+            });
+        });
+        ctx.restore();
+    }
+};
 
 function dashboardEstaVisivel() {
     const aba = document.getElementById('tabDashboard');
@@ -1579,7 +1627,7 @@ function mesclarOpcoesDashboard(base, extra) {
 }
 
 function configuracaoGraficoDashboard(labels, datasets, opcoes = {}) {
-    const { semRotulos = false, ...extras } = opcoes;
+    const { semRotulos = false, rotulosEmpilhados = null, ...extras } = opcoes;
     const base = {
         responsive: true,
         maintainAspectRatio: false,
@@ -1612,11 +1660,13 @@ function configuracaoGraficoDashboard(labels, datasets, opcoes = {}) {
             }
         }
     };
+     const opcoesMescladas = mesclarOpcoesDashboard(base, extras);
+    if (rotulosEmpilhados) opcoesMescladas.rotulosEmpilhados = rotulosEmpilhados;
     return {
         type: 'bar',
         data: { labels, datasets },
-        plugins: semRotulos ? [] : [dashboardValueLabels],
-        options: mesclarOpcoesDashboard(base, extras)
+        plugins: rotulosEmpilhados ? [rotulosEmpilhadosDashboard] : (semRotulos ? [] : [dashboardValueLabels]),
+        options: opcoesMescladas
     };
 }
 
@@ -1804,7 +1854,7 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
 	        { label: 'Invasão / Intrusão', data: labelsEventosCriminais.map(usina => invasaoPorUsina[usina] || 0), backgroundColor: '#ef4444', borderRadius: 7, maxBarThickness: 46 },
 	        { label: 'Furto / Vandalismo', data: labelsEventosCriminais.map(usina => furtoPorUsina[usina] || 0), backgroundColor: '#334155', borderRadius: 7, maxBarThickness: 46 }
 	    ]);
-        // ===== Testes de fibra por mês e supervisor — um painel por supervisor =====
+// ===== Testes de fibra por mês e supervisor — um painel por supervisor =====
     const COR_APROVADO = '#10b981';
     const COR_REPROVADO = '#ef4444';
 
@@ -1849,21 +1899,24 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
     supervisoresSup.forEach((supervisor, indice) => {
         const dadosSup = porMesSupervisor[supervisor];
         const aprovadosSup = mesesSup.reduce((s, mes) => s + (dadosSup[mes]?.aprovado || 0), 0);
-        const totalSup = mesesSup.reduce((s, mes) => s + (dadosSup[mes]?.aprovado || 0) + (dadosSup[mes]?.reprovado || 0), 0);
+        const reprovadosSup = mesesSup.reduce((s, mes) => s + (dadosSup[mes]?.reprovado || 0), 0);
+        const totalSup = aprovadosSup + reprovadosSup;
         const taxa = totalSup ? Math.round((aprovadosSup / totalSup) * 100) : 0;
         const corTaxa = taxa >= 90 ? 'text-emerald-600' : taxa >= 75 ? 'text-amber-500' : 'text-red-500';
 
         const painel = document.createElement('div');
         painel.className = 'rounded-2xl border border-slate-100 p-4';
         painel.innerHTML = `
-            <div class="flex items-baseline justify-between gap-2 mb-2">
+            <div class="flex items-baseline justify-between gap-2 mb-1">
                 <span class="text-[10px] font-black uppercase tracking-widest text-slate-700">${supervisor}</span>
                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${totalSup} testes</span>
             </div>
-            <div class="mb-3">
+            <div class="flex items-center gap-3 mb-2">
                 <span class="text-[9px] font-black uppercase tracking-widest ${corTaxa}">${taxa}% aprovação</span>
+                <span class="text-[9px] font-black uppercase tracking-widest text-emerald-500">&#10003; ${aprovadosSup}</span>
+                <span class="text-[9px] font-black uppercase tracking-widest text-red-500">&#10007; ${reprovadosSup}</span>
             </div>
-            <div style="position:relative;height:180px"><canvas></canvas></div>
+            <div style="position:relative;height:190px"><canvas></canvas></div>
         `;
         gridMesSup.appendChild(painel);
 
@@ -1878,7 +1931,7 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
                     data: mesesSup.map(mes => dadosSup[mes]?.aprovado || 0),
                     backgroundColor: COR_APROVADO,
                     borderRadius: 0,
-                    maxBarThickness: 18
+                    maxBarThickness: 20
                 },
                 {
                     label: 'Reprovados',
@@ -1886,12 +1939,12 @@ document.getElementById('dashboardCamerasOffline').innerHTML =
                     backgroundColor: COR_REPROVADO,
                     borderRadius: { topLeft: 4, topRight: 4 },
                     borderSkipped: false,
-                    maxBarThickness: 18
+                    maxBarThickness: 20
                 }
             ],
             {
-                semRotulos: true,
-                layout: { padding: { top: 6 } },
+                rotulosEmpilhados: { mostrarAprovado: true, mostrarReprovado: true },
+                layout: { padding: { top: 14 } },
                 scales: {
                     x: { stacked: true, ticks: { font: { size: 8 }, maxRotation: 0 } },
                     y: { stacked: true, ticks: { font: { size: 8 } } }
